@@ -9,6 +9,7 @@
         if (['approved', 'issued'].includes(app.status)) currentStatusName = 'Тасдиқшуда / Одобрена';
         if (app.status === 'rejected') currentStatusName = 'Радшуда / Отклонена';
         if (app.status === 'draft') currentStatusName = 'Сиёҳнавис / Черновик';
+        if (app.status === 'incomplete_data') currentStatusName = 'Нопурра / Неполные данные';
         if (app.status === 'postponed') currentStatusName = 'Мавқуф / Отложена';
 
         document.getElementById('summ-created').textContent = createDate;
@@ -60,7 +61,7 @@
     const roleRules = {
         facilitator: {
             label: 'Фасилитатор',
-            ownedStatuses: ['draft', 'fac_revision', 'postponed']
+            ownedStatuses: ['draft', 'fac_revision', 'postponed', 'incomplete_data']
         },
         gmc: {
             label: 'ШИГ / КУГ',
@@ -380,6 +381,11 @@
             bHtml = '<div class="bg-slate-200 text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="clock" class="w-3 h-3 inline"></i> Мавқуф (3 моҳ)</div>';
             badgeHtmlList = bHtml;
             aHtml = '<span class="text-slate-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + id + '\')">Таърих / История</span>';
+        } else if (status === 'incomplete_data') {
+            bClass = 'bg-orange-50 border-orange-300';
+            bHtml = '<div class="bg-orange-100 text-orange-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Нопурра <span class="ru font-normal">/ Неполные</span></div>';
+            badgeHtmlList = bHtml;
+            aHtml = '<span class="text-orange-600 text-[12px] font-bold cursor-pointer" onclick="openDraftFor(\'' + id + '\')">Пурра кардан</span>';
         } else if (status === 'draft') {
             bClass = 'bg-white border-slate-200';
             bHtml = '<div class="bg-slate-100 text-slate-500 px-2 py-1 rounded-md text-[10px] font-medium">Сиёҳнавис</div>';
@@ -431,6 +437,7 @@
 
     function updateAllBadges() {
         const drafts = window.filterApps(['draft']);
+        const incomplete = window.filterApps(['incomplete_data']);
         const facRevs = window.filterApps(['fac_revision']);
         const postponed = window.filterApps(['postponed']);
         const gmcNew = window.filterApps(['gmc_review']);
@@ -452,12 +459,13 @@
                 el.classList.toggle('hidden', count === 0);
             }
         };
-        setB('dash-fac-badge', drafts.length + facRevs.length);
+        setB('dash-fac-badge', drafts.length + incomplete.length + facRevs.length);
         setB('dash-approved-badge', approved.length);
         setB('dash-status-badge', totalApps);
 
         setB('sub-fac-all-badge', totalApps);
         setB('sub-draft-badge', drafts.length);
+        setB('sub-incomplete-badge', incomplete.length);
         setB('sub-rev-badge', facRevs.length);
         setB('sub-fac-sent-badge', inReview.length);
         setB('sub-fac-completed-badge', approved.length + rejected.length);
@@ -643,6 +651,7 @@
         const facLabels = {
             all_fac: 'Ҳама / Все',
             draft: 'Сиёҳнавис / Черновики',
+            incomplete_data: 'Нопурра / Неполные данные',
             fac_revision: 'Дар ҳоли такмил / На доработке',
             sent: 'Дар баррасӣ / На рассмотрении',
             completed: 'Ба анҷом расида / Завершенные',
@@ -763,6 +772,7 @@
             if (window.activeMainFilter === 'facilitator') {
                 if (window.activeFacFilter === 'all_fac') show = true;
                 else if (window.activeFacFilter === 'draft' && status === 'draft') show = true;
+                else if (window.activeFacFilter === 'incomplete_data' && status === 'incomplete_data') show = true;
                 else if (window.activeFacFilter === 'fac_revision' && status === 'fac_revision') show = true;
                 else if (window.activeFacFilter === 'postponed' && status === 'postponed') show = true;
                 else if (window.activeFacFilter === 'sent' && ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review'].includes(status)) show = true;

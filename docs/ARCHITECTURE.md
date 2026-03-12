@@ -24,7 +24,7 @@ graph TB
             SEED_APP[seed-applications.js<br/>seedApplications,<br/>seedProtocols]
             SEED_MON[seed-monitoring.js<br/>seedMonitoring]
             SEED_DATA[seed-data.js<br/>Сборка window.state]
-            STORE[store.js<br/>getApp, filterApps,<br/>getState, setState]
+            STORE[store.js<br/>getApp, filterApps,<br/>getState, setState,<br/>checkBeneficiaryDataComplete]
         end
 
         subgraph "UI Layer"
@@ -32,7 +32,7 @@ graph TB
         end
 
         subgraph "Feature Layer"
-            FAC[facilitator.js<br/>fillFacilitatorForm,<br/>saveToDraft,<br/>submitToGmc]
+            FAC[facilitator.js<br/>fillFacilitatorForm,<br/>saveToDraft,<br/>submitToGmc,<br/>applyCompletenessCheck]
             GMC[gmc.js<br/>loadGmcForm,<br/>saveGmcDecision,<br/>markReadyForRegistry]
             PIU[piu.js<br/>loadPiuForm,<br/>finalizePiu]
             COM[committee.js<br/>openCommitteeBatch,<br/>submitCommitteeBatch,<br/>exportProtocolToExcel]

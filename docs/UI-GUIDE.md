@@ -64,7 +64,7 @@ graph LR
 | data-filter | Показывает | Подфильтры |
 |-------------|-----------|------------|
 | `all` | Все заявки | Нет |
-| `facilitator` | draft, fac_revision, postponed | draft / fac_revision / postponed |
+| `facilitator` | draft, fac_revision, postponed, incomplete_data | draft / incomplete_data / fac_revision / postponed |
 | `gmc` | gmc_review, gmc_revision, gmc_preparation, gmc_ready_for_registry | review / revision / preparation / ready |
 | `piu` | piu_review | Нет (только 1 статус) |
 | `committee` | com_review + протоколы + реестры | incoming / protocols |
@@ -74,7 +74,7 @@ graph LR
 
 #### Фасилитатор (`#facilitator-filters-bar`)
 ```
-[Черновики] [На доработке] [Отложенные]
+[Черновики] [Неполные данные] [На доработке] [Отложенные]
 ```
 
 #### ШИГ/КУГ (`#gmc-filters-bar`)
@@ -176,6 +176,7 @@ flowchart LR
     C[Активный фильтр] --> B
     
     B -->|draft| D["Показать: facilitator, history"]
+    B -->|incomplete_data| D2["Показать: facilitator, history"]
     B -->|gmc_review| E["Показать: facilitator, gmc, history"]
     B -->|piu_review| F["Показать: facilitator, gmc, piu, history"]
     B -->|approved| G["Показать: все + monitoring"]
@@ -218,12 +219,39 @@ flowchart TD
 
     E --> F[Заявка создана → draft]
     D --> F
-    F --> G{Проверка #2<br/>при отправке в ШИГ}
+    F --> F2{checkBeneficiaryDataComplete}
+    F2 -->|Полные| G{Проверка #2<br/>при отправке в ШИГ}
+    F2 -->|Неполные| F3["⚠️ incomplete_data<br/>bg-orange-50<br/>Кнопка «Отправить» disabled"]
     G -->|hardDuplicate| H["🛑 Alert: Создание/отправка<br/>заблокированы"]
     G -->|ok| I["✅ → gmc_review"]
 ```
 
 > Функция `updateQueryDuplicateWarning()` также проверяет дубликаты **в реальном времени при каждом вводе** в поле поиска (до выбора бенефициара).
+
+### Блок неполных данных бенефициара
+
+При открытии заявки во вкладке Фасилитатора вызывается `applyCompletenessCheck(source)`, которая проверяет 9 обязательных полей бенефициара в базе данных.
+
+```
+┌──────────────────────────────────────────┐
+│ ⚠️  Маълумоти бенефициар нопурра аст!   │
+│     Данные бенефициара неполные!         │
+│                                          │
+│  Нопурра / Отсутствует:                  │
+│  ┌────────────┐ ┌──────────┐ ┌────────┐  │
+│  │ ИНН        │ │ Адрес    │ │ Ташкил │  │
+│  └────────────┘ └──────────┘ └────────┘  │
+│                                          │
+│  Стиль: bg-orange-50 border-orange-300   │
+│  Бейджи: bg-orange-200 text-orange-800   │
+└──────────────────────────────────────────┘
+```
+
+**Поведение:**
+- Поля с отсутствующими данными подсвечиваются: `ring-2 ring-red-300 bg-red-50`, текст → `❌ Маълумот нест`
+- Кнопка «Отправить в ШИГ» → `disabled`, `opacity-50`, `pointer-events-none`
+- При сохранении → статус `incomplete_data`, массив `missingFields` записывается в заявку
+- При повторном открытии (`fillFacilitatorForm`) проверка выполняется заново из базы
 
 ---
 
@@ -312,6 +340,7 @@ flowchart TD
 | Статус | Цвет | Tailwind-класс |
 |--------|------|---------------|
 | draft | Серый | `bg-gray-100 text-gray-800` |
+| incomplete_data | Оранжевый | `bg-orange-100 text-orange-800` |
 | fac_revision | Жёлтый | `bg-yellow-100 text-yellow-800` |
 | gmc_review | Синий | `bg-blue-100 text-blue-800` |
 | gmc_revision | Оранжевый | `bg-orange-100 text-orange-800` |

@@ -191,6 +191,11 @@
                     class="filter-text"><span>Сиёҳнавис</span><span class="ru-block">Черновики</span></span><span
                     id="sub-draft-badge"
                     class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
+            <button data-fac-filter="incomplete_data"
+                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                    class="filter-text"><span>Нопурра</span><span class="ru-block">Неполные</span></span><span
+                    id="sub-incomplete-badge"
+                    class="bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="fac_revision"
                 class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Дар ҳоли такмил</span><span class="ru-block">На
@@ -582,14 +587,16 @@
                 </div>
 
                 <div id="facilitator-incomplete-warning"
-                    class="hidden mb-5 bg-red-50 border border-red-300 rounded-xl p-4 shadow-sm">
+                    class="hidden mb-5 bg-orange-50 border border-orange-300 rounded-xl p-4 shadow-sm">
                     <div class="flex items-start gap-3">
-                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-600 mt-0.5"></i>
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-orange-600 mt-0.5"></i>
                         <div class="w-full">
-                            <h3 class="text-[14px] font-bold text-red-900 leading-tight">Маълумоти нопурра <span
-                                    class="ru-block text-red-700 mt-0.5">Неполные данные</span></h3>
-                            <p class="text-[12px] text-red-800 mt-1 leading-tight">Лутфан маълумоти бенефитсиарро пурра
-                                кунед. Пеш аз он, шумо метавонед дархостро танҳо ҳамчун сиёҳнавис захира кунед.</p>
+                            <h3 class="text-[14px] font-bold text-orange-900 leading-tight">Маълумоти нопурра <span
+                                    class="ru-block text-orange-700 mt-0.5">Неполные данные</span></h3>
+                            <p class="text-[12px] text-orange-800 mt-1 leading-tight">Баъзе маълумот дар базаи асосӣ мавҷуд нест. Дархостро метавонед захира кунед,
+                                вале ба ШИГ фиристодан имконпазир аст.
+                                <span class="ru-block mt-0.5">Некоторые данные отсутствуют в основной базе. Можно сохранить, но нельзя отправить в ШИГ.</span></p>
+                            <div id="incomplete-fields-list" class="mt-2 text-[11px] text-orange-700"></div>
                         </div>
                     </div>
                 </div>

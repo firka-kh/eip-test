@@ -65,6 +65,7 @@ interface Application {
   // === Доработка ===
   revisionCount?: number;        // Счетчик доработок (0-3)
   reactivated?: boolean;         // Реактивирована после 3 мес. паузы
+  missingFields?: string[];      // Недостающие поля бенефициара (при status = incomplete_data)
 
   // === Протокол Комитета ===
   protocolId?: string;           // ID протокола ("СП-9001")
@@ -85,6 +86,7 @@ interface Application {
 ```typescript
 type ApplicationStatus =
   | 'draft'                    // Черновик
+  | 'incomplete_data'           // Неполные данные бенефициара
   | 'gmc_review'              // На рассмотрении в ШИГ
   | 'fac_revision'            // На доработке у Фасилитатора
   | 'postponed'               // Отложена (3 мес.)
@@ -96,6 +98,22 @@ type ApplicationStatus =
   | 'approved'                // Одобрена
   | 'rejected';               // Отклонена
 ```
+
+### CompletenessResult (Результат проверки полноты данных)
+
+Возвращается функцией `checkBeneficiaryDataComplete(sourceRecord)`:
+
+```typescript
+interface CompletenessResult {
+  isComplete: boolean;       // true — все обязательные поля заполнены
+  missingFields: string[];   // Список незаполненных полей (ключи)
+}
+```
+
+**9 обязательных полей бенефициара:**
+`full-name`, `birth-date`, `gender`, `contacts`, `address`, `inn`, `category`, `education`, `course`
+
+Поле считается пустым, если значение: `undefined`, `null`, `""` или `"—"`.
 
 ---
 

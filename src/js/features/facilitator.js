@@ -124,7 +124,77 @@
         document.getElementById('display-education').textContent = source.education || '—';
         document.getElementById('course').value = '';
         document.getElementById('display-course').textContent = source.course || '—';
+
+        // Check data completeness and highlight missing fields
+        applyCompletenessCheck(source);
     }
+
+    function applyCompletenessCheck(source) {
+        var result = window.checkBeneficiaryDataComplete(source);
+        var warningEl = document.getElementById('facilitator-incomplete-warning');
+        var fieldsListEl = document.getElementById('incomplete-fields-list');
+        var submitBtn = document.getElementById('btn-submit-facilitator');
+        var fields = window.requiredBeneficiaryFields || [];
+
+        // Reset all field highlights
+        fields.forEach(function (f) {
+            var el = document.querySelector(f.display);
+            if (el) {
+                el.classList.remove('text-red-600', 'font-bold');
+                el.closest('.flex, div');
+                var parent = el.parentElement;
+                if (parent) parent.classList.remove('bg-red-50', 'rounded-lg', 'ring-2', 'ring-red-300', 'p-1.5');
+            }
+        });
+
+        if (!result.isComplete) {
+            // Show warning
+            if (warningEl) warningEl.classList.remove('hidden');
+
+            // Build missing fields list
+            if (fieldsListEl) {
+                var listHtml = '<span class="font-bold">Нопурраҳо / Отсутствуют:</span> ';
+                result.missingFields.forEach(function (key) {
+                    var fieldDef = fields.find(function (f) { return f.key === key; });
+                    if (fieldDef) listHtml += '<span class="inline-block bg-orange-200 text-orange-900 px-1.5 py-0.5 rounded mr-1 mb-1">' + fieldDef.label + '</span>';
+                });
+                fieldsListEl.innerHTML = listHtml;
+            }
+
+            // Highlight missing display fields red
+            result.missingFields.forEach(function (key) {
+                var fieldDef = fields.find(function (f) { return f.key === key; });
+                if (!fieldDef) return;
+                var el = document.querySelector(fieldDef.display);
+                if (el) {
+                    el.textContent = '❌ Маълумот нест';
+                    el.classList.add('text-red-600', 'font-bold');
+                    var parent = el.parentElement;
+                    if (parent) parent.classList.add('bg-red-50', 'rounded-lg', 'ring-2', 'ring-red-300', 'p-1.5');
+                }
+            });
+
+            // Disable submit button
+            if (submitBtn) {
+                submitBtn.classList.add('opacity-40', 'pointer-events-none');
+                submitBtn.setAttribute('disabled', 'true');
+            }
+        } else {
+            // Hide warning
+            if (warningEl) warningEl.classList.add('hidden');
+            if (fieldsListEl) fieldsListEl.innerHTML = '';
+
+            // Enable submit button
+            if (submitBtn) {
+                submitBtn.classList.remove('opacity-40', 'pointer-events-none');
+                submitBtn.removeAttribute('disabled');
+            }
+        }
+
+        return result;
+    }
+
+    window.applyCompletenessCheck = applyCompletenessCheck;
 
     function saveToDraft() {
         const appId = document.getElementById('id-input').value;
@@ -148,8 +218,22 @@
         app.sector = sectorText || 'Номаълум';
         app.amount = sanitize(amount || '0');
         app.date = timestamp;
-        app.status = 'draft';
-        window.addLog(app, 'Фасилитатор', 'Сиёҳнавис захира шуд', 'Сохранен черновик', 'slate', 'edit-3');
+
+        // Check if beneficiary data is complete
+        var db = getSearchDatabase();
+        var fallbackDb = window.mockDatabase || {};
+        var source = db[beneficiaryId] || fallbackDb[beneficiaryId] || {};
+        var completeness = window.checkBeneficiaryDataComplete(source);
+
+        if (!completeness.isComplete) {
+            app.status = 'incomplete_data';
+            app.missingFields = completeness.missingFields;
+            window.addLog(app, 'Фасилитатор', 'Дархост бо маълумоти нопурра захира шуд', 'Сохранено с неполными данными', 'amber', 'alert-triangle');
+        } else {
+            app.status = 'draft';
+            delete app.missingFields;
+            window.addLog(app, 'Фасилитатор', 'Сиёҳнавис захира шуд', 'Сохранен черновик', 'slate', 'edit-3');
+        }
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
         document.getElementById('toggleFormBtn').click();
@@ -159,6 +243,17 @@
         const appId = document.getElementById('id-input').value;
         if (!appId) return;
         const beneficiaryId = document.getElementById('beneficiary-id-input').value;
+
+        // Double-check data completeness
+        var db = getSearchDatabase();
+        var fallbackDb = window.mockDatabase || {};
+        var source = db[beneficiaryId] || fallbackDb[beneficiaryId] || {};
+        var completeness = window.checkBeneficiaryDataComplete(source);
+        if (!completeness.isComplete) {
+            alert('Маълумоти бенефитсиар нопурра аст. Фиристодан имконпазир / Данные неполные. Отправка невозможна.');
+            return;
+        }
+
         const hardDuplicate = hasHardDuplicateForBeneficiary({
             id: beneficiaryId,
             name: document.getElementById('full-name').value,
