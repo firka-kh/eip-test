@@ -372,7 +372,9 @@
             const q = query || '';
             const esc = window.sanitizeText || function (v) { return String(v == null ? '' : v); };
             searchDropdownList.innerHTML = '';
-            Object.entries(getSearchDatabase()).forEach(function (entry) {
+            var entries = Object.entries(getSearchDatabase());
+            var itemsData = [];
+            entries.forEach(function (entry) {
                 const id = entry[0];
                 const user = entry[1];
                 const nq = q.toLowerCase();
@@ -380,9 +382,20 @@
                 const inn = String(user.inn || '').toLowerCase();
                 const contacts = String(user.contacts || '').toLowerCase();
                 if (q && !name.includes(nq) && !id.toLowerCase().includes(nq) && !inn.includes(nq) && !contacts.includes(nq)) return;
+                var completeness = window.checkBeneficiaryDataComplete ? window.checkBeneficiaryDataComplete(user) : { isComplete: true, missingFields: [] };
+                itemsData.push({ id: id, user: user, completeness: completeness });
+            });
+            itemsData.sort(function (a, b) {
+                if (!a.completeness.isComplete && b.completeness.isComplete) return -1;
+                if (a.completeness.isComplete && !b.completeness.isComplete) return 1;
+                return 0;
+            });
+            itemsData.forEach(function (data) {
+                const id = data.id;
+                const user = data.user;
+                const completeness = data.completeness;
                 const initials = user['full-name'].substring(0, 2).toUpperCase();
                 const badgeColor = user.certStatus === 'certified' ? 'bg-emerald-100 text-emerald-600' : (user.certStatus === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600');
-                var completeness = window.checkBeneficiaryDataComplete ? window.checkBeneficiaryDataComplete(user) : { isComplete: true, missingFields: [] };
                 var incompleteHtml = '';
                 if (!completeness.isComplete) {
                     incompleteHtml = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-medium ml-1" title="' + esc(completeness.missingFields.join(', ')) + '">⚠ нопурра</span>';
