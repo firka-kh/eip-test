@@ -859,9 +859,10 @@
         }
 
         const startInitialRender = function () {
+            // First paint cards/rows so filters can immediately work on existing DOM.
+            renderAllCards();
             const defaultMainBtn = document.querySelector('.filter-btn[data-filter="' + window.activeMainFilter + '"]');
             if (defaultMainBtn) defaultMainBtn.click();
-            else renderAllCards();
         };
 
         if (document.readyState === 'loading') {
