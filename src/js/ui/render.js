@@ -100,6 +100,8 @@
 
         if (window.activeMainFilter === 'approved_registry') {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+        } else if (window.activeMainFilter === 'committee') {
+            getPendingCommitteeRegistries().forEach(function (reg) { appendCommitteeRegistryCard(reg); });
         } else {
             window.state.applications.forEach(function (app) { appendCardAndRow(app.id, app.status, app); });
         }
@@ -108,6 +110,77 @@
         updateDashboardFilter();
         updateApprovedInsights();
         if (window.lucide) window.lucide.createIcons();
+    }
+
+    function getPendingCommitteeRegistries() {
+        const stateLists = Array.isArray((window.state || {}).registryLists) ? window.state.registryLists : [];
+        const pending = stateLists.filter(function (r) { return r && r.status !== 'processed'; });
+        if (pending.length > 0) return pending;
+
+        const comApps = window.filterApps(['com_review']);
+        if (comApps.length === 0) return [];
+
+        const totalAmount = comApps.reduce(function (sum, app) {
+            return sum + parseInt(String(app.amount || '').replace(/\D/g, '') || 0, 10);
+        }, 0);
+
+        return [{
+            id: 'РЕЕСТР-GMS-ВХОДЯЩИЙ',
+            source: 'gms',
+            status: 'pending',
+            date: '-',
+            exactTime: '-',
+            apps: comApps.map(function (app) { return app.id; }),
+            totalAmount: totalAmount,
+            virtual: true
+        }];
+    }
+
+    function appendCommitteeRegistryCard(reg) {
+        const appIds = Array.isArray(reg.apps) ? reg.apps : [];
+        const apps = appIds.map(function (id) { return window.getApp(id); }).filter(function (app) {
+            return app && app.status === 'com_review';
+        });
+        const appCount = apps.length;
+        const totalAmount = apps.reduce(function (sum, app) {
+            return sum + parseInt(String(app.amount || '').replace(/\D/g, '') || 0, 10);
+        }, 0).toLocaleString('ru-RU');
+
+        const sectors = [];
+        const searchParts = [String(reg.id || ''), String(reg.date || ''), String(reg.exactTime || ''), 'gms'];
+        apps.forEach(function (app) {
+            const cleanSector = String(app.sector || '').replace(/<[^>]*>?/gm, '').toLowerCase();
+            if (cleanSector && sectors.indexOf(cleanSector) === -1) sectors.push(cleanSector);
+            searchParts.push(String(app.id || ''));
+            searchParts.push(String(app.name || ''));
+            searchParts.push(String(app.sector || ''));
+        });
+
+        const listDate = String(reg.date || '-') + ((reg.exactTime && reg.exactTime !== '-') ? (' (' + reg.exactTime + ')') : '');
+
+        const card = document.createElement('div');
+        card.setAttribute('data-status', 'committee_registry');
+        card.setAttribute('data-list-id', String(reg.id || ''));
+        card.setAttribute('data-sector-values', sectors.join('|'));
+        card.setAttribute('data-search', String(searchParts.join(' ')).toLowerCase());
+        card.className = 'bg-teal-50 border border-teal-200 rounded-2xl p-5 shadow-sm transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-teal-400 relative overflow-hidden';
+        card.innerHTML = '<div class="absolute top-0 left-0 w-full h-1.5 bg-teal-500"></div><div class="flex justify-between items-start mb-2 mt-1"><h3 class="font-bold text-[15px] text-teal-900 leading-tight">Рӯйхати воридшуда <br/><span class="text-[13px] text-teal-700">' + reg.id + '</span></h3><div class="bg-teal-100 text-teal-800 px-2 py-1 rounded-md text-[10px] font-bold border border-teal-200"><i data-lucide="inbox" class="w-3 h-3 inline"></i> Аз GMS</div></div><div class="text-[11px] text-teal-600 font-medium mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ворид шуд: ' + listDate + '</div><div class="grid grid-cols-2 gap-2 mb-4 bg-white/60 p-3 rounded-xl border border-teal-100"><div class="text-[11px] text-slate-600">Дар рӯйхат: <strong class="text-slate-700 text-[13px] block">' + appCount + '</strong></div><div class="text-[11px] text-slate-600">Маблағ: <strong class="text-teal-700 text-[13px] block">' + totalAmount + ' сом.</strong></div></div><div class="flex justify-end items-center mt-auto border-t border-teal-200/60 pt-4"><button onclick="openCommitteeBatch(\'' + reg.id + '\')" class="bg-white text-teal-700 border border-teal-300 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-teal-100 transition-colors shadow-sm">Интихоби рӯйхат <span class="ru font-normal">/ Выбрать список</span></button></div>';
+        card.onclick = function (e) {
+            if (!e.target.closest('button')) window.openCommitteeBatch(reg.id);
+        };
+        document.getElementById('mainDashboardGrid').appendChild(card);
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-status', 'committee_registry');
+        row.setAttribute('data-list-id', String(reg.id || ''));
+        row.setAttribute('data-sector-values', sectors.join('|'));
+        row.setAttribute('data-search', String(searchParts.join(' ')).toLowerCase());
+        row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in bg-teal-50/30';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 border-teal-500 align-middle"><div class="font-bold text-teal-900 text-[13px] mb-0.5">' + reg.id + '</div><div class="text-[11px] text-teal-600 font-medium flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ' + listDate + '</div></td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium">Воридшуда аз GMS / КУГ</td><td class="py-4 px-5 align-middle"><div class="font-black text-teal-700 text-[13px]">' + totalAmount + ' сомонӣ</div></td><td class="py-4 px-5 align-middle"><div class="bg-teal-100 text-teal-800 px-2 py-1 rounded-md text-[10px] font-bold w-max border border-teal-200"><i data-lucide="inbox" class="w-3 h-3 inline"></i> Дар баррасии Кумита</div></td><td class="py-4 px-5 align-middle text-right"><button onclick="openCommitteeBatch(\'' + reg.id + '\')" class="text-teal-600 text-[12px] font-bold hover:underline">Интихоб / Выбрать</button></td>';
+        row.onclick = function (e) {
+            if (!e.target.closest('button')) window.openCommitteeBatch(reg.id);
+        };
+        document.getElementById('list-tbody').appendChild(row);
     }
 
     function getVisibleReadyRegistryIds() {
@@ -361,18 +434,29 @@
 
         const batchBar = document.getElementById('committee-batch-bar');
         if (window.activeMainFilter === 'committee') {
+            const pendingRegs = getPendingCommitteeRegistries();
+            const pendingIds = [];
+            pendingRegs.forEach(function (reg) {
+                (reg.apps || []).forEach(function (id) {
+                    const app = window.getApp(id);
+                    if (app && app.status === 'com_review') pendingIds.push(id);
+                });
+            });
+            const uniquePendingIds = Array.from(new Set(pendingIds));
+            const pendingApps = uniquePendingIds.map(function (id) { return window.getApp(id); }).filter(Boolean);
+
             batchBar.classList.remove('hidden');
             batchBar.classList.add('flex');
-            document.getElementById('batch-count').textContent = coms.length;
-            document.getElementById('batch-total').textContent = coms.reduce(function (sum, a) { return sum + parseInt(a.amount.replace(/\D/g, '') || 0, 10); }, 0).toLocaleString('ru-RU');
-            if (coms.length === 0) batchBar.classList.add('opacity-50', 'pointer-events-none');
+            document.getElementById('batch-count').textContent = pendingApps.length;
+            document.getElementById('batch-total').textContent = pendingApps.reduce(function (sum, a) { return sum + parseInt(String(a.amount || '').replace(/\D/g, '') || 0, 10); }, 0).toLocaleString('ru-RU');
+            if (pendingApps.length === 0) batchBar.classList.add('opacity-50', 'pointer-events-none');
             else batchBar.classList.remove('opacity-50', 'pointer-events-none');
         } else {
             batchBar.classList.add('hidden');
             batchBar.classList.remove('flex');
         }
 
-        setB('sub-com-prot-badge', (window.state.protocols || []).length);
+        setB('sub-com-prot-badge', getPendingCommitteeRegistries().length);
     }
 
     function updateApprovedInsights() {
@@ -456,13 +540,31 @@
 
     function updateDashboardFilter() {
         if (window.activeMainFilter === 'committee') {
-            document.querySelectorAll('#mainDashboardGrid > div, #list-tbody > tr').forEach(function (el) {
-                el.style.display = 'none';
+            const searchInput = document.getElementById('filter-search-issued');
+            const searchFilter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            let visibleCount = 0;
+            document.querySelectorAll('#mainDashboardGrid > div[data-status="committee_registry"], #list-tbody > tr[data-status="committee_registry"]').forEach(function (el) {
+                const searchHaystack = String(el.getAttribute('data-search') || '');
+                const show = !searchFilter || searchHaystack.includes(searchFilter);
+                if (show) {
+                    if (el.tagName === 'TR') el.style.display = 'table-row';
+                    else el.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    el.style.display = 'none';
+                }
             });
+
             const esCommittee = document.getElementById('empty-state');
             if (esCommittee) {
-                esCommittee.classList.add('hidden');
-                esCommittee.classList.remove('flex');
+                if (visibleCount === 0) {
+                    esCommittee.classList.remove('hidden');
+                    esCommittee.classList.add('flex');
+                } else {
+                    esCommittee.classList.add('hidden');
+                    esCommittee.classList.remove('flex');
+                }
             }
             return;
         }

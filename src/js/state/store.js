@@ -3,8 +3,9 @@
 
     function getState() {
         if (!window.state) {
-            window.state = { applications: [], protocols: [], monitoring: {} };
+            window.state = { applications: [], protocols: [], registryLists: [], monitoring: {} };
         }
+        if (!Array.isArray(window.state.registryLists)) window.state.registryLists = [];
         return window.state;
     }
 

@@ -40,7 +40,16 @@
     }
 
     function openCommitteeBatch(protocolId) {
-        const targetProtocolId = protocolId || null;
+        let targetProtocolId = protocolId || null;
+        if (!targetProtocolId) {
+            const pending = (window.state.registryLists || []).filter(function (r) { return r && r.status !== 'processed'; });
+            if (pending.length === 1) {
+                targetProtocolId = pending[0].id;
+            } else if (pending.length > 1) {
+                alert('Аввал рӯйхати лозимро аз блоки Комитет интихоб кунед / Сначала выберите нужный список в блоке Комитета');
+                return;
+            }
+        }
         window.setAvailableTabs(['pane-committee-batch', 'pane-approved']);
         document.getElementById('applicationModal').classList.remove('hidden');
 
@@ -55,30 +64,63 @@
         const btnExport = document.getElementById('btn-export-protocol');
         tbody.innerHTML = '';
 
+        window.currentCommitteeRegistryId = null;
+
         if (targetProtocolId) {
-            document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита № ' + targetProtocolId + ' <span class="ru">/ Список Комитета</span>';
-
             const prot = (window.state.protocols || []).find(function (p) { return p.id === targetProtocolId; });
-            if (!prot) return;
-            document.getElementById('batch-protocol-number').value = prot.id;
-            document.getElementById('batch-protocol-date').value = prot.date.split('.').reverse().join('-');
-            document.getElementById('batch-protocol-date').disabled = true;
-            document.getElementById('submit-batch-btn').classList.add('hidden');
+            if (prot) {
+                document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита № ' + targetProtocolId + ' <span class="ru">/ Список Комитета</span>';
+                document.getElementById('batch-protocol-number').value = prot.id;
+                document.getElementById('batch-protocol-date').value = prot.date.split('.').reverse().join('-');
+                document.getElementById('batch-protocol-date').disabled = true;
+                document.getElementById('submit-batch-btn').classList.add('hidden');
 
-            window.currentViewedProtocolId = targetProtocolId;
-            btnExport.classList.remove('hidden');
-            btnExport.classList.add('flex');
+                window.currentViewedProtocolId = targetProtocolId;
+                btnExport.classList.remove('hidden');
+                btnExport.classList.add('flex');
 
-            prot.apps.forEach(function (a) {
-                const app = window.getApp(a.id);
-                if (app) {
-                    const isOk = a.decision === 'ok';
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50 transition-colors opacity-70';
-                    tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle text-center font-bold text-[12px] ' + (isOk ? 'text-emerald-600' : 'text-red-600') + '">' + (isOk ? '✅ Тасдиқ / Одобрено' : '❌ Рад шуд / Отклонено') + '</td><td class="py-3 px-4 border-b border-gray-100 align-middle">' + getBusinessPlanButtonHtml(app.id) + '</td>';
-                    tbody.appendChild(tr);
+                prot.apps.forEach(function (a) {
+                    const app = window.getApp(a.id);
+                    if (app) {
+                        const isOk = a.decision === 'ok';
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-50 transition-colors opacity-70';
+                        tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle text-center font-bold text-[12px] ' + (isOk ? 'text-emerald-600' : 'text-red-600') + '">' + (isOk ? '✅ Тасдиқ / Одобрено' : '❌ Рад шуд / Отклонено') + '</td><td class="py-3 px-4 border-b border-gray-100 align-middle">' + getBusinessPlanButtonHtml(app.id) + '</td>';
+                        tbody.appendChild(tr);
+                    }
+                });
+            } else {
+                const incoming = (window.state.registryLists || []).find(function (r) { return r.id === targetProtocolId; });
+                if (!incoming) return;
+
+                document.getElementById('modal-main-title').innerHTML = 'Рӯйхати воридшуда ' + incoming.id + ' <span class="ru">/ Входящий список</span>';
+                document.getElementById('batch-protocol-date').disabled = false;
+                document.getElementById('submit-batch-btn').classList.remove('hidden');
+
+                window.currentViewedProtocolId = null;
+                window.currentCommitteeRegistryId = incoming.id;
+                btnExport.classList.add('hidden');
+                btnExport.classList.remove('flex');
+
+                const autoNum = 'ПР-' + Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('batch-protocol-number').value = autoNum;
+                document.getElementById('batch-protocol-date').value = new Date().toISOString().split('T')[0];
+
+                const comApps = (incoming.apps || []).map(function (id) { return window.getApp(id); }).filter(function (app) {
+                    return app && app.status === 'com_review';
+                });
+                if (comApps.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-500">Рӯйхат холӣ аст / Список пуст</td></tr>';
+                    return;
                 }
-            });
+
+                comApps.forEach(function (app) {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><select class="batch-decision border border-gray-300 rounded px-2 py-1.5 outline-none w-full text-[12px]" data-id="' + app.id + '"><option value="ok" selected>✅ Тасдиқ / Одобрить</option><option value="rej">❌ Рад кардан / Отклонить</option></select></td><td class="py-3 px-4 border-b border-gray-100 align-middle">' + getBusinessPlanButtonHtml(app.id) + '</td>';
+                    tbody.appendChild(tr);
+                });
+            }
         } else {
             document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита <span class="ru">/ Список Комитета</span>';
             document.getElementById('batch-protocol-date').disabled = false;
@@ -114,7 +156,15 @@
     }
 
     function submitCommitteeBatch() {
-        const comApps = window.filterApps(['com_review']);
+        let comApps = window.filterApps(['com_review']);
+        if (window.currentCommitteeRegistryId) {
+            const incoming = (window.state.registryLists || []).find(function (r) { return r.id === window.currentCommitteeRegistryId; });
+            if (incoming) {
+                comApps = (incoming.apps || []).map(function (id) { return window.getApp(id); }).filter(function (app) {
+                    return app && app.status === 'com_review';
+                });
+            }
+        }
         if (comApps.length === 0) {
             alert('Рӯйхат холӣ аст / Список пуст');
             return;
@@ -162,6 +212,16 @@
 
         window.state.protocols = window.state.protocols || [];
         window.state.protocols.push(newProtocol);
+
+        if (window.currentCommitteeRegistryId) {
+            const incoming = (window.state.registryLists || []).find(function (r) { return r.id === window.currentCommitteeRegistryId; });
+            if (incoming) {
+                incoming.status = 'processed';
+                incoming.protocolId = protocolNum;
+                incoming.processedAt = window.getCurrentDateTime();
+            }
+        }
+        window.currentCommitteeRegistryId = null;
 
         alert('Рӯйхат бомуваффақият тасдиқ шуд!\nСписок успешно утвержден!\n\nОдобрено: ' + newProtocol.okCount + '\nОтклонено: ' + newProtocol.rejCount);
         document.getElementById('applicationModal').classList.add('hidden');

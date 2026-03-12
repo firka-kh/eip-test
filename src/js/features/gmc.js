@@ -314,13 +314,34 @@
     function confirmAndSendRegistry() {
         if (!window.selectedForRegistry || window.selectedForRegistry.size === 0) return;
 
-        window.selectedForRegistry.forEach(function (id) {
+        window.state.registryLists = window.state.registryLists || [];
+        const sentIds = Array.from(window.selectedForRegistry);
+        const seq = window.state.registryLists.length + 1;
+        const registryId = 'РЕЕСТР-GMS-' + String(1000 + seq);
+        const now = new Date();
+        const dateText = now.toLocaleDateString('ru-RU');
+        const timeText = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        let totalAmount = 0;
+
+        sentIds.forEach(function (id) {
             const app = window.getApp(id);
             if (app) {
                 app.status = 'com_review';
+                app.registryListId = registryId;
                 app.date = window.getCurrentDateTime();
-                window.addLog(app, 'ШИГ / КУГ', 'Ба Комитет дар ҳайати реестр фиристода шуд', 'Отправлено в Комитет в составе реестра', 'blue', 'arrow-right');
+                window.addLog(app, 'ШИГ / КУГ', 'Ба Комитет дар ҳайати реестр ' + registryId + ' фиристода шуд', 'Отправлено в Комитет в составе реестра ' + registryId, 'blue', 'arrow-right');
+                totalAmount += parseInt(String(app.amount || '').replace(/\D/g, '') || 0, 10);
             }
+        });
+
+        window.state.registryLists.push({
+            id: registryId,
+            source: 'gms',
+            status: 'pending',
+            date: dateText,
+            exactTime: timeText,
+            apps: sentIds,
+            totalAmount: totalAmount
         });
 
         alert('Реестр бомуваффақият ба Кумита фиристода шуд!\nРеестр успешно отправлен в Комитет!');
@@ -330,7 +351,10 @@
         document.getElementById('btn-create-registry').classList.add('opacity-50', 'pointer-events-none');
 
         document.getElementById('applicationModal').classList.add('hidden');
-        window.renderAllCards();
+        if (typeof window.renderAllCards === 'function') window.renderAllCards();
+
+        const committeeMainBtn = document.querySelector('.filter-btn[data-filter="committee"]');
+        if (committeeMainBtn) committeeMainBtn.click();
     }
 
     document.addEventListener('change', function (e) {
