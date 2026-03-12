@@ -5,6 +5,40 @@
     window.currentComAppId = null;
     window.currentComChoice = null;
 
+    function getBusinessPlanButtonHtml(appId) {
+        return '<button type="button" onclick="downloadCommitteeBusinessPlan(\'' + appId + '\')" class="bg-white border border-indigo-200 text-indigo-700 py-1.5 px-3 rounded-lg text-[11px] font-bold hover:bg-indigo-50 transition-colors inline-flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i><span>Бизнес-план</span></button>';
+    }
+
+    function downloadCommitteeBusinessPlan(appId) {
+        const app = window.getApp(appId);
+        if (!app) {
+            alert('Заявка не найдена / Дархост ёфт нашуд');
+            return;
+        }
+
+        const cleanSector = String(app.sector || '').replace(/<[^>]*>?/gm, '').trim();
+        const content = [
+            'БИЗНЕС-ПЛАН',
+            'ID: ' + app.id,
+            'Заявитель: ' + app.name,
+            'Сектор: ' + cleanSector,
+            'Сумма: ' + app.amount + ' сом.',
+            'Дата: ' + (app.date || ''),
+            '',
+            'Документ сформирован из системы.'
+        ].join('\n');
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'Бизнес_план_' + app.id + '.txt');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
     function openCommitteeBatch(protocolId) {
         const targetProtocolId = protocolId || null;
         window.setAvailableTabs(['pane-committee-batch', 'pane-approved']);
@@ -41,7 +75,7 @@
                     const isOk = a.decision === 'ok';
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 transition-colors opacity-70';
-                    tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle text-center font-bold text-[12px] ' + (isOk ? 'text-emerald-600' : 'text-red-600') + '">' + (isOk ? '✅ Тасдиқ / Одобрено' : '❌ Рад шуд / Отклонено') + '</td><td class="py-3 px-4 border-b border-gray-100 align-middle text-[11px] text-gray-500">' + (a.comment || '—') + '</td>';
+                    tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle text-center font-bold text-[12px] ' + (isOk ? 'text-emerald-600' : 'text-red-600') + '">' + (isOk ? '✅ Тасдиқ / Одобрено' : '❌ Рад шуд / Отклонено') + '</td><td class="py-3 px-4 border-b border-gray-100 align-middle">' + getBusinessPlanButtonHtml(app.id) + '</td>';
                     tbody.appendChild(tr);
                 }
             });
@@ -67,18 +101,16 @@
             comApps.forEach(function (app) {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition-colors';
-                tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><select class="batch-decision border border-gray-300 rounded px-2 py-1.5 outline-none w-full text-[12px]" data-id="' + app.id + '" onchange="toggleBatchComment(\'' + app.id + '\')"><option value="ok" selected>✅ Тасдиқ / Одобрить</option><option value="rej">❌ Рад кардан / Отклонить</option></select></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><input type="text" placeholder="Сабаб / Причина..." class="batch-comment hidden w-full border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-red-400 text-[12px]" data-id="' + app.id + '"></td>';
+                tr.innerHTML = '<td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="font-bold text-gray-800 text-[13px]">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><div class="text-[12px] text-gray-600">' + app.sector + '</div><div class="font-black text-primary text-[12px] mt-0.5">' + app.amount + ' сом.</div></td><td class="py-3 px-4 border-b border-gray-100 align-middle"><select class="batch-decision border border-gray-300 rounded px-2 py-1.5 outline-none w-full text-[12px]" data-id="' + app.id + '"><option value="ok" selected>✅ Тасдиқ / Одобрить</option><option value="rej">❌ Рад кардан / Отклонить</option></select></td><td class="py-3 px-4 border-b border-gray-100 align-middle">' + getBusinessPlanButtonHtml(app.id) + '</td>';
                 tbody.appendChild(tr);
             });
         }
+
+        if (window.lucide) window.lucide.createIcons();
     }
 
     function toggleBatchComment(appId) {
-        const select = document.querySelector('.batch-decision[data-id="' + appId + '"]');
-        const input = document.querySelector('.batch-comment[data-id="' + appId + '"]');
-        if (!select || !input) return;
-        if (select.value === 'ok') input.classList.add('hidden');
-        else input.classList.remove('hidden');
+        return appId;
     }
 
     function submitCommitteeBatch() {
@@ -105,9 +137,11 @@
 
         comApps.forEach(function (app) {
             const decisionEl = document.querySelector('.batch-decision[data-id="' + app.id + '"]');
-            const commentEl = document.querySelector('.batch-comment[data-id="' + app.id + '"]');
             const decision = decisionEl ? decisionEl.value : 'ok';
-            const comment = commentEl ? (commentEl.value || '') : '';
+            let comment = '';
+            if (decision === 'rej') {
+                comment = window.prompt('Сабаби рад карданро ворид кунед / Укажите причину отклонения', '') || '';
+            }
 
             app.date = window.getCurrentDateTime();
             app.protocolId = protocolNum;
@@ -147,7 +181,7 @@
         }
 
         let csvContent = '\uFEFF';
-        csvContent += 'ID;Аризадиҳанда (Заявитель);Бахш (Сектор);Маблағ (Сумма);Қарор (Решение);Эзоҳ (Комментарий)\n';
+        csvContent += 'ID;Аризадиҳанда (Заявитель);Бахш (Сектор);Маблағ (Сумма);Қарор (Решение);Бизнес-план\n';
 
         prot.apps.forEach(function (a) {
             const app = window.getApp(a.id);
@@ -156,8 +190,8 @@
                 const cleanAmount = app.amount.replace(/\s+/g, '');
                 const decisionText = a.decision === 'ok' ? 'Тасдиқ / Одобрено' : 'Рад шуд / Отклонено';
                 const toCsv = window.sanitizeCsvField || function (v) { return String(v == null ? '' : v).replace(/"/g, '""'); };
-                const comment = toCsv(a.comment || '');
-                csvContent += toCsv(app.id) + ';"' + toCsv(app.name) + '";"' + toCsv(cleanSector) + '";' + toCsv(cleanAmount) + ';"' + toCsv(decisionText) + '";"' + comment + '"\n';
+                const businessPlanFile = toCsv('Бизнес_план_' + app.id + '.txt');
+                csvContent += toCsv(app.id) + ';"' + toCsv(app.name) + '";"' + toCsv(cleanSector) + '";' + toCsv(cleanAmount) + ';"' + toCsv(decisionText) + '";"' + businessPlanFile + '"\n';
             }
         });
 
@@ -240,6 +274,7 @@
         ready: true,
         openCommitteeBatch,
         toggleBatchComment,
+        downloadCommitteeBusinessPlan,
         submitCommitteeBatch,
         exportProtocolToExcel,
         loadComForm,
@@ -251,6 +286,7 @@
     // Legacy compatibility while migrating code out of grant.html
     window.openCommitteeBatch = openCommitteeBatch;
     window.toggleBatchComment = toggleBatchComment;
+    window.downloadCommitteeBusinessPlan = downloadCommitteeBusinessPlan;
     window.submitCommitteeBatch = submitCommitteeBatch;
     window.exportProtocolToExcel = exportProtocolToExcel;
     window.loadComForm = loadComForm;
