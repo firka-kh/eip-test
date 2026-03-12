@@ -56,7 +56,6 @@
     window.activeFacFilter = window.activeFacFilter || 'all_fac';
     window.activeStatFilter = window.activeStatFilter || 'all_stat';
     window.activeGmcFilter = window.activeGmcFilter || 'all_gmc';
-    window.currentUserRole = window.currentUserRole || 'facilitator';
 
     const roleRules = {
         facilitator: {
@@ -77,13 +76,22 @@
         }
     };
 
-    function getRoleRule() {
-        const role = window.currentUserRole;
+    function getRoleRule(role) {
         return roleRules[role] || null;
     }
 
-    function isRoleOwnedStatus(status) {
-        const rule = getRoleRule();
+    function getActiveRoleContext() {
+        const roleByMainFilter = {
+            facilitator: 'facilitator',
+            gmc: 'gmc',
+            piu: 'piu',
+            committee: 'committee'
+        };
+        return roleByMainFilter[window.activeMainFilter] || null;
+    }
+
+    function isRoleOwnedStatus(status, role) {
+        const rule = getRoleRule(role);
         if (!rule) return true;
         return rule.ownedStatuses.includes(status);
     }
@@ -92,9 +100,10 @@
         const app = typeof appOrId === 'string' ? window.getApp(appOrId) : appOrId;
         if (!app) return false;
 
-        const rule = getRoleRule();
+        const activeRole = getActiveRoleContext();
+        const rule = getRoleRule(activeRole);
         if (!rule) return true;
-        if (isRoleOwnedStatus(app.status)) return true;
+        if (isRoleOwnedStatus(app.status, activeRole)) return true;
 
         alert('Ин марҳила кори ' + rule.label + ' нест. Танҳо дидан мумкин аст.\nЭто не зона работы роли ' + rule.label + '. Открытие недоступно.');
         return false;
@@ -378,7 +387,8 @@
             aHtml = '<span class="text-slate-500 text-[12px] font-bold cursor-pointer" onclick="openDraftFor(\'' + id + '\')">Кушодан</span>';
         }
 
-        if (!isRoleOwnedStatus(status)) {
+        const activeRole = getActiveRoleContext();
+        if (activeRole && !isRoleOwnedStatus(status, activeRole)) {
             checkboxHtmlCard = '';
             checkboxHtmlRow = '';
             aHtml = '<span class="text-slate-400 text-[11px] font-bold">Танҳо дидан / Только просмотр</span>';
@@ -393,7 +403,7 @@
             if (!e.target.closest('input')) {
                 const btn = card.querySelector('button, span[onclick]');
                 if (btn) btn.click();
-                else if (!isRoleOwnedStatus(status)) canOpenInCurrentContext(id);
+                else if (!isRoleOwnedStatus(status, getActiveRoleContext())) canOpenInCurrentContext(id);
             }
         };
         document.getElementById('mainDashboardGrid').appendChild(card);
@@ -407,7 +417,7 @@
             if (!e.target.closest('button') && !e.target.closest('a') && !e.target.closest('svg') && !e.target.closest('select') && !e.target.closest('input')) {
                 const btn = row.querySelector('button, span[onclick]');
                 if (btn) btn.click();
-                else if (!isRoleOwnedStatus(status)) canOpenInCurrentContext(id);
+                else if (!isRoleOwnedStatus(status, getActiveRoleContext())) canOpenInCurrentContext(id);
             }
         };
         document.getElementById('list-tbody').appendChild(row);
