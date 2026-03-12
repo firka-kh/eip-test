@@ -2,6 +2,7 @@
 (function bootstrapApp() {
     if (window.__grantAppBootstrapped) return;
     window.__grantAppBootstrapped = true;
+    const bootStartedAt = Date.now();
 
     const moduleScripts = [
         'src/js/core/utils.js',
@@ -37,8 +38,38 @@
         }, Promise.resolve());
     }
 
+    function finishBoot(ok) {
+        const loader = document.getElementById('app-init-loader');
+        if (!loader) return;
+
+        if (!ok) {
+            const text = loader.querySelector('.filter-text');
+            if (text) {
+                text.innerHTML = '<span>Хато дар боргузорӣ</span><span class="ru-block">Ошибка инициализации</span>';
+            }
+            loader.style.background = '#fef2f2';
+            loader.style.borderColor = '#fecaca';
+            loader.style.color = '#991b1b';
+            return;
+        }
+
+        const elapsed = Date.now() - bootStartedAt;
+        const minVisibleMs = 300;
+        const waitMs = Math.max(0, minVisibleMs - elapsed);
+        setTimeout(function () {
+            loader.classList.add('is-hidden');
+            setTimeout(function () {
+                if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+            }, 220);
+        }, waitMs);
+    }
+
     loadScriptsSequentially(moduleScripts)
+        .then(function () {
+            finishBoot(true);
+        })
         .catch(function () {
             // Keep app usable even if a helper module fails to load.
+            finishBoot(false);
         });
 })();
