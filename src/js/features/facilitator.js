@@ -56,13 +56,31 @@
         if (!targetEl) return;
         if (!details || !details.fields || details.fields.length === 0) {
             targetEl.classList.add('hidden');
+            targetEl.classList.remove('bg-rose-50', 'border-rose-200', 'text-rose-800');
+            targetEl.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
             targetEl.textContent = '';
             return;
         }
+        const isHard = details.fields.includes('ИНН') || details.fields.includes('Телефон');
         const hitIds = details.matches.slice(0, 3).map(function (m) { return '#' + m.appId; });
         const tail = details.matches.length > 3 ? ' +' + (details.matches.length - 3) : '';
-        targetEl.textContent = 'Ёфт шуд такрор: ' + details.fields.join(', ') + '. Совпадение в заявках: ' + hitIds.join(', ') + tail + '.';
+        targetEl.classList.toggle('bg-rose-50', isHard);
+        targetEl.classList.toggle('border-rose-200', isHard);
+        targetEl.classList.toggle('text-rose-800', isHard);
+        targetEl.classList.toggle('bg-amber-50', !isHard);
+        targetEl.classList.toggle('border-amber-200', !isHard);
+        targetEl.classList.toggle('text-amber-800', !isHard);
+        targetEl.textContent = (isHard ? 'Блокировка создания: ' : '') + 'Ёфт шуд такрор: ' + details.fields.join(', ') + '. Совпадение в заявках: ' + hitIds.join(', ') + tail + '.';
         targetEl.classList.remove('hidden');
+    }
+
+    function hasHardDuplicate(details) {
+        if (!details || !details.fields) return false;
+        return details.fields.includes('ИНН') || details.fields.includes('Телефон');
+    }
+
+    function hasHardDuplicateForBeneficiary(candidate, excludeAppId) {
+        return hasHardDuplicate(getDuplicateDetails(candidate, excludeAppId));
     }
 
     function generateUniqueApplicationId() {
@@ -90,6 +108,7 @@
         const applicationId = app ? String(app.id) : generateUniqueApplicationId();
 
         document.getElementById('id-input').value = applicationId;
+        document.getElementById('display-application-number').textContent = applicationId;
         document.getElementById('beneficiary-id-input').value = beneficiaryId || '';
         document.getElementById('display-id').textContent = beneficiaryId || '—';
         document.getElementById('full-name').value = fullName;
@@ -140,6 +159,16 @@
         const appId = document.getElementById('id-input').value;
         if (!appId) return;
         const beneficiaryId = document.getElementById('beneficiary-id-input').value;
+        const hardDuplicate = hasHardDuplicateForBeneficiary({
+            id: beneficiaryId,
+            name: document.getElementById('full-name').value,
+            inn: document.getElementById('inn').value,
+            contacts: document.getElementById('contacts-input').value
+        }, appId);
+        if (hardDuplicate) {
+            alert('Создание/отправка заблокированы: найден дубль по ИНН или телефону.');
+            return;
+        }
         const sectorSelect = document.getElementById('sector-input');
         const sectorText = sectorSelect.options[sectorSelect.selectedIndex].text;
         const sectorValue = sectorSelect.value;
@@ -196,6 +225,7 @@
         let isFormVisible = false;
         let selectedBeneficiaryId = null;
         let selectedBeneficiaryData = null;
+        let selectedHasHardDuplicate = false;
 
         function setSubmitEnabled(isEnabled) {
             if (isEnabled) {
@@ -272,8 +302,15 @@
                     const selectedBadgeColor = user.certStatus === 'certified' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600';
                     selectedBeneficiary.querySelector('.selected-badge').className = selectedBadgeColor + ' px-1.5 py-0.5 rounded text-[10px] font-semibold w-max leading-none selected-badge';
                     selectedBeneficiary.querySelector('.selected-badge').textContent = user.certStatus;
-                    setSubmitEnabled(user.certStatus === 'certified');
-                    updateSelectedDuplicateWarning();
+                    const details = getDuplicateDetails({
+                        id: selectedBeneficiaryId,
+                        name: selectedBeneficiaryData['full-name'],
+                        inn: selectedBeneficiaryData.inn,
+                        contacts: selectedBeneficiaryData.contacts
+                    }, null);
+                    selectedHasHardDuplicate = hasHardDuplicate(details);
+                    setSubmitEnabled(user.certStatus === 'certified' && !selectedHasHardDuplicate);
+                    showDuplicateWarning(duplicateWarning, details);
                 });
                 searchDropdownList.appendChild(item);
             });
@@ -314,6 +351,7 @@
         clearSelectionBtn.addEventListener('click', function () {
             selectedBeneficiaryId = null;
             selectedBeneficiaryData = null;
+            selectedHasHardDuplicate = false;
             selectedBeneficiary.classList.add('hidden');
             selectedBeneficiary.classList.remove('flex');
             searchInput.classList.remove('hidden');
@@ -324,6 +362,10 @@
 
         submitApplicationBtn.addEventListener('click', function () {
             if (!selectedBeneficiaryId) return;
+            if (selectedHasHardDuplicate) {
+                alert('Создание заблокировано: найден дубль по ИНН или телефону.');
+                return;
+            }
             window.setAvailableTabs(['pane-facilitator']);
             document.getElementById('applicationModal').classList.remove('hidden');
             document.querySelector('.tab-btn[data-target="pane-facilitator"]').click();
