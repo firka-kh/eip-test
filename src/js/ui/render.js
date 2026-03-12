@@ -573,10 +573,10 @@
         document.querySelectorAll(cls).forEach(function (btn) {
             btn.addEventListener('click', function () {
                 document.querySelectorAll(cls).forEach(function (b) {
-                    b.classList.remove('bg-[#5b4ef5]', 'text-white', 'border-transparent', 'shadow-sm');
+                    b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'border-transparent', 'shadow-sm');
                     b.classList.add('bg-white', 'text-slate-600', 'border-slate-200');
                 });
-                btn.classList.add('bg-[#5b4ef5]', 'text-white', 'border-transparent', 'shadow-sm');
+                btn.classList.add('bg-primary', 'text-white', 'border-transparent', 'shadow-sm');
                 btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200');
 
                 if (cls === '.fac-filter-btn') window.activeFacFilter = btn.getAttribute('data-fac-filter');
@@ -598,10 +598,10 @@
         document.querySelectorAll('.filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 document.querySelectorAll('.filter-btn').forEach(function (b) {
-                    b.classList.remove('bg-[#5b4ef5]', 'text-white', 'shadow-sm');
+                    b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'shadow-sm');
                     b.classList.add('text-slate-600', 'hover:bg-slate-200');
                 });
-                btn.classList.add('bg-[#5b4ef5]', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-primary', 'text-white', 'shadow-sm');
                 btn.classList.remove('text-slate-600', 'hover:bg-slate-200');
                 window.activeMainFilter = btn.getAttribute('data-filter');
 
