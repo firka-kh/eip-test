@@ -387,6 +387,12 @@
             aHtml = '<span class="text-slate-500 text-[12px] font-bold cursor-pointer" onclick="openDraftFor(\'' + id + '\')">Кушодан</span>';
         }
 
+        if (window.activeMainFilter === 'statuses') {
+            checkboxHtmlCard = '';
+            checkboxHtmlRow = '';
+            aHtml = '<span class="text-slate-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + id + '\')">Намоиш / Просмотр</span>';
+        }
+
         const activeRole = getActiveRoleContext();
         if (activeRole && !isRoleOwnedStatus(status, activeRole)) {
             checkboxHtmlCard = '';
