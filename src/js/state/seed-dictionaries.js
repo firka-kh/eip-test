@@ -28,7 +28,7 @@
     // Synthetic beneficiaries for broad UI testing across filters and states.
     const syntheticCourses = ['Дӯзандагӣ', 'Кафшергарӣ', 'Муҳосиб', 'Савдо', 'Сартарош', 'Барномасоз'];
     const syntheticCategories = ['Корҷӯй', 'Бекор', 'Муҳоҷир', 'Бевазан'];
-    for (let i = 1; i <= 50; i++) {
+    for (let i = 1; i <= 130; i++) {
         const id = String(20000 + i);
         const dd = String((i % 28) + 1).padStart(2, '0');
         const mm = String(((i + 2) % 12) + 1).padStart(2, '0');
@@ -44,6 +44,25 @@
             education: i % 3 === 0 ? 'Олӣ' : 'Миёнаи махсус',
             course: syntheticCourses[i % syntheticCourses.length],
             certStatus: i % 7 === 0 ? 'pending' : 'certified'
+        };
+    }
+
+    for (let i = 1; i <= 30; i++) {
+        const id = String(21000 + i);
+        const dd = String((i % 28) + 1).padStart(2, '0');
+        const mm = String(((i + 4) % 12) + 1).padStart(2, '0');
+        const yy = String(1989 + (i % 11));
+        window.mockDatabase[id] = {
+            'full-name': 'Тестовый заявитель ' + (100 + i),
+            'birth-date': dd + '.' + mm + '.' + yy,
+            gender: i % 2 === 0 ? 'Мард' : 'Зан',
+            contacts: '+992 91 ' + String(2000000 + i).slice(-7),
+            address: 'ш. Душанбе',
+            inn: String(8000000000 + i),
+            category: syntheticCategories[i % syntheticCategories.length],
+            education: i % 2 === 0 ? 'Олӣ' : 'Миёнаи махсус',
+            course: syntheticCourses[i % syntheticCourses.length],
+            certStatus: 'certified'
         };
     }
 

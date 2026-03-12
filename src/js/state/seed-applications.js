@@ -7,9 +7,7 @@
     const perfPiu = perf.piuStatus || {};
     const perfPiuDec = perf.piuDecision || {};
 
-    window.seedProtocols = [
-        { id: 'ПР-7777', date: '01.03.2026', exactTime: '10:00', okCount: 3, rejCount: 1, revCount: 0, totalAmount: 34000, apps: [{ id: '10010', decision: 'ok' }, { id: '10013', decision: 'ok' }] }
-    ];
+    window.seedProtocols = [];
 
     window.seedApplications = [
         { id: '10002', name: 'Раҳмонов Далер Ҷамшедович', sector: 'Истеҳсолот <span class="ru">/ Производство</span>', amount: '20 000', date: '09.03.2026, 09:15', status: 'draft', auditLog: [{ date: '09.03.2026, 09:15', actor: 'Фасилитатор', action: 'Сиёҳнавис сохта шуд', actionRu: 'Создан черновик', color: 'slate', icon: 'edit-3' }] },
@@ -61,21 +59,21 @@
             ]
         },
         {
-            id: '10010', name: 'Мирзоева Ситора', sector: 'Савдо <span class="ru">/ Торговля</span>', amount: '9 000', date: '01.03.2026, 11:00', status: 'approved', protocolId: 'ПР-7777', gmcEvaluation: perfGmc, piuStatus: perfPiu, piuDecisions: perfPiuDec, auditLog: [
+            id: '10010', name: 'Мирзоева Ситора', sector: 'Савдо <span class="ru">/ Торговля</span>', amount: '9 000', date: '01.03.2026, 11:00', status: 'approved', protocolId: 'СП-9001', gmcEvaluation: perfGmc, piuStatus: perfPiu, piuDecisions: perfPiuDec, auditLog: [
                 { date: '20.02.2026, 09:15', actor: 'Фасилитатор', action: 'Дархост бор карда шуд', actionRu: 'Заявка отправлена в КУГ', color: 'blue', icon: 'send' },
                 { date: '22.02.2026, 14:00', actor: 'ШИГ / КУГ', action: 'Тасдиқ шуд, ба ГРП равон шуд', actionRu: 'Одобрено КУГ, направлено в ГРП', color: 'emerald', icon: 'check' },
                 { date: '25.02.2026, 16:30', actor: 'ГРП / PIU', action: 'Баҳогузории иҷтимоӣ-экологӣ гузашт', actionRu: 'Социально-экологическая оценка пройдена', color: 'emerald', icon: 'check-circle' },
                 { date: '26.02.2026, 09:00', actor: 'ШИГ / КУГ', action: 'Барои Комитет омода шуд', actionRu: 'Заявка подготовлена для реестра Комитета', color: 'blue', icon: 'list-checks' },
-                { date: '01.03.2026, 11:00', actor: 'Кумита / Комитет', action: 'Грант тасдиқ шуд (Протокол № ПР-7777 аз 01.03.2026)', actionRu: 'Грант утвержден (Протокол № ПР-7777 от 01.03.2026)', color: 'emerald', icon: 'award' }
+                { date: '01.03.2026, 11:00', actor: 'Кумита / Комитет', action: 'Грант тасдиқ шуд (Рӯйхат № СП-9001 аз 01.03.2026)', actionRu: 'Грант утвержден (Список № СП-9001 от 01.03.2026)', color: 'emerald', icon: 'award' }
             ]
         },
         {
-            id: '10013', name: 'Фотимаи Зариф', sector: 'Савдо <span class="ru">/ Торговля</span>', amount: '10 000', date: '01.02.2026, 14:00', status: 'approved', protocolId: 'ПР-7777', gmcEvaluation: perfGmc, piuStatus: perfPiu, piuDecisions: perfPiuDec, auditLog: [
+            id: '10013', name: 'Фотимаи Зариф', sector: 'Савдо <span class="ru">/ Торговля</span>', amount: '10 000', date: '01.02.2026, 14:00', status: 'approved', protocolId: 'СП-9001', gmcEvaluation: perfGmc, piuStatus: perfPiu, piuDecisions: perfPiuDec, auditLog: [
                 { date: '15.01.2026, 09:15', actor: 'Фасилитатор', action: 'Дархост бор карда шуд', actionRu: 'Заявка отправлена в КУГ', color: 'blue', icon: 'send' },
                 { date: '18.01.2026, 14:00', actor: 'ШИГ / КУГ', action: 'Тасдиқ шуд, ба ГРП равон шуд', actionRu: 'Одобрено КУГ, направлено в ГРП', color: 'emerald', icon: 'check' },
                 { date: '25.01.2026, 16:30', actor: 'ГРП / PIU', action: 'Баҳогузории иҷтимоӣ-экологӣ гузашт', actionRu: 'Социально-экологическая оценка пройдена', color: 'emerald', icon: 'check-circle' },
                 { date: '27.01.2026, 12:00', actor: 'ШИГ / КУГ', action: 'Барои Комитет омода шуд', actionRu: 'Заявка подготовлена для реестра Комитета', color: 'blue', icon: 'list-checks' },
-                { date: '01.02.2026, 14:00', actor: 'Кумита / Комитет', action: 'Грант тасдиқ шуд (Протокол № ПР-7777 аз 01.03.2026)', actionRu: 'Грант утвержден (Протокол № ПР-7777 от 01.03.2026)', color: 'emerald', icon: 'award' }
+                { date: '01.02.2026, 14:00', actor: 'Кумита / Комитет', action: 'Грант тасдиқ шуд (Рӯйхат № СП-9001 аз 01.03.2026)', actionRu: 'Грант утвержден (Список № СП-9001 от 01.03.2026)', color: 'emerald', icon: 'award' }
             ]
         },
         {
@@ -134,8 +132,7 @@
         'gmc_revision',
         'gmc_preparation',
         'gmc_ready_for_registry',
-        'com_review',
-        'approved'
+        'com_review'
     ];
     const testSectors = [
         'Савдо <span class="ru">/ Торговля</span>',
@@ -143,7 +140,7 @@
         'Хизматрасонӣ <span class="ru">/ Услуги</span>'
     ];
 
-    for (let i = 1; i <= 50; i++) {
+    for (let i = 1; i <= 100; i++) {
         const id = String(20000 + i);
         const status = testStatuses[(i - 1) % testStatuses.length];
         const hour = String(8 + (i % 10)).padStart(2, '0');
@@ -181,15 +178,73 @@
             app.piuDecisions = { 1: 'resubmit' };
             app.piuComment = 'Тестовый возврат из PIU';
         }
-        if (['gmc_preparation', 'gmc_ready_for_registry', 'com_review', 'approved'].includes(status)) {
+        if (['gmc_preparation', 'gmc_ready_for_registry', 'com_review'].includes(status)) {
             app.gmcEvaluation = perfGmc;
             app.piuStatus = perfPiu;
             app.piuDecisions = perfPiuDec;
         }
-        if (status === 'approved') {
-            app.protocolId = 'ПР-7777';
-        }
 
         window.seedApplications.push(app);
     }
+
+    const approvedListConfigs = [
+        { id: 'СП-9001', date: '01.03.2026', exactTime: '10:03', baseAmount: 9000 },
+        { id: 'СП-9002', date: '10.03.2026', exactTime: '11:25', baseAmount: 11000 },
+        { id: 'СП-9003', date: '20.03.2026', exactTime: '15:40', baseAmount: 13000 }
+    ];
+
+    const sectors = [
+        'Савдо <span class="ru">/ Торговля</span>',
+        'Истеҳсолот <span class="ru">/ Производство</span>',
+        'Хизматрасонӣ <span class="ru">/ Услуги</span>'
+    ];
+
+    approvedListConfigs.forEach(function (cfg, listIndex) {
+        const apps = [];
+        let total = 0;
+
+        for (let i = 1; i <= 10; i++) {
+            const serial = listIndex * 10 + i;
+            const id = String(21000 + serial);
+            const amount = cfg.baseAmount + i * 500;
+            const amountText = amount.toLocaleString('ru-RU');
+            total += amount;
+
+            window.seedApplications.push({
+                id: id,
+                name: 'Тестовый заявитель ' + (100 + serial),
+                sector: sectors[serial % sectors.length],
+                amount: amountText,
+                date: cfg.date + ', ' + cfg.exactTime,
+                status: 'approved',
+                protocolId: cfg.id,
+                gmcEvaluation: perfGmc,
+                piuStatus: perfPiu,
+                piuDecisions: perfPiuDec,
+                auditLog: [
+                    {
+                        date: cfg.date + ', ' + cfg.exactTime,
+                        actor: 'Кумита / Комитет',
+                        action: 'Грант тасдиқ шуд (Рӯйхат № ' + cfg.id + ' аз ' + cfg.date + ')',
+                        actionRu: 'Грант утвержден (Список № ' + cfg.id + ' от ' + cfg.date + ')',
+                        color: 'emerald',
+                        icon: 'award'
+                    }
+                ]
+            });
+
+            apps.push({ id: id, decision: 'ok' });
+        }
+
+        window.seedProtocols.push({
+            id: cfg.id,
+            date: cfg.date,
+            exactTime: cfg.exactTime,
+            okCount: apps.length,
+            rejCount: 0,
+            revCount: 0,
+            totalAmount: total,
+            apps: apps
+        });
+    });
 })();
