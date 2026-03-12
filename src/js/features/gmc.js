@@ -73,6 +73,8 @@
             const lastLog = app.auditLog.slice().reverse().find(function (l) { return l.comment; });
             const commentEl = document.getElementById('gmc-dynamic-comment');
             if (commentEl) commentEl.textContent = lastLog && lastLog.comment ? lastLog.comment : 'Бе эзоҳ / Без комментариев';
+            const newCommentEl = document.getElementById('gmc-return-comment');
+            if (newCommentEl) newCommentEl.value = '';
             const returnTitle = document.getElementById('gmc-return-title');
             const lastActor = app.auditLog[app.auditLog.length - 1] ? app.auditLog[app.auditLog.length - 1].actor : '';
             if (lastActor.includes('Кумита')) {
@@ -209,16 +211,24 @@
     function sendGmcToFacilitator() {
         const app = window.getApp(window.currentGmcAppId);
         if (!app) return;
+
+        const commentEl = document.getElementById('gmc-return-comment');
+        const comment = commentEl ? commentEl.value.trim() : '';
+        if (!comment) {
+            alert('Лутфан эзоҳи бозгардониданро нависед!\nПожалуйста, укажите комментарий для возврата!');
+            return;
+        }
+
         app.revisionCount = (app.revisionCount || 0) + 1;
         app.date = window.getCurrentDateTime();
 
         if (app.revisionCount >= 3) {
             app.status = 'postponed';
-            window.addLog(app, 'Система', 'Лимити такмил (3/3) ба охир расид. Ба таъхир гузошта шуд (3 моҳ)', 'Лимит доработок (3/3) исчерпан. Отложено на 3 месяца', 'red', 'clock');
+            window.addLog(app, 'Система', 'Лимити такмил (3/3) ба охир расид. Ба таъхир гузошта шуд (3 моҳ)', 'Лимит доработок (3/3) исчерпан. Отложено на 3 месяца', 'red', 'clock', comment);
             alert('Шумо наметавонед дархостро барои бори 4-ум ба такмил фиристед.\nТавсия дода мешавад, ки довталаб пас аз 3 моҳ дубора пешниҳод кунад.\n\nВы не можете отправить заявку на доработку в 4-й раз. Рекомендуется подать заявку через 3 месяца.');
         } else {
             app.status = 'fac_revision';
-            window.addLog(app, 'ШИГ / КУГ', 'Аз ГРП баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)', 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left');
+            window.addLog(app, 'ШИГ / КУГ', 'Аз ГРП баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)', 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left', comment);
             alert('Дархост барои такмил ба Фасилитатор фиристода шуд (Кӯшиши ' + app.revisionCount + ' аз 3)!\nЗаявка отправлена Фасилитатору на доработку (Попытка ' + app.revisionCount + ' из 3)!');
         }
         window.renderAllCards();

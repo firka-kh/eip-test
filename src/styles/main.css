@@ -78,3 +78,45 @@ body {
 .animate-fade-in {
     animation: fadeIn 0.2s ease-out forwards;
 }
+
+.tabs-container {
+    overflow-y: hidden;
+    scroll-padding-left: 8px;
+}
+
+.tabs-container .tab-btn {
+    white-space: normal;
+    min-width: max-content;
+    line-height: 1.15;
+}
+
+.tabs-container .tab-text {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.tabs-container .tab-text .ru-block {
+    font-size: 11px;
+}
+
+#modal-main-title .ru {
+    display: block;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+    .modal-container {
+        padding: 18px 16px;
+    }
+
+    .tabs-container .tab-btn {
+        font-size: 12px;
+    }
+
+    .tabs-container .tab-text .ru-block {
+        font-size: 10px;
+    }
+}
