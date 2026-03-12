@@ -58,18 +58,49 @@
     window.activeGmcFilter = window.activeGmcFilter || 'all_gmc';
     window.currentUserRole = window.currentUserRole || 'facilitator';
 
-    function isFacilitatorOwnedStatus(status) {
-        return ['draft', 'fac_revision', 'postponed'].includes(status);
+    const roleRules = {
+        facilitator: {
+            label: 'Фасилитатор',
+            ownedStatuses: ['draft', 'fac_revision', 'postponed'],
+            allowedMainFilters: ['facilitator', 'statuses']
+        },
+        gmc: {
+            label: 'ШИГ / КУГ',
+            ownedStatuses: ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry'],
+            allowedMainFilters: ['gmc', 'statuses']
+        },
+        piu: {
+            label: 'ГРП / PIU',
+            ownedStatuses: ['piu_review'],
+            allowedMainFilters: ['piu', 'statuses']
+        },
+        committee: {
+            label: 'Кумита / Комитет',
+            ownedStatuses: ['com_review'],
+            allowedMainFilters: ['committee', 'statuses']
+        }
+    };
+
+    function getRoleRule() {
+        const role = window.currentUserRole;
+        return roleRules[role] || null;
+    }
+
+    function isRoleOwnedStatus(status) {
+        const rule = getRoleRule();
+        if (!rule) return true;
+        return rule.ownedStatuses.includes(status);
     }
 
     function canOpenInCurrentContext(appOrId) {
         const app = typeof appOrId === 'string' ? window.getApp(appOrId) : appOrId;
         if (!app) return false;
 
-        if (window.currentUserRole !== 'facilitator') return true;
-        if (isFacilitatorOwnedStatus(app.status)) return true;
+        const rule = getRoleRule();
+        if (!rule) return true;
+        if (isRoleOwnedStatus(app.status)) return true;
 
-        alert('Ин марҳила кори Фасилитатор нест. Танҳо дидан мумкин аст.\nЭто не зона работы Фасилитатора. Открытие недоступно.');
+        alert('Ин марҳила кори ' + rule.label + ' нест. Танҳо дидан мумкин аст.\nЭто не зона работы роли ' + rule.label + '. Открытие недоступно.');
         return false;
     }
 
@@ -351,7 +382,7 @@
             aHtml = '<span class="text-slate-500 text-[12px] font-bold cursor-pointer" onclick="openDraftFor(\'' + id + '\')">Кушодан</span>';
         }
 
-        if (window.currentUserRole === 'facilitator' && !isFacilitatorOwnedStatus(status)) {
+        if (!isRoleOwnedStatus(status)) {
             checkboxHtmlCard = '';
             checkboxHtmlRow = '';
             aHtml = '<span class="text-slate-400 text-[11px] font-bold">Танҳо дидан / Только просмотр</span>';
@@ -741,11 +772,11 @@
     function initializeDashboardFilters() {
         document.querySelectorAll('.filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                if (window.currentUserRole === 'facilitator') {
+                const rule = getRoleRule();
+                if (rule) {
                     const targetFilter = btn.getAttribute('data-filter');
-                    const allowedFilters = ['facilitator', 'statuses'];
-                    if (!allowedFilters.includes(targetFilter)) {
-                        alert('Барои Фасилитатор ин бахш танҳо барои дидан дастрас аст.\nДля Фасилитатора этот раздел недоступен для работы.');
+                    if (!rule.allowedMainFilters.includes(targetFilter)) {
+                        alert('Барои ' + rule.label + ' ин бахш танҳо барои дидан дастрас аст.\nДля роли ' + rule.label + ' этот раздел недоступен для работы.');
                         return;
                     }
                 }
