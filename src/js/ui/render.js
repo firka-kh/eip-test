@@ -858,11 +858,17 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        const startInitialRender = function () {
             const defaultMainBtn = document.querySelector('.filter-btn[data-filter="' + window.activeMainFilter + '"]');
             if (defaultMainBtn) defaultMainBtn.click();
             else renderAllCards();
-        });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startInitialRender);
+        } else {
+            startInitialRender();
+        }
     }
 
     initializeDashboardFilters();

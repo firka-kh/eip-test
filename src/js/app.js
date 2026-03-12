@@ -31,7 +31,13 @@
         });
     }
 
-    Promise.all(moduleScripts.map(loadScript))
+    function loadScriptsSequentially(scripts) {
+        return scripts.reduce(function (chain, src) {
+            return chain.then(function () { return loadScript(src); });
+        }, Promise.resolve());
+    }
+
+    loadScriptsSequentially(moduleScripts)
         .catch(function () {
             // Keep app usable even if a helper module fails to load.
         });
