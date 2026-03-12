@@ -137,12 +137,16 @@
                     <div class="flex flex-col items-start leading-tight text-left"><span
                             class="text-[13px] font-bold">Тасдиқшуда</span><span
                             class="text-[11px] font-normal opacity-70 mt-0.5 filter-ru-text">Одобренные</span></div>
+                    <span id="dash-approved-badge"
+                        class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
                 </button>
                 <button data-filter="statuses"
                     class="filter-btn bg-primary text-white px-4 py-2 rounded-xl flex items-center justify-between gap-3 whitespace-nowrap transition-all flex-shrink-0 shadow-sm min-w-[120px]">
                     <div class="flex flex-col items-start leading-tight text-left"><span
                             class="text-[13px] font-bold">Аз рӯи статус</span><span
                             class="text-[11px] font-normal opacity-80 mt-0.5 filter-ru-text">По статусам</span></div>
+                    <span id="dash-status-badge"
+                        class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
                 </button>
             </div>
             <div class="flex items-center justify-end gap-3 w-full xl:w-auto">
@@ -169,8 +173,10 @@
         <div id="facilitator-filters-bar"
             class="hidden bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
             <button data-fac-filter="all_fac"
-                class="fac-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm"><span
-                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span></button>
+                class="fac-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
+                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span><span
+                    id="sub-fac-all-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="draft"
                 class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Сиёҳнавис</span><span class="ru-block">Черновики</span></span><span
@@ -182,13 +188,15 @@
                         доработке</span></span><span id="sub-rev-badge"
                     class="bg-red-100 text-red-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="sent"
-                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors"><span
+                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Дар баррасӣ</span><span class="ru-block">На
-                        рассмотрении</span></span></button>
+                        рассмотрении</span></span><span id="sub-fac-sent-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="completed"
-                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors"><span
+                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Ба анҷом расида</span><span
-                        class="ru-block">Завершенные</span></span></button>
+                        class="ru-block">Завершенные</span></span><span id="sub-fac-completed-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="postponed"
                 class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Мавқуф</span><span class="ru-block">Отложенные</span></span><span
@@ -200,16 +208,20 @@
         <div id="gmc-filters-bar"
             class="hidden bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
             <button data-gmc-filter="all_gmc"
-                class="gmc-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm"><span
-                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span></button>
+                class="gmc-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
+                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span><span
+                    id="sub-gmc-all-badge"
+                    class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-gmc-filter="new"
                 class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Аз Фасилитатор</span><span class="ru-block">От
-                        Фасилитатора</span></span></button>
+                        Фасилитатора</span></span><span id="sub-gmc-new-badge"
+                    class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-gmc-filter="returned"
                 class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Бозрасии такрорӣ</span><span class="ru-block">Повторное
-                        рассмотрение</span></span></button>
+                        рассмотрение</span></span><span id="sub-gmc-returned-badge"
+                    class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-gmc-filter="preparation"
                 class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Барои омодасозӣ</span><span class="ru-block">На
@@ -235,28 +247,40 @@
         <div id="statuses-filters-bar"
             class="hidden bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
             <button data-stat-filter="all_stat"
-                class="stat-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm"><span
-                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span></button>
+                class="stat-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
+                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span><span
+                    id="sub-stat-all-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-stat-filter="draft"
                 class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
-                    class="filter-text"><span>Сиёҳнавис</span><span class="ru-block">Черновики</span></span></button>
+                    class="filter-text"><span>Сиёҳнавис</span><span class="ru-block">Черновики</span></span><span
+                    id="sub-stat-draft-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-stat-filter="revision"
                 class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Дар ҳоли такмил</span><span class="ru-block">На
-                        доработке</span></span></button>
+                        доработке</span></span><span id="sub-stat-rev-badge"
+                    class="bg-red-100 text-red-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-stat-filter="review"
-                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors"><span
+                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Дар баррасӣ</span><span class="ru-block">На
-                        рассмотрении</span></span></button>
+                        рассмотрении</span></span><span id="sub-stat-review-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-stat-filter="approved"
-                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors"><span
-                    class="filter-text"><span>Тасдиқшуда</span><span class="ru-block">Одобренные</span></span></button>
+                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                    class="filter-text"><span>Тасдиқшуда</span><span class="ru-block">Одобренные</span></span><span
+                    id="sub-stat-approved-badge"
+                    class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-stat-filter="postponed"
-                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors"><span
-                    class="filter-text"><span>Мавқуф</span><span class="ru-block">Отложенные</span></span></button>
+                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                    class="filter-text"><span>Мавқуф</span><span class="ru-block">Отложенные</span></span><span
+                    id="sub-stat-postponed-badge"
+                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-stat-filter="rejected"
-                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors"><span
-                    class="filter-text"><span>Радшуда</span><span class="ru-block">Отклоненные</span></span></button>
+                class="stat-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                    class="filter-text"><span>Радшуда</span><span class="ru-block">Отклоненные</span></span><span
+                    id="sub-stat-rejected-badge"
+                    class="bg-red-100 text-red-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
         </div>
 
         <div id="approved-filters-bar"

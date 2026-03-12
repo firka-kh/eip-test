@@ -365,12 +365,15 @@
         const drafts = window.filterApps(['draft']);
         const facRevs = window.filterApps(['fac_revision']);
         const postponed = window.filterApps(['postponed']);
+        const gmcNew = window.filterApps(['gmc_review']);
+        const gmcReturned = window.filterApps(['gmc_revision']);
         const gmcPrep = window.filterApps(['gmc_preparation']);
         const gmcReg = window.filterApps(['gmc_ready_for_registry']);
         const pius = window.filterApps(['piu_review']);
         const coms = window.filterApps(['com_review']);
         const approved = window.filterApps(['approved']);
         const rejected = window.filterApps(['rejected']);
+        const inReview = window.filterApps(['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review']);
         const totalApps = (window.state && Array.isArray(window.state.applications)) ? window.state.applications.length : 0;
         const submitted = Math.max(totalApps - drafts.length, 0);
 
@@ -382,12 +385,32 @@
             }
         };
         setB('dash-fac-badge', drafts.length + facRevs.length);
+        setB('dash-approved-badge', approved.length);
+        setB('dash-status-badge', totalApps);
+
+        setB('sub-fac-all-badge', totalApps);
         setB('sub-draft-badge', drafts.length);
         setB('sub-rev-badge', facRevs.length);
+        setB('sub-fac-sent-badge', inReview.length);
+        setB('sub-fac-completed-badge', approved.length + rejected.length);
         setB('sub-pos-badge', postponed.length);
         setB('dash-gmc-badge', window.filterApps(['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry']).length);
         setB('dash-piu-badge', pius.length);
         setB('dash-com-badge', coms.length);
+
+        setB('sub-gmc-all-badge', gmcNew.length + gmcReturned.length + gmcPrep.length + gmcReg.length);
+        setB('sub-gmc-new-badge', gmcNew.length);
+        setB('sub-gmc-returned-badge', gmcReturned.length);
+        setB('sub-gmc-prep-badge', gmcPrep.length);
+        setB('sub-gmc-reg-badge', gmcReg.length);
+
+        setB('sub-stat-all-badge', totalApps);
+        setB('sub-stat-draft-badge', drafts.length);
+        setB('sub-stat-rev-badge', facRevs.length);
+        setB('sub-stat-review-badge', inReview.length);
+        setB('sub-stat-approved-badge', approved.length);
+        setB('sub-stat-postponed-badge', postponed.length);
+        setB('sub-stat-rejected-badge', rejected.length);
 
         const submittedEl = document.getElementById('menu-submitted-count');
         const approvedEl = document.getElementById('menu-approved-count');
@@ -428,9 +451,6 @@
             regBar.classList.add('hidden');
             regBar.classList.remove('flex', 'flex-col', 'sm:flex-row');
         }
-
-        setB('sub-gmc-prep-badge', gmcPrep.length);
-        setB('sub-gmc-reg-badge', gmcReg.length);
 
         const batchBar = document.getElementById('committee-batch-bar');
         if (window.activeMainFilter === 'committee') {
@@ -622,14 +642,14 @@
             if (window.activeMainFilter === 'facilitator') {
                 if (window.activeFacFilter === 'all_fac') show = true;
                 else if (window.activeFacFilter === 'draft' && status === 'draft') show = true;
-                else if (window.activeFacFilter === 'rev' && status === 'fac_revision') show = true;
+                else if (window.activeFacFilter === 'fac_revision' && status === 'fac_revision') show = true;
                 else if (window.activeFacFilter === 'postponed' && status === 'postponed') show = true;
                 else if (window.activeFacFilter === 'sent' && ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review'].includes(status)) show = true;
                 else if (window.activeFacFilter === 'completed' && ['approved', 'rejected'].includes(status)) show = true;
             } else if (window.activeMainFilter === 'statuses') {
                 if (window.activeStatFilter === 'all_stat') show = true;
                 else if (window.activeStatFilter === 'draft' && status === 'draft') show = true;
-                else if (window.activeStatFilter === 'rev' && status === 'fac_revision') show = true;
+                else if (window.activeStatFilter === 'revision' && status === 'fac_revision') show = true;
                 else if (window.activeStatFilter === 'review' && ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review'].includes(status)) show = true;
                 else if (window.activeStatFilter === 'approved' && ['approved'].includes(status)) show = true;
                 else if (window.activeStatFilter === 'rejected' && status === 'rejected') show = true;
