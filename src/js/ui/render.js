@@ -52,7 +52,7 @@
         document.querySelector('.tab-btn[data-target="pane-approved"]').click();
     }
 
-    window.activeMainFilter = window.activeMainFilter || 'statuses';
+    window.activeMainFilter = window.activeMainFilter || 'facilitator';
     window.activeComFilter = window.activeComFilter || 'protocols';
     window.activeFacFilter = window.activeFacFilter || 'all_fac';
     window.activeStatFilter = window.activeStatFilter || 'all_stat';
