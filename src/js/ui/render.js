@@ -51,7 +51,7 @@
     }
 
     window.activeMainFilter = window.activeMainFilter || 'all';
-    window.activeComFilter = window.activeComFilter || 'pending';
+    window.activeComFilter = window.activeComFilter || 'protocols';
     window.activeFacFilter = window.activeFacFilter || 'all_fac';
     window.activeStatFilter = window.activeStatFilter || 'all_stat';
     window.activeGmcFilter = window.activeGmcFilter || 'all_gmc';
@@ -98,14 +98,11 @@
         document.getElementById('mainDashboardGrid').innerHTML = '';
         document.getElementById('list-tbody').innerHTML = '';
 
-        if (window.activeMainFilter === 'committee' && window.activeComFilter === 'protocols') {
-            (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
-        } else {
-            window.state.applications.forEach(function (app) { appendCardAndRow(app.id, app.status, app); });
-        }
+        window.state.applications.forEach(function (app) { appendCardAndRow(app.id, app.status, app); });
 
         updateAllBadges();
         updateDashboardFilter();
+        updateApprovedInsights();
         if (window.lucide) window.lucide.createIcons();
     }
 
@@ -297,7 +294,7 @@
         setB('sub-gmc-reg-badge', gmcReg.length);
 
         const batchBar = document.getElementById('committee-batch-bar');
-        if (window.activeMainFilter === 'committee' && window.activeComFilter === 'pending') {
+        if (window.activeMainFilter === 'committee') {
             batchBar.classList.remove('hidden');
             batchBar.classList.add('flex');
             document.getElementById('batch-count').textContent = coms.length;
@@ -309,12 +306,100 @@
             batchBar.classList.remove('flex');
         }
 
-        setB('sub-com-pending-badge', coms.length);
         setB('sub-com-prot-badge', (window.state.protocols || []).length);
     }
 
+    function updateApprovedInsights() {
+        const yearSel = document.getElementById('approved-stats-year');
+        const monthSel = document.getElementById('approved-stats-month');
+        const countEl = document.getElementById('approved-stats-count');
+        const amountEl = document.getElementById('approved-stats-amount');
+        const listSel = document.getElementById('approved-list-select');
+        const openListBtn = document.getElementById('btn-open-approved-list');
+        if (!yearSel || !monthSel || !countEl || !amountEl || !listSel || !openListBtn) return;
+
+        const approvedApps = window.filterApps(['approved']);
+        const toDateParts = function (app) {
+            const raw = String((app.date || '').split(',')[0] || '');
+            const m = raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+            if (!m) return null;
+            return { month: parseInt(m[2], 10), year: parseInt(m[3], 10) };
+        };
+
+        const years = [];
+        approvedApps.forEach(function (app) {
+            const parts = toDateParts(app);
+            if (parts && !years.includes(parts.year)) years.push(parts.year);
+        });
+        years.sort(function (a, b) { return b - a; });
+
+        const prevYear = yearSel.value || 'all';
+        yearSel.innerHTML = '<option value="all">Ҳама / Все</option>';
+        years.forEach(function (year) {
+            const opt = document.createElement('option');
+            opt.value = String(year);
+            opt.textContent = String(year);
+            yearSel.appendChild(opt);
+        });
+        yearSel.value = Array.from(yearSel.options).some(function (o) { return o.value === prevYear; }) ? prevYear : 'all';
+
+        const selectedYear = yearSel.value;
+        const selectedMonth = monthSel.value || 'all';
+        const filtered = approvedApps.filter(function (app) {
+            const parts = toDateParts(app);
+            if (!parts) return false;
+            if (selectedYear !== 'all' && parts.year !== parseInt(selectedYear, 10)) return false;
+            if (selectedMonth !== 'all' && parts.month !== parseInt(selectedMonth, 10)) return false;
+            return true;
+        });
+
+        const totalAmount = filtered.reduce(function (sum, app) {
+            return sum + parseInt(String(app.amount || '').replace(/\D/g, '') || 0, 10);
+        }, 0);
+        countEl.textContent = String(filtered.length);
+        amountEl.textContent = totalAmount.toLocaleString('ru-RU');
+
+        const protocols = (window.state.protocols || []).slice().reverse();
+        const prevList = listSel.value || '';
+        listSel.innerHTML = '';
+        if (protocols.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Списки отсутствуют';
+            listSel.appendChild(opt);
+            openListBtn.classList.add('opacity-50', 'pointer-events-none');
+        } else {
+            protocols.forEach(function (prot) {
+                const opt = document.createElement('option');
+                opt.value = prot.id;
+                opt.textContent = prot.id + ' • ' + prot.date + ' • ' + (prot.apps ? prot.apps.length : 0);
+                listSel.appendChild(opt);
+            });
+            listSel.value = Array.from(listSel.options).some(function (o) { return o.value === prevList; }) ? prevList : listSel.options[0].value;
+            openListBtn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+    }
+
+    function openSelectedApprovedList() {
+        const listSel = document.getElementById('approved-list-select');
+        if (!listSel || !listSel.value) return;
+        if (typeof window.openCommitteeBatch === 'function') {
+            window.openCommitteeBatch(listSel.value);
+        }
+    }
+
     function updateDashboardFilter() {
-        if (window.activeMainFilter === 'committee' && window.activeComFilter === 'protocols') return;
+        if (window.activeMainFilter === 'committee') {
+            document.querySelectorAll('#mainDashboardGrid > div, #list-tbody > tr').forEach(function (el) {
+                el.style.display = 'none';
+            });
+            const esCommittee = document.getElementById('empty-state');
+            if (esCommittee) {
+                esCommittee.classList.add('hidden');
+                esCommittee.classList.remove('flex');
+            }
+            return;
+        }
 
         const searchInput = document.getElementById('filter-search-issued');
         const searchFilter = searchInput ? searchInput.value.toLowerCase() : '';
@@ -425,11 +510,12 @@
                 t('gmc-filters-bar', window.activeMainFilter === 'gmc');
                 t('com-filters-bar', window.activeMainFilter === 'committee');
 
-                if (window.activeMainFilter === 'committee' && window.activeComFilter === 'protocols') {
+                if (window.activeMainFilter === 'committee') {
                     renderAllCards();
                 } else {
                     updateAllBadges();
                     updateDashboardFilter();
+                    updateApprovedInsights();
                 }
             });
         });
@@ -442,6 +528,16 @@
         const searchIssued = document.getElementById('filter-search-issued');
         if (searchIssued) {
             searchIssued.addEventListener('input', updateDashboardFilter);
+        }
+
+        const approvedYear = document.getElementById('approved-stats-year');
+        if (approvedYear) {
+            approvedYear.addEventListener('change', updateApprovedInsights);
+        }
+
+        const approvedMonth = document.getElementById('approved-stats-month');
+        if (approvedMonth) {
+            approvedMonth.addEventListener('change', updateApprovedInsights);
         }
     }
 
@@ -463,8 +559,8 @@
 
                 if (targetId === 'pane-committee-batch') {
                     const protocolNum = document.getElementById('batch-protocol-number').value;
-                    if (protocolNum && protocolNum.includes('ПР-')) document.getElementById('modal-main-title').innerHTML = 'Протоколи Кумита № ' + protocolNum + ' <span class="ru">/ Протокол Комитета</span>';
-                    else document.getElementById('modal-main-title').innerHTML = 'Протоколи Кумита <span class="ru">/ Протокол Комитета</span>';
+                    if (protocolNum && protocolNum.includes('ПР-')) document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита № ' + protocolNum + ' <span class="ru">/ Список Комитета</span>';
+                    else document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита <span class="ru">/ Список Комитета</span>';
                     return;
                 } else if (targetId === 'pane-gmc-registry-preview') {
                     document.getElementById('modal-main-title').innerHTML = 'Ташаккули реестр <span class="ru">/ Формирование реестра</span>';
@@ -547,6 +643,8 @@
         renderAllCards,
         updateAllBadges,
         updateDashboardFilter,
+        updateApprovedInsights,
+        openSelectedApprovedList,
         setAvailableTabs,
         initializeModalTabs
     };
@@ -558,6 +656,8 @@
     window.renderAllCards = renderAllCards;
     window.updateAllBadges = updateAllBadges;
     window.updateDashboardFilter = updateDashboardFilter;
+    window.updateApprovedInsights = updateApprovedInsights;
+    window.openSelectedApprovedList = openSelectedApprovedList;
     window.setAvailableTabs = setAvailableTabs;
     window.getVisibleReadyRegistryIds = getVisibleReadyRegistryIds;
 })();

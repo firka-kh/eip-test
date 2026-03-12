@@ -56,7 +56,7 @@
         tbody.innerHTML = '';
 
         if (targetProtocolId) {
-            document.getElementById('modal-main-title').innerHTML = 'Протоколи Кумита № ' + targetProtocolId + ' <span class="ru">/ Протокол Комитета</span>';
+            document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита № ' + targetProtocolId + ' <span class="ru">/ Список Комитета</span>';
 
             const prot = (window.state.protocols || []).find(function (p) { return p.id === targetProtocolId; });
             if (!prot) return;
@@ -80,7 +80,7 @@
                 }
             });
         } else {
-            document.getElementById('modal-main-title').innerHTML = 'Протоколи Кумита <span class="ru">/ Протокол Комитета</span>';
+            document.getElementById('modal-main-title').innerHTML = 'Рӯйхати Кумита <span class="ru">/ Список Комитета</span>';
             document.getElementById('batch-protocol-date').disabled = false;
             document.getElementById('submit-batch-btn').classList.remove('hidden');
 
@@ -123,7 +123,7 @@
         const protocolNum = document.getElementById('batch-protocol-number').value;
         const protocolDateInput = document.getElementById('batch-protocol-date').value;
         if (!protocolDateInput) {
-            alert('Лутфан санаи протоколро интихоб кунед! / Пожалуйста, выберите дату протокола!');
+            alert('Лутфан санаи рӯйхатро интихоб кунед! / Пожалуйста, выберите дату списка!');
             return;
         }
 
@@ -149,13 +149,13 @@
 
             if (decision === 'ok') {
                 app.status = 'approved';
-                window.addLog(app, 'Кумита / Комитет', 'Грант тасдиқ шуд (Протокол ' + protocolLabel + ')', 'Грант утвержден (Протокол ' + protocolLabelRu + ')', 'emerald', 'award');
+                window.addLog(app, 'Кумита / Комитет', 'Грант тасдиқ шуд (Рӯйхат ' + protocolLabel + ')', 'Грант утвержден (Список ' + protocolLabelRu + ')', 'emerald', 'award');
                 newProtocol.okCount++;
                 newProtocol.totalAmount += parseInt(app.amount.replace(/\D/g, '') || 0, 10);
                 window.generateMonitoringFor(app.id, protocolDateInput);
             } else if (decision === 'rej') {
                 app.status = 'rejected';
-                window.addLog(app, 'Кумита / Комитет', 'Грант рад шуд (Протокол ' + protocolLabel + ')', 'Грант отклонен (Протокол ' + protocolLabelRu + ')', 'red', 'x-circle', comment);
+                window.addLog(app, 'Кумита / Комитет', 'Грант рад шуд (Рӯйхат ' + protocolLabel + ')', 'Грант отклонен (Список ' + protocolLabelRu + ')', 'red', 'x-circle', comment);
                 newProtocol.rejCount++;
             }
         });
@@ -163,12 +163,12 @@
         window.state.protocols = window.state.protocols || [];
         window.state.protocols.push(newProtocol);
 
-        alert('Протокол бомуваффақият коркард шуд!\nПротокол успешно обработан!\n\nОдобрено: ' + newProtocol.okCount + '\nОтклонено: ' + newProtocol.rejCount);
+        alert('Рӯйхат бомуваффақият тасдиқ шуд!\nСписок успешно утвержден!\n\nОдобрено: ' + newProtocol.okCount + '\nОтклонено: ' + newProtocol.rejCount);
         document.getElementById('applicationModal').classList.add('hidden');
         document.getElementById('modal-main-title').innerHTML = 'Дархост: Дастгирии грантии тиҷорат <span class="ru">/ Заявка: Грантовая поддержка бизнеса</span>';
 
-        const protocolsFilterBtn = document.querySelector('.com-filter-btn[data-com-filter="protocols"]');
-        if (protocolsFilterBtn) protocolsFilterBtn.click();
+        const approvedMainBtn = document.querySelector('.filter-btn[data-filter="approved_registry"]');
+        if (approvedMainBtn) approvedMainBtn.click();
     }
 
     function exportProtocolToExcel() {
@@ -176,7 +176,7 @@
 
         const prot = (window.state.protocols || []).find(function (p) { return p.id === window.currentViewedProtocolId; });
         if (!prot || !prot.apps || prot.apps.length === 0) {
-            alert('Рӯйхат холӣ аст / Протокол пуст');
+            alert('Рӯйхат холӣ аст / Список пуст');
             return;
         }
 
@@ -199,7 +199,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
-        link.setAttribute('download', 'Протокол_' + prot.id + '_' + prot.date + '.csv');
+        link.setAttribute('download', 'Список_' + prot.id + '_' + prot.date + '.csv');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

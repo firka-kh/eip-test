@@ -221,14 +221,9 @@
         <!-- Саб-фильтры для Комитета -->
         <div id="com-filters-bar"
             class="hidden bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
-            <button data-com-filter="pending"
-                class="com-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
-                    class="filter-text"><span>Мунтазири қарор</span><span class="ru-block">В ожидании</span></span><span
-                    id="sub-com-pending-badge"
-                    class="bg-indigo-200 text-indigo-700 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-com-filter="protocols"
-                class="com-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
-                    class="filter-text"><span>Протоколҳо</span><span class="ru-block">Протоколы</span></span><span
+                class="com-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
+                    class="filter-text"><span>Рӯйхат</span><span class="ru-block">Список</span></span><span
                     id="sub-com-prot-badge"
                     class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
         </div>
@@ -310,6 +305,55 @@
                             data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5"></i></div>
                 </div>
             </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 mt-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
+                            class="filter-text"><span>Сол</span><span class="ru-block">Год</span></span></label>
+                    <select id="approved-stats-year"
+                        class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
+                        <option value="all">Ҳама / Все</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
+                            class="filter-text"><span>Моҳ</span><span class="ru-block">Месяц</span></span></label>
+                    <select id="approved-stats-month"
+                        class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
+                        <option value="all">Ҳама / Все</option>
+                        <option value="1">Январ</option>
+                        <option value="2">Феврал</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрел</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июн</option>
+                        <option value="7">Июл</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябр</option>
+                        <option value="10">Октябр</option>
+                        <option value="11">Ноябр</option>
+                        <option value="12">Декабр</option>
+                    </select>
+                </div>
+                <div class="lg:col-span-2 bg-white border border-indigo-200 rounded-lg p-3">
+                    <p class="text-[11px] text-slate-500 font-bold"><span class="filter-text"><span>Омори
+                                тасдиқ</span><span class="ru-block">Статистика одобрений</span></span></p>
+                    <p class="text-[13px] text-slate-700 mt-1"><strong id="approved-stats-count">0</strong> дархост
+                        <span class="ru">/ заявок</span></p>
+                    <p class="text-[13px] text-indigo-700 font-bold"><span id="approved-stats-amount">0</span> сомонӣ
+                    </p>
+                </div>
+                <div class="bg-white border border-indigo-200 rounded-lg p-3 flex flex-col gap-2">
+                    <label class="block text-[11px] font-bold text-gray-600"><span class="filter-text"><span>Рӯйхати
+                                тасдиқ</span><span class="ru-block">Список одобрения</span></span></label>
+                    <div class="flex items-center gap-2">
+                        <select id="approved-list-select"
+                            class="w-full border border-gray-200 rounded-md text-[12px] px-2 py-1.5 focus:border-primary outline-none bg-white"></select>
+                        <button id="btn-open-approved-list" onclick="openSelectedApprovedList()"
+                            class="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-[11px] font-bold hover:bg-indigo-700 transition-colors whitespace-nowrap">Кушодан</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- БЛОК: Формирование реестра в ШИГ -->
@@ -343,7 +387,7 @@
             <div>
                 <h3 class="text-[14px] font-bold text-teal-900 leading-tight flex items-start gap-2"><i
                         data-lucide="layers" class="w-4 h-4 mt-0.5"></i><span class="filter-text"><span>Рӯйхат барои
-                            тасдиқ</span><span class="ru-block">Список на утверждение (Протокол)</span></span></h3>
+                            тасдиқ</span><span class="ru-block">Список на утверждение</span></span></h3>
                 <p class="text-[12px] text-teal-700 mt-1">Мунтазири қарор: <strong id="batch-count">0</strong> дархост
                     ба маблағи умумии <strong id="batch-total">0</strong> сомонӣ.</p>
             </div>
@@ -429,7 +473,7 @@
                 <button id="tab-btn-committee-batch"
                     class="tab-btn hidden border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-start gap-2 cursor-pointer text-[13px] font-medium transition-colors"
                     data-target="pane-committee-batch"><i data-lucide="layers" class="w-4 h-4 mt-[2px]"></i><span
-                        class="tab-text"><span>Протоколи Кумита</span><span class="ru-block">Протокол
+                        class="tab-text"><span>Рӯйхати Кумита</span><span class="ru-block">Список
                             Комитета</span></span></button>
 
                 <button
@@ -1107,7 +1151,7 @@
                     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-4">
                         <h2 class="text-[16px] font-bold text-gray-800 uppercase">Тасдиқи гурӯҳии дархостҳо <span
                                 class="ru-block mt-0.5 font-normal text-gray-500 normal-case">Групповое утверждение
-                                заявок (Протокол)</span></h2>
+                                заявок (Список)</span></h2>
                         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
 
                             <!-- Кнопка Экспорта в Excel -->
@@ -1121,7 +1165,7 @@
                             <div
                                 class="bg-teal-50 border border-teal-200 p-2.5 rounded-xl flex items-center gap-3 shadow-sm flex-1 sm:flex-none">
                                 <label class="text-[12px] font-bold text-teal-900 whitespace-nowrap"><span
-                                        class="filter-text"><span>№ протокол</span><span
+                                        class="filter-text"><span>№ список</span><span
                                             class="ru-block">№:</span></span></label>
                                 <input type="text" id="batch-protocol-number" readonly
                                     class="border border-teal-200 rounded-md px-2 py-1 text-[13px] outline-none bg-teal-100/50 text-teal-900 font-bold w-full sm:w-28 uppercase cursor-not-allowed"
@@ -1161,8 +1205,8 @@
 
                     <button id="submit-batch-btn" onclick="submitCommitteeBatch()"
                         class="w-full bg-[#0D9488] text-white py-3 rounded-xl text-[14px] font-bold shadow-sm hover:bg-teal-700 transition-colors flex flex-col items-center leading-tight">
-                        <span>Тасдиқи Протокол</span>
-                        <span class="ru font-normal">Утвердить Протокол</span>
+                        <span>Тасдиқи Рӯйхат</span>
+                        <span class="ru font-normal">Утвердить Список</span>
                     </button>
                 </div>
             </div>
