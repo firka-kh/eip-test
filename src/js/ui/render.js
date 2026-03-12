@@ -860,13 +860,9 @@
                 t('gmc-filters-bar', window.activeMainFilter === 'gmc');
                 t('com-filters-bar', window.activeMainFilter === 'committee');
 
-                if (window.activeMainFilter === 'committee') {
-                    renderAllCards();
-                } else {
-                    updateAllBadges();
-                    updateDashboardFilter();
-                    updateApprovedInsights();
-                }
+                // Actions on cards depend on the active main filter.
+                // Rebuild cards each time to avoid stale "view-only" actions from previous mode.
+                renderAllCards();
                 updateActiveModeIndicator();
             });
         });
