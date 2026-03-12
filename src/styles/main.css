@@ -101,6 +101,50 @@ body {
     font-size: 11px;
 }
 
+.filter-btn,
+.fac-filter-btn,
+.gmc-filter-btn,
+.com-filter-btn,
+.stat-filter-btn {
+    white-space: normal;
+    line-height: 1.15;
+}
+
+.filter-btn .filter-text,
+.fac-filter-btn .filter-text,
+.gmc-filter-btn .filter-text,
+.com-filter-btn .filter-text,
+.stat-filter-btn .filter-text {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.filter-btn .ru-block,
+.fac-filter-btn .ru-block,
+.gmc-filter-btn .ru-block,
+.com-filter-btn .ru-block,
+.stat-filter-btn .ru-block {
+    font-size: 11px;
+}
+
+#facilitator-filters-bar,
+#gmc-filters-bar,
+#com-filters-bar,
+#statuses-filters-bar {
+    overflow-y: hidden;
+    scroll-padding-left: 8px;
+}
+
+#facilitator-filters-bar .fac-filter-btn,
+#gmc-filters-bar .gmc-filter-btn,
+#com-filters-bar .com-filter-btn,
+#statuses-filters-bar .stat-filter-btn {
+    min-width: max-content;
+    gap: 8px;
+}
+
 #modal-main-title .ru {
     display: block;
     margin-top: 2px;
@@ -117,6 +161,22 @@ body {
     }
 
     .tabs-container .tab-text .ru-block {
+        font-size: 10px;
+    }
+
+    .filter-btn,
+    .fac-filter-btn,
+    .gmc-filter-btn,
+    .com-filter-btn,
+    .stat-filter-btn {
+        font-size: 11px;
+    }
+
+    .filter-btn .ru-block,
+    .fac-filter-btn .ru-block,
+    .gmc-filter-btn .ru-block,
+    .com-filter-btn .ru-block,
+    .stat-filter-btn .ru-block {
         font-size: 10px;
     }
 }
