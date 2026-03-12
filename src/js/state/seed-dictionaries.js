@@ -25,6 +25,28 @@
         "10042": { "full-name": "Неъматов Сӯҳроб", "birth-date": "08.05.1985", "gender": "Мард", "contacts": "+992 98 888 9900", "address": "ш. Ваҳдат", "inn": "6677889900", "category": "Бекор", "education": "Миёна", "course": "Сартарош", "certStatus": "certified" }
     };
 
+    // Synthetic beneficiaries for broad UI testing across filters and states.
+    const syntheticCourses = ['Дӯзандагӣ', 'Кафшергарӣ', 'Муҳосиб', 'Савдо', 'Сартарош', 'Барномасоз'];
+    const syntheticCategories = ['Корҷӯй', 'Бекор', 'Муҳоҷир', 'Бевазан'];
+    for (let i = 1; i <= 50; i++) {
+        const id = String(20000 + i);
+        const dd = String((i % 28) + 1).padStart(2, '0');
+        const mm = String(((i + 2) % 12) + 1).padStart(2, '0');
+        const yy = String(1988 + (i % 12));
+        window.mockDatabase[id] = {
+            'full-name': 'Тестовый заявитель ' + i,
+            'birth-date': dd + '.' + mm + '.' + yy,
+            gender: i % 2 === 0 ? 'Мард' : 'Зан',
+            contacts: '+992 90 ' + String(1000000 + i).slice(-7),
+            address: 'ш. Душанбе',
+            inn: String(7000000000 + i),
+            category: syntheticCategories[i % syntheticCategories.length],
+            education: i % 3 === 0 ? 'Олӣ' : 'Миёнаи махсус',
+            course: syntheticCourses[i % syntheticCourses.length],
+            certStatus: i % 7 === 0 ? 'pending' : 'certified'
+        };
+    }
+
     window.seedPerfTemplates = {
         gmc: { el1: 'yes', el2: 'yes', el3: 'yes', q1: '4', q2: '4', q3: '4', q4: '4', q5: '4', q6: '4', q7: '4', q8: '4', q9: '4', q10: '4', q11: '4', q12: '4', q13: '4', q14: '4', q15: '4', comment: 'Ҳамаи ҳуҷҷатҳо дурустанд / Все документы корректны' },
         piuStatus: { 1: 'completed' },

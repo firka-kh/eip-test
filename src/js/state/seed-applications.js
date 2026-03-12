@@ -124,4 +124,72 @@
             ]
         }
     ];
+
+    const testStatuses = [
+        'draft',
+        'gmc_review',
+        'fac_revision',
+        'postponed',
+        'piu_review',
+        'gmc_revision',
+        'gmc_preparation',
+        'gmc_ready_for_registry',
+        'com_review',
+        'approved'
+    ];
+    const testSectors = [
+        'Савдо <span class="ru">/ Торговля</span>',
+        'Истеҳсолот <span class="ru">/ Производство</span>',
+        'Хизматрасонӣ <span class="ru">/ Услуги</span>'
+    ];
+
+    for (let i = 1; i <= 50; i++) {
+        const id = String(20000 + i);
+        const status = testStatuses[(i - 1) % testStatuses.length];
+        const hour = String(8 + (i % 10)).padStart(2, '0');
+        const minute = String((i * 7) % 60).padStart(2, '0');
+        const app = {
+            id: id,
+            name: 'Тестовый заявитель ' + i,
+            sector: testSectors[i % testSectors.length],
+            amount: (5000 + i * 350).toLocaleString('ru-RU'),
+            date: '12.03.2026, ' + hour + ':' + minute,
+            status: status,
+            auditLog: [
+                {
+                    date: '12.03.2026, ' + hour + ':' + minute,
+                    actor: 'Система',
+                    action: 'Тестовая заявка создана',
+                    actionRu: 'Создана тестовая заявка',
+                    color: 'slate',
+                    icon: 'flask-conical'
+                }
+            ]
+        };
+
+        if (status === 'fac_revision' || status === 'postponed') {
+            app.revisionCount = (i % 3) + 1;
+        }
+        if (status === 'piu_review') {
+            app.gmcEvaluation = perfGmc;
+            app.piuDecisions = { 1: null };
+            app.piuStatus = { 1: 'pending' };
+        }
+        if (status === 'gmc_revision') {
+            app.gmcEvaluation = perfGmc;
+            app.piuStatus = { 1: 'completed' };
+            app.piuDecisions = { 1: 'resubmit' };
+            app.piuComment = 'Тестовый возврат из PIU';
+        }
+        if (['gmc_preparation', 'gmc_ready_for_registry', 'com_review', 'approved'].includes(status)) {
+            app.gmcEvaluation = perfGmc;
+            app.piuStatus = perfPiu;
+            app.piuDecisions = perfPiuDec;
+        }
+        if (status === 'approved') {
+            app.protocolId = 'ПР-7777';
+        }
+
+        window.seedApplications.push(app);
+    }
 })();
