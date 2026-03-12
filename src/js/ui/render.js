@@ -56,14 +56,18 @@
     window.activeFacFilter = window.activeFacFilter || 'all_fac';
     window.activeStatFilter = window.activeStatFilter || 'all_stat';
     window.activeGmcFilter = window.activeGmcFilter || 'all_gmc';
+    window.currentUserRole = window.currentUserRole || 'facilitator';
+
+    function isFacilitatorOwnedStatus(status) {
+        return ['draft', 'fac_revision', 'postponed'].includes(status);
+    }
 
     function canOpenInCurrentContext(appOrId) {
         const app = typeof appOrId === 'string' ? window.getApp(appOrId) : appOrId;
         if (!app) return false;
-        if (window.activeMainFilter !== 'facilitator') return true;
 
-        const facilitatorOwnedStatuses = ['draft', 'fac_revision', 'postponed'];
-        if (facilitatorOwnedStatuses.includes(app.status)) return true;
+        if (window.currentUserRole !== 'facilitator') return true;
+        if (isFacilitatorOwnedStatus(app.status)) return true;
 
         alert('Ин марҳила кори Фасилитатор нест. Танҳо дидан мумкин аст.\nЭто не зона работы Фасилитатора. Открытие недоступно.');
         return false;
@@ -345,6 +349,12 @@
             bHtml = '<div class="bg-slate-100 text-slate-500 px-2 py-1 rounded-md text-[10px] font-medium">Сиёҳнавис</div>';
             badgeHtmlList = bHtml;
             aHtml = '<span class="text-slate-500 text-[12px] font-bold cursor-pointer" onclick="openDraftFor(\'' + id + '\')">Кушодан</span>';
+        }
+
+        if (window.currentUserRole === 'facilitator' && !isFacilitatorOwnedStatus(status)) {
+            checkboxHtmlCard = '';
+            checkboxHtmlRow = '';
+            aHtml = '<span class="text-slate-400 text-[11px] font-bold">Танҳо дидан / Только просмотр</span>';
         }
 
         const card = document.createElement('div');
@@ -731,6 +741,15 @@
     function initializeDashboardFilters() {
         document.querySelectorAll('.filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
+                if (window.currentUserRole === 'facilitator') {
+                    const targetFilter = btn.getAttribute('data-filter');
+                    const allowedFilters = ['facilitator', 'statuses'];
+                    if (!allowedFilters.includes(targetFilter)) {
+                        alert('Барои Фасилитатор ин бахш танҳо барои дидан дастрас аст.\nДля Фасилитатора этот раздел недоступен для работы.');
+                        return;
+                    }
+                }
+
                 document.querySelectorAll('.filter-btn').forEach(function (b) {
                     b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'shadow-sm');
                     b.classList.add('text-slate-600', 'hover:bg-slate-200');
