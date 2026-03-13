@@ -342,7 +342,11 @@
             const sector = clean(app.sector);
             if (sector && !sectorValues.includes(sector)) sectorValues.push(sector);
 
-            const db = (window.mockDatabase || {})[app.id] || {};
+            const beneficiaryId = app.beneficiaryId || app.id;
+            const db = (window.beneficiarySearchDatabase || {})[beneficiaryId]
+                || (window.mockDatabase || {})[beneficiaryId]
+                || app.beneficiarySnapshot
+                || {};
             const region = clean(db.address);
             const gender = clean(db.gender);
             if (region && !regionValues.includes(region)) regionValues.push(region);
@@ -874,7 +878,12 @@
         document.querySelectorAll('#mainDashboardGrid > div, #list-tbody > tr').forEach(function (el) {
             const status = el.getAttribute('data-status');
             const appId = el.getAttribute('data-id');
-            const appFullObj = (window.mockDatabase || {})[appId] || {};
+            const appObj = window.getApp(appId) || {};
+            const beneficiaryId = appObj.beneficiaryId || appId;
+            const appFullObj = (window.beneficiarySearchDatabase || {})[beneficiaryId]
+                || (window.mockDatabase || {})[beneficiaryId]
+                || appObj.beneficiarySnapshot
+                || {};
             let show = false;
 
             if (window.activeMainFilter === 'facilitator') {

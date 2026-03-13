@@ -10,7 +10,11 @@
         if (!app) return;
 
         window.currentGmcAppId = id;
-        const dbUser = (window.mockDatabase || {})[id];
+        const beneficiaryId = app.beneficiaryId || id;
+        const dbUser = (window.beneficiarySearchDatabase || {})[beneficiaryId]
+            || (window.mockDatabase || {})[beneficiaryId]
+            || app.beneficiarySnapshot
+            || {};
 
         const evalContent = document.getElementById('gmc-evaluation-content');
         const prepContent = document.getElementById('gmc-preparation-content');
@@ -24,8 +28,8 @@
         document.getElementById('gmc-hdr-name').textContent = app.name;
         document.getElementById('gmc-hdr-sector').innerHTML = app.sector;
         document.getElementById('gmc-hdr-amount').textContent = app.amount;
-        document.getElementById('gmc-hdr-activity').innerHTML = dbUser ? dbUser.course : '—';
-        document.getElementById('gmc-hdr-location').innerHTML = dbUser ? dbUser.address : '—';
+        document.getElementById('gmc-hdr-activity').innerHTML = dbUser.course || '—';
+        document.getElementById('gmc-hdr-location').innerHTML = dbUser.address || '—';
 
         document.querySelectorAll('.gmc-score-input, .elig-radio, .elig-radio-no').forEach(function (el) {
             el.checked = false;

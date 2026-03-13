@@ -101,16 +101,31 @@
         return String(maxNumericId + 1);
     }
 
+    function buildBeneficiarySnapshot(source) {
+        return {
+            fullName: source['full-name'] || '',
+            birthDate: source['birth-date'] || '',
+            gender: source.gender || '',
+            contacts: source.contacts || '',
+            address: source.address || '',
+            inn: source.inn || '',
+            category: source.category || '',
+            education: source.education || '',
+            course: source.course || ''
+        };
+    }
+
     function fillFacilitatorForm(id) {
         const app = window.getApp(id);
         const db = getSearchDatabase();
         const fallbackDb = window.mockDatabase || {};
         const beneficiaryId = app && app.beneficiaryId ? app.beneficiaryId : id;
         const source = db[beneficiaryId] || fallbackDb[beneficiaryId] || {};
+        const snapshot = (app && app.beneficiarySnapshot) || {};
 
-        const fullName = (app && (app.beneficiaryName || app.name)) || source['full-name'] || '—';
-        const inn = (app && app.inn) || source.inn || '—';
-        const contacts = (app && app.contacts) || source.contacts || '—';
+        const fullName = (app && (app.beneficiaryName || app.name)) || source['full-name'] || snapshot.fullName || '—';
+        const inn = (app && app.inn) || source.inn || snapshot.inn || '—';
+        const contacts = (app && app.contacts) || source.contacts || snapshot.contacts || '—';
         const applicationId = app ? String(app.id) : generateUniqueApplicationId();
 
         document.getElementById('id-input').value = applicationId;
@@ -121,15 +136,15 @@
         document.getElementById('display-fullname').textContent = fullName;
         document.getElementById('inn').value = inn;
         document.getElementById('display-inn').textContent = inn;
-        document.getElementById('display-birthdate').textContent = source['birth-date'] || '—';
-        document.getElementById('display-gender').textContent = source.gender || '—';
+        document.getElementById('display-birthdate').textContent = source['birth-date'] || snapshot.birthDate || '—';
+        document.getElementById('display-gender').textContent = source.gender || snapshot.gender || '—';
         document.getElementById('contacts-input').value = contacts;
         document.getElementById('display-contacts').textContent = contacts;
-        document.getElementById('display-address').textContent = source.address || '—';
-        document.getElementById('display-category').textContent = source.category || '—';
-        document.getElementById('display-education').textContent = source.education || '—';
+        document.getElementById('display-address').textContent = source.address || snapshot.address || '—';
+        document.getElementById('display-category').textContent = source.category || snapshot.category || '—';
+        document.getElementById('display-education').textContent = source.education || snapshot.education || '—';
         document.getElementById('course').value = '';
-        document.getElementById('display-course').textContent = source.course || '—';
+        document.getElementById('display-course').textContent = source.course || snapshot.course || '—';
 
         // Check data completeness and highlight missing fields
         applyCompletenessCheck(source);
@@ -221,6 +236,7 @@
         app.name = app.beneficiaryName;
         app.inn = sanitize(document.getElementById('inn').value);
         app.contacts = sanitize(document.getElementById('contacts-input').value);
+        app.beneficiarySnapshot = buildBeneficiarySnapshot(source);
         app.sector = sectorText || 'Номаълум / Неизвестно';
         app.amount = sanitize(amount || '0');
         app.date = timestamp;
@@ -291,6 +307,7 @@
         app.name = app.beneficiaryName;
         app.inn = sanitize(document.getElementById('inn').value);
         app.contacts = sanitize(document.getElementById('contacts-input').value);
+        app.beneficiarySnapshot = buildBeneficiarySnapshot(source);
         app.sector = sectorText;
         app.amount = sanitize(amount);
         app.date = timestamp;
