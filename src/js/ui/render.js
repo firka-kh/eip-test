@@ -478,7 +478,10 @@
         if (window.activeMainFilter === 'statuses') {
             checkboxHtmlCard = '';
             checkboxHtmlRow = '';
-            aHtml = '<span class="text-slate-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + id + '\')">Намоиш / Просмотр</span>';
+            const facilitatorOwnedInStatuses = ['draft', 'fac_revision', 'incomplete_data', 'postponed'];
+            if (!facilitatorOwnedInStatuses.includes(status)) {
+                aHtml = '<span class="text-slate-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + id + '\')">Намоиш / Просмотр</span>';
+            }
         }
 
         const activeRole = getActiveRoleContext();
