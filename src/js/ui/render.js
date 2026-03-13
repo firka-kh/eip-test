@@ -227,6 +227,7 @@
 
         if (window.activeMainFilter === 'approved_registry') {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+            window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'committee') {
             getPendingCommitteeRegistries().forEach(function (reg) { appendCommitteeRegistryCard(reg); });
         } else {
@@ -388,6 +389,65 @@
             if (!e.target.closest('button') && typeof window.openCommitteeBatch === 'function') {
                 window.openCommitteeBatch(prot.id);
             }
+        };
+        document.getElementById('list-tbody').appendChild(row);
+    }
+
+    function appendApprovedApplicantCard(app) {
+        if (!app || app.status !== 'approved') return;
+
+        const clean = function (v) { return String(v || '').replace(/<[^>]*>?/gm, '').toLowerCase(); };
+        const beneficiaryId = app.beneficiaryId || app.id;
+        const db = (window.beneficiarySearchDatabase || {})[beneficiaryId]
+            || (window.mockDatabase || {})[beneficiaryId]
+            || app.beneficiarySnapshot
+            || {};
+
+        const sectorValue = clean(app.sector);
+        const regionValue = clean(db.address);
+        const genderValue = clean(db.gender);
+        const searchHaystack = clean([
+            app.id,
+            app.name,
+            db['full-name'],
+            db.inn || app.inn,
+            db.address,
+            app.sector
+        ].join(' '));
+
+        const protocolBadge = app.protocolId
+            ? '<span class="bg-teal-100 text-teal-800 border border-teal-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="layers" class="w-3 h-3 inline mr-0.5"></i>' + app.protocolId + '</span>'
+            : '';
+
+        const card = document.createElement('div');
+        card.setAttribute('data-status', 'approved_item');
+        card.setAttribute('data-id', String(app.id || ''));
+        card.setAttribute('data-list-id', String(app.protocolId || ''));
+        card.setAttribute('data-sector-values', sectorValue);
+        card.setAttribute('data-region-values', regionValue);
+        card.setAttribute('data-gender-values', genderValue);
+        card.setAttribute('data-search', searchHaystack);
+        card.className = 'bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-400';
+        card.innerHTML = '<div class="flex justify-between items-start mb-1"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold">Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span></div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + '</div><div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span></div>';
+        card.onclick = function (e) {
+            if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
+            window.openApprovedFor(app.id);
+        };
+        document.getElementById('mainDashboardGrid').appendChild(card);
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-status', 'approved_item');
+        row.setAttribute('data-id', String(app.id || ''));
+        row.setAttribute('data-list-id', String(app.protocolId || ''));
+        row.setAttribute('data-sector-values', sectorValue);
+        row.setAttribute('data-region-values', regionValue);
+        row.setAttribute('data-gender-values', genderValue);
+        row.setAttribute('data-search', searchHaystack);
+        row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in bg-emerald-50/40';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 border-emerald-500 align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400 flex items-center gap-1">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div></td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold w-max border border-emerald-200">Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span></div></td><td class="py-4 px-5 align-middle text-right"><button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></td>';
+        row.onclick = function (e) {
+            if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
+            window.openApprovedFor(app.id);
         };
         document.getElementById('list-tbody').appendChild(row);
     }
@@ -838,8 +898,10 @@
             const regionFilter = (document.getElementById('filter-region') || {}).value || '';
             const genderFilter = (document.getElementById('filter-gender') || {}).value || '';
 
-            let visibleCount = 0;
-            document.querySelectorAll('#mainDashboardGrid > div[data-status="approved_list"], #list-tbody > tr[data-status="approved_list"]').forEach(function (el) {
+            const listEls = document.querySelectorAll('#mainDashboardGrid > div[data-status="approved_list"], #list-tbody > tr[data-status="approved_list"]');
+            const itemEls = document.querySelectorAll('#mainDashboardGrid > div[data-status="approved_item"], #list-tbody > tr[data-status="approved_item"]');
+
+            const passesCommonFilters = function (el) {
                 const sectors = String(el.getAttribute('data-sector-values') || '');
                 const regions = String(el.getAttribute('data-region-values') || '');
                 const genders = String(el.getAttribute('data-gender-values') || '');
@@ -850,7 +912,30 @@
                 if (regionFilter && !regions.includes(String(regionFilter).toLowerCase())) show = false;
                 if (genderFilter && !genders.includes(String(genderFilter).toLowerCase())) show = false;
                 if (searchFilter && !searchHaystack.includes(searchFilter)) show = false;
+                return show;
+            };
 
+            let applicantMatches = 0;
+            itemEls.forEach(function (el) {
+                if (passesCommonFilters(el)) applicantMatches++;
+            });
+
+            const showApplicantCards = !!searchFilter && applicantMatches > 0;
+            let visibleCount = 0;
+
+            listEls.forEach(function (el) {
+                const show = !showApplicantCards && passesCommonFilters(el);
+                if (show) {
+                    if (el.tagName === 'TR') el.style.display = 'table-row';
+                    else el.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+
+            itemEls.forEach(function (el) {
+                const show = showApplicantCards && passesCommonFilters(el);
                 if (show) {
                     if (el.tagName === 'TR') el.style.display = 'table-row';
                     else el.style.display = 'flex';
