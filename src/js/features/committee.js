@@ -240,19 +240,125 @@
             return;
         }
 
+        const toCsv = window.sanitizeCsvField || function (v) { return String(v == null ? '' : v).replace(/"/g, '""'); };
+        const cleanText = function (v) { return String(v == null ? '' : v).replace(/<[^>]*>?/gm, '').trim(); };
+
+        const splitFullName = function (fullName) {
+            const parts = cleanText(fullName).split(/\s+/).filter(Boolean);
+            return {
+                firstName: parts[1] || parts[0] || '',
+                lastName: parts[0] || ''
+            };
+        };
+
+        const parseAddress = function (address) {
+            const addr = cleanText(address);
+            if (!addr) return { city: '', district: '' };
+
+            const items = addr
+                .split(/[,;]+/)
+                .map(function (x) { return x.trim(); })
+                .filter(Boolean);
+
+            const cityMarkers = [/^ш\.?\s*/i, /^г\.?\s*/i, /^шаҳр\s*/i, /^город\s*/i];
+            const districtMarkers = [/^н\.?\s*/i, /^ноҳия\s*/i, /^район\s*/i, /^р-?н\.?\s*/i];
+
+            let city = '';
+            let district = '';
+
+            const normalizeLocationPart = function (value, kind) {
+                let v = cleanText(value)
+                    .replace(/^[-,;:\s]+/, '')
+                    .replace(/[-,;:\s]+$/, '');
+
+                if (kind === 'city') {
+                    v = v
+                        .replace(/^ш\.?\s*/i, '')
+                        .replace(/^г\.?\s*/i, '')
+                        .replace(/^шаҳр\s*/i, '')
+                        .replace(/^город\s*/i, '');
+                }
+
+                if (kind === 'district') {
+                    v = v
+                        .replace(/^н\.?\s*/i, '')
+                        .replace(/^р-?н\.?\s*/i, '')
+                        .replace(/^ноҳия\s*/i, '')
+                        .replace(/^район\s*/i, '');
+                }
+
+                return v.replace(/\s{2,}/g, ' ').trim();
+            };
+
+            items.forEach(function (part) {
+                if (!city && cityMarkers.some(function (rx) { return rx.test(part); })) {
+                    city = part;
+                    return;
+                }
+                if (!district && districtMarkers.some(function (rx) { return rx.test(part); })) {
+                    district = part;
+                    return;
+                }
+            });
+
+            if (!city && items.length > 0) city = items[0];
+            if (!district && items.length > 1) district = items[1];
+
+            city = normalizeLocationPart(city, 'city');
+            district = normalizeLocationPart(district, 'district');
+
+            return { city: city, district: district };
+        };
+
+        const getEvaluatorName = function (app) {
+            const logs = Array.isArray(app.auditLog) ? app.auditLog : [];
+            for (let i = logs.length - 1; i >= 0; i--) {
+                const actor = String((logs[i] && logs[i].actor) || '');
+                if (actor.indexOf('ШИГ') !== -1 || actor.indexOf('КУГ') !== -1) {
+                    return actor;
+                }
+            }
+            return 'ШИГ / КУГ';
+        };
+
         let csvContent = '\uFEFF';
-        csvContent += 'ID;Аризадиҳанда (Заявитель);Бахш (Сектор);Маблағ (Сумма);Қарор (Решение);Нақшаи тиҷоратӣ / Бизнес-план\n';
+        csvContent += 'Давр;Ном;Насаб;Рақами инфиродӣ;Шаҳр;Ноҳия;Номгӯйи тиҷорат;Санаи пешниҳоди НС;Маблағи грант (сомонӣ);Номи нархгузор;Тасдиқ гардида\n';
 
         prot.apps.forEach(function (a) {
             const app = window.getApp(a.id);
-            if (app) {
-                const cleanSector = app.sector.replace(/<[^>]*>?/gm, '').trim();
-                const cleanAmount = app.amount.replace(/\s+/g, '');
-                const decisionText = a.decision === 'ok' ? 'Тасдиқ / Одобрено' : 'Рад шуд / Отклонено';
-                const toCsv = window.sanitizeCsvField || function (v) { return String(v == null ? '' : v).replace(/"/g, '""'); };
-                const businessPlanFile = toCsv('Бизнес_план_' + app.id + '.txt');
-                csvContent += toCsv(app.id) + ';"' + toCsv(app.name) + '";"' + toCsv(cleanSector) + '";' + toCsv(cleanAmount) + ';"' + toCsv(decisionText) + '";"' + businessPlanFile + '"\n';
-            }
+            if (!app) return;
+
+            const beneficiaryId = app.beneficiaryId || app.id;
+            const db = (window.beneficiarySearchDatabase || {})[beneficiaryId]
+                || (window.mockDatabase || {})[beneficiaryId]
+                || app.beneficiarySnapshot
+                || {};
+
+            const fullName = db['full-name'] || app.name || '';
+            const names = splitFullName(fullName);
+            const personalId = db.inn || app.inn || app.id || '';
+            const addressParts = parseAddress(db.address || app.address || '');
+            const businessName = cleanText(app.sector);
+            const submittedDate = String((app.date || '').split(',')[0] || prot.date || '');
+            const grantAmount = String(app.amount || '').replace(/\s+/g, '');
+            const evaluatorName = getEvaluatorName(app);
+            const approvedFlag = a.decision === 'ok' ? 'Ҳа' : 'Не';
+
+            const row = [
+                prot.id,
+                names.firstName,
+                names.lastName,
+                personalId,
+                addressParts.city,
+                addressParts.district,
+                businessName,
+                submittedDate,
+                grantAmount,
+                evaluatorName,
+                approvedFlag
+            ];
+
+            csvContent += row.map(function (v) { return '"' + toCsv(v) + '"'; }).join(';') + '\n';
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
