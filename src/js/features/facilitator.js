@@ -6,6 +6,13 @@
         return window.beneficiarySearchDatabase || window.mockDatabase || {};
     }
 
+    var REQUIRED_TRAINING_SESSIONS = [
+        { key: 'infoSession', tj: 'Сессияи иттилоотӣ', ru: 'Информационная сессия' },
+        { key: 'selfKnowledge', tj: 'Худшиносӣ', ru: 'Самопознание' },
+        { key: 'entrepreneurshipBasics', tj: 'Асосҳои соҳибкорӣ', ru: 'Основы предпринимательства' },
+        { key: 'softSkills', tj: 'Малакаҳои мулоим', ru: 'Мягкие навыки' }
+    ];
+
     function normalizeValue(v) {
         return String(v == null ? '' : v).toLowerCase().replace(/\s+/g, ' ').trim();
     }
@@ -112,8 +119,75 @@
             inn: source.inn || '',
             category: source.category || '',
             education: source.education || '',
-            course: source.course || ''
+            course: source.course || '',
+            trainingSessions: source.trainingSessions || null
         };
+    }
+
+    function getTrainingSessionsState(source) {
+        var sessions = (source && source.trainingSessions) || {};
+        var keys = ['infoSession', 'selfKnowledge', 'entrepreneurshipBasics', 'softSkills'];
+        var hasExplicitSessions = keys.some(function (k) {
+            return Object.prototype.hasOwnProperty.call(sessions, k);
+        });
+
+        // Fallback for legacy records: if DB session data is absent,
+        // rely on cert status; if even that is missing, do not block.
+        if (!hasExplicitSessions) {
+            if (source && source.certStatus === 'certified') {
+                sessions = { infoSession: true, selfKnowledge: true, entrepreneurshipBasics: true, softSkills: true };
+            } else if (source && source.certStatus === 'pending') {
+                sessions = { infoSession: false, selfKnowledge: false, entrepreneurshipBasics: false, softSkills: false };
+            } else {
+                sessions = { infoSession: true, selfKnowledge: true, entrepreneurshipBasics: true, softSkills: true };
+            }
+        }
+
+        var items = REQUIRED_TRAINING_SESSIONS.map(function (s) {
+            return {
+                key: s.key,
+                tj: s.tj,
+                ru: s.ru,
+                passed: !!sessions[s.key]
+            };
+        });
+        var missing = items.filter(function (x) { return !x.passed; });
+        return {
+            items: items,
+            isComplete: missing.length === 0,
+            missingLabels: missing.map(function (x) { return x.ru; })
+        };
+    }
+
+    function renderTrainingSessionsStatus(source) {
+        var listEl = document.getElementById('fac-training-sessions-list');
+        var warningEl = document.getElementById('facilitator-sessions-warning');
+        var missingEl = document.getElementById('fac-training-sessions-missing');
+        if (!listEl || !warningEl || !missingEl) return;
+
+        var state = getTrainingSessionsState(source || {});
+        listEl.innerHTML = state.items.map(function (item) {
+            var base = item.passed
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : 'bg-red-50 border-red-200 text-red-800';
+            var icon = item.passed ? '✔' : '✖';
+            return '<div class="border rounded-lg px-3 py-2 text-[12px] font-medium ' + base + '"><span class="mr-1.5">' + icon + '</span>' + item.tj + ' <span class="ru">/ ' + item.ru + '</span></div>';
+        }).join('');
+
+        if (state.isComplete) {
+            warningEl.classList.add('hidden');
+            missingEl.textContent = '';
+        } else {
+            warningEl.classList.remove('hidden');
+            missingEl.textContent = state.missingLabels.join(', ');
+        }
+    }
+
+    function validateTrainingSessionsForGrant(source) {
+        var state = getTrainingSessionsState(source || {});
+        if (state.isComplete) return true;
+        alert('Заявитель не прошел все обязательные сессии: ' + state.missingLabels.join(', ') + '.\nНевозможно включить в заявку на грант.');
+        return false;
     }
 
     function getSelectedFileNames(inputId) {
@@ -284,6 +358,7 @@
         document.getElementById('display-education').textContent = source.education || snapshot.education || '—';
         document.getElementById('course').value = '';
         document.getElementById('display-course').textContent = source.course || snapshot.course || '—';
+        renderTrainingSessionsStatus(source);
 
         updateUploadTextsFromInputs(app);
         updateWordVersionBadge(app);
@@ -388,6 +463,8 @@
         app.amount = sanitize(amount || '0');
         app.date = timestamp;
 
+        if (!validateTrainingSessionsForGrant(source)) return;
+
         // Register initial document set if files selected on this draft session
         persistDocumentBundle(app, 'facilitator_draft');
 
@@ -459,6 +536,8 @@
         app.sectorValue = sectorValue || app.sectorValue || '';
         app.amount = sanitize(amount);
         app.date = timestamp;
+
+        if (!validateTrainingSessionsForGrant(source)) return;
 
         persistDocumentBundle(app, 'facilitator_submit');
         if (!validateRequiredDocumentSet(app)) return;
@@ -631,6 +710,10 @@
                 if (!completeness.isComplete) {
                     incompleteHtml = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-medium ml-1" title="' + esc(completeness.missingFields.join(', ')) + '">⚠ нопурра <span class="ru font-normal">/ неполные</span></span>';
                 }
+                var sessionsState = getTrainingSessionsState(user);
+                if (!sessionsState.isComplete) {
+                    incompleteHtml += '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-[10px] font-medium ml-1">⚠ сессияҳо нопурра <span class="ru font-normal">/ сессии не пройдены</span></span>';
+                }
                 const item = document.createElement('div');
                 item.className = 'p-3 hover:bg-slate-50 cursor-pointer flex justify-between border-b border-slate-100 last:border-0 transition-colors' + (!completeness.isComplete ? ' bg-orange-50/40' : '');
                 item.innerHTML = '<div class="flex gap-3"><div class="w-8 h-8 rounded-full ' + (!completeness.isComplete ? 'bg-orange-100 text-orange-600' : 'bg-indigo-100 text-indigo-600') + ' flex items-center justify-center font-bold text-sm">' + esc(initials) + '</div><div class="flex flex-col"><span class="text-[13px] font-medium">' + esc(user['full-name']) + incompleteHtml + '</span><span class="text-[11px] text-gray-500">ID: ' + esc(id) + '</span></div></div><span class="' + badgeColor + ' px-2 py-1 rounded text-[10px] font-bold h-max">' + esc(certStatusLabel(user.certStatus)) + '</span>';
@@ -654,6 +737,7 @@
                     }, null);
                     selectedHasHardDuplicate = hasHardDuplicate(details);
                     var selCompleteness = window.checkBeneficiaryDataComplete ? window.checkBeneficiaryDataComplete(user) : { isComplete: true, missingFields: [] };
+                    var sessionsState = getTrainingSessionsState(user);
                     if (!selCompleteness.isComplete) {
                         var missingLabels = selCompleteness.missingFields.join(', ');
                         duplicateWarning.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800');
@@ -667,7 +751,12 @@
                         duplicateWarning.classList.remove('bg-orange-50', 'border-orange-300', 'text-orange-800');
                         showDuplicateWarning(duplicateWarning, details);
                     }
-                    setSubmitEnabled(user.certStatus === 'certified' && !selectedHasHardDuplicate);
+                    if (!sessionsState.isComplete) {
+                        duplicateWarning.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800', 'bg-orange-50', 'border-orange-300', 'text-orange-800');
+                        duplicateWarning.classList.add('bg-red-50', 'border-red-300', 'text-red-800');
+                        duplicateWarning.textContent = 'Заявитель не прошел обязательные сессии: ' + sessionsState.missingLabels.join(', ') + '. Включение в грантовую заявку запрещено.';
+                    }
+                    setSubmitEnabled(user.certStatus === 'certified' && !selectedHasHardDuplicate && sessionsState.isComplete);
                 });
                 searchDropdownList.appendChild(item);
             });
@@ -729,6 +818,9 @@
             if (!selectedBeneficiaryId) return;
             if (selectedHasHardDuplicate) {
                 alert('Эҷод блок шуд: такрор аз рӯи ИНН ё телефон ёфт шуд.\nСоздание заблокировано: найден дубль по ИНН или телефону.');
+                return;
+            }
+            if (!validateTrainingSessionsForGrant(selectedBeneficiaryData || {})) {
                 return;
             }
             window.setAvailableTabs(['pane-facilitator']);

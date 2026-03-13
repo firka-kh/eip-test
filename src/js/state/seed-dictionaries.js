@@ -122,6 +122,37 @@
         };
     }
 
+    function buildTrainingSessionsByCert(certStatus, numericId) {
+        var allPassed = certStatus === 'certified';
+        var base = {
+            infoSession: allPassed,
+            selfKnowledge: allPassed,
+            entrepreneurshipBasics: allPassed,
+            softSkills: allPassed
+        };
+        if (allPassed) return base;
+
+        var n = parseInt(String(numericId || '0').replace(/\D/g, ''), 10) || 0;
+        if (n % 2 === 0) base.infoSession = true;
+        if (n % 3 === 0) base.selfKnowledge = true;
+        if (n % 5 === 0) base.entrepreneurshipBasics = true;
+        if (n % 7 === 0) base.softSkills = true;
+        return base;
+    }
+
+    function hydrateTrainingSessions(dbObject) {
+        Object.keys(dbObject || {}).forEach(function (id) {
+            var rec = dbObject[id];
+            if (!rec) return;
+            if (!rec.trainingSessions) {
+                rec.trainingSessions = buildTrainingSessionsByCert(rec.certStatus, id);
+            }
+        });
+    }
+
+    hydrateTrainingSessions(window.mockDatabase);
+    hydrateTrainingSessions(window.beneficiarySearchDatabase);
+
     window.seedPerfTemplates = {
         gmc: { el1: 'yes', el2: 'yes', el3: 'yes', q1: '4', q2: '4', q3: '4', q4: '4', q5: '4', q6: '4', q7: '4', q8: '4', q9: '4', q10: '4', q11: '4', q12: '4', q13: '4', q14: '4', q15: '4', comment: 'Ҳамаи ҳуҷҷатҳо дурустанд / Все документы корректны' },
         piuStatus: { 1: 'completed' },
