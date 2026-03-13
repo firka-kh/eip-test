@@ -91,10 +91,54 @@ interface Application {
   piuStatus?: { [step: number]: string };             // Статус шагов ГРП
   piuComment?: string;           // Комментарий ГРП при возврате
 
+  // === Документы бизнес-плана ===
+  documents?: DocumentBundle;    // Word-версии + фиксированные PDF/фото
+
   // === Аудит ===
   auditLog: AuditLogEntry[];     // История действий
 }
 ```
+
+### DocumentBundle (пакет документов бизнес-плана)
+
+```typescript
+interface DocumentBundle {
+  wordVersions: WordVersionEntry[]; // История Word версий
+  currentWordVersion: number;       // Текущая активная версия (Vn)
+  basePdf: BasePdfEntry | null;     // Фиксированный PDF
+  basePhotos: BasePhotoEntry[];     // Фиксированный фото-комплект
+}
+
+interface WordVersionEntry {
+  version: number;           // 1, 2, 3...
+  name: string;              // Имя файла
+  uploadedAt: string;        // Дата/время загрузки
+  uploadedByRole: string;    // Роль: Фасилитатор, ШИГ / КУГ
+  uploadedByName: string;    // Отображаемое имя автора
+  sourceStage: string;       // facilitator | gmc_revision | ...
+}
+
+interface BasePdfEntry {
+  name: string;
+  uploadedAt: string;
+  uploadedByRole: string;
+  uploadedByName: string;
+}
+
+interface BasePhotoEntry {
+  slot: number;              // 1..4
+  name: string;
+  uploadedAt: string;
+  uploadedByRole: string;
+  uploadedByName: string;
+}
+```
+
+Инварианты документного пакета:
+- При первичной подаче Фасилитатор обязан приложить `Word + PDF + ровно 4 фото`.
+- `wordVersions` пополняется при первичной подаче и при корректировках ШИГ / КУГ после возврата ГРП.
+- `basePdf` и `basePhotos` не перезаписываются на последующих этапах.
+- UI-индикатор `Current Word Version: Vn` берется из `documents.currentWordVersion`.
 
 ### ApplicationStatus (все возможные значения)
 

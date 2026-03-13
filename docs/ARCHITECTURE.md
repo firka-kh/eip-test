@@ -22,7 +22,7 @@ graph TB
         end
 
         subgraph "Core Layer"
-            UTILS[core/utils.js<br/>sanitizeText, addLog,<br/>getCurrentDateTime,<br/>sanitizeCsvField]
+            UTILS[core/utils.js<br/>sanitizeText, addLog,<br/>getCurrentDateTime,<br/>sanitizeCsvField,<br/>ensureDocumentBundle,<br/>registerWordVersion,<br/>downloadBusinessPlan*]
         end
 
         subgraph "State Layer"
@@ -209,6 +209,24 @@ flowchart LR
 - Автоматической реактивации нет: даже после истечения срока заявка остается в `postponed`.
 - Разблокировка выполняется только вручную Фасилитатором.
 - UI показывает постоянную метку, что заявка была возвращена после периода блокировки.
+
+### Поток документов бизнес-плана (Word versioning)
+
+```mermaid
+flowchart LR
+    F1[Фасилитатор: первичная подача] --> D1[documents.basePdf + documents.basePhotos]
+    F1 --> W1[documents.wordVersions: V1]
+    W1 --> G1[ШИГ / КУГ и ГРП читают текущий Word]
+    G1 -->|Возврат из ГРП| G2[ШИГ / КУГ загружает новый Word]
+    G2 --> W2[registerWordVersion -> V2, V3...]
+    W2 --> UI1[Карточки/таблицы: Current Word Version: Vn]
+    D1 --> UI2[Отдельные скачивания PDF/фото]
+```
+
+Ключевые принципы:
+- Версионируется только Word-документ бизнес-плана.
+- PDF и фото-комплект фиксируются один раз как базовые вложения.
+- Скачивание разделено на 3 действия: текущая Word-версия, фиксированный PDF, фиксированный фото-комплект.
 
 ---
 
