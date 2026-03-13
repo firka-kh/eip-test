@@ -199,7 +199,7 @@ interface CompletenessResult {
 ```typescript
 interface AuditLogEntry {
   date: string;       // "12.03.2026, 09:15"
-  actor: string;      // "Фасилитатор", "ШИГ / КУГ", "ГРП / PIU", "Кумита / Комитет", "Система"
+  actor: string;      // "Фасилитатор", "ШИГ / КУГ", "ГТЛ / ГРП", "Кумита / Комитет", "Система"
   action: string;     // Действие на таджикском (sanitized)
   actionRu: string;   // Действие на русском (sanitized)
   color: string;      // Tailwind цвет: "blue", "emerald", "amber", "red", "slate", "purple"

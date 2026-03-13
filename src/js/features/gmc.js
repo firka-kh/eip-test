@@ -82,7 +82,7 @@
 
         if (app.status === 'gmc_preparation') {
             prepContent.classList.remove('hidden');
-            prepContent.innerHTML = '<div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 text-center shadow-sm"><div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="clipboard-check" class="w-8 h-8"></i></div><h3 class="text-[16px] font-bold text-indigo-900 mb-2">Санҷиши ГРП гузашт <span class="ru-block mt-1">Верификация ГРП пройдена</span></h3><p class="text-[13px] text-indigo-700 mb-6">Лутфан дархостро бори дигар аз назар гузаронед ва онро ба реестр барои Кумита илова кунед.<span class="ru-block mt-1">Пожалуйста, проверьте заявку еще раз и добавьте её в реестр для отправки в Комитет.</span></p><button onclick="markReadyForRegistry()" class="w-full sm:w-auto mx-auto bg-indigo-600 text-white px-8 py-3 rounded-xl text-[14px] font-bold hover:bg-indigo-700 transition-colors shadow-sm flex flex-col items-center leading-tight"><span>Ба реестр илова кардан</span><span class="ru">Добавить в реестр</span></button></div>';
+            prepContent.innerHTML = '<div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 text-center shadow-sm"><div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="clipboard-check" class="w-8 h-8"></i></div><h3 class="text-[16px] font-bold text-indigo-900 mb-2">Санҷиши ГТЛ гузашт <span class="ru-block mt-1">Верификация ГРП пройдена</span></h3><p class="text-[13px] text-indigo-700 mb-6">Лутфан дархостро бори дигар аз назар гузаронед ва онро ба реестр барои Кумита илова кунед.<span class="ru-block mt-1">Пожалуйста, проверьте заявку еще раз и добавьте её в реестр для отправки в Комитет.</span></p><button onclick="markReadyForRegistry()" class="w-full sm:w-auto mx-auto bg-indigo-600 text-white px-8 py-3 rounded-xl text-[14px] font-bold hover:bg-indigo-700 transition-colors shadow-sm flex flex-col items-center leading-tight"><span>Ба реестр илова кардан</span><span class="ru">Добавить в реестр</span></button></div>';
             evalContent.classList.remove('hidden');
             makeReadonly();
         } else if (['gmc_ready_for_registry', 'com_review', 'approved'].includes(app.status)) {
@@ -104,7 +104,7 @@
             if (lastActor.includes('Кумита')) {
                 returnTitle.innerHTML = 'Аз Кумита барои бозрасӣ баргардонида шуд <span class="ru-block mt-1">Возвращено из Комитета на доработку</span>';
             } else {
-                returnTitle.innerHTML = 'Аз ГРП барои бозрасӣ баргардонида шуд <span class="ru-block mt-1">Возвращено из ГРП на доработку</span>';
+                returnTitle.innerHTML = 'Аз ГТЛ барои бозрасӣ баргардонида шуд <span class="ru-block mt-1">Возвращено из ГРП на доработку</span>';
             }
         } else if (app.status === 'piu_review') {
             evalContent.classList.remove('hidden');
@@ -223,8 +223,8 @@
 
         if (window.currentGmcChoice === 'ok') {
             app.status = 'piu_review';
-            window.addLog(app, 'ШИГ / КУГ', 'Тасдиқ шуд, ба ГРП равон шуд', 'Одобрено, направлено в ГРП', 'emerald', 'check');
-            alert('Дархост тасдиқ шуд! Ҳуҷҷат бетағйир ба ГРП интиқол ёфт.\nЗаявка одобрена! Документ в неизменном состоянии передан в ГРП.');
+            window.addLog(app, 'ШИГ / КУГ', 'Тасдиқ шуд, ба ГТЛ равон шуд', 'Одобрено, направлено в ГРП', 'emerald', 'check');
+            alert('Дархост тасдиқ шуд! Ҳуҷҷат бетағйир ба ГТЛ интиқол ёфт.\nЗаявка одобрена! Документ в неизменном состоянии передан в ГРП.');
         } else if (window.currentGmcChoice === 'rev') {
             app.revisionCount = (app.revisionCount || 0) + 1;
             if (app.revisionCount >= 3) {
@@ -272,7 +272,7 @@
         window.addLog(
             app,
             'ШИГ / КУГ',
-            'Ислоҳот ворид шуд, Word V' + nextVersion + ' бор ва бозгашт ба ГРП',
+            'Ислоҳот ворид шуд, Word V' + nextVersion + ' бор ва бозгашт ба ГТЛ',
             'Внесены исправления, загружен Word V' + nextVersion + ', возвращено в ГРП',
             'blue',
             'refresh-cw'
@@ -301,7 +301,7 @@
             alert('Лимит доработок исчерпан на 3-м неодобрении. Заявка заблокирована до ' + untilRu + '.');
         } else {
             app.status = 'fac_revision';
-            window.addLog(app, 'ШИГ / КУГ', 'Аз ГРП баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)', 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left', comment);
+            window.addLog(app, 'ШИГ / КУГ', 'Аз ГТЛ баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)', 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left', comment);
             alert('Дархост барои такмил ба Фасилитатор фиристода шуд (Кӯшиши ' + app.revisionCount + ' аз 3)!\nЗаявка отправлена Фасилитатору на доработку (Попытка ' + app.revisionCount + ' из 3)!');
         }
         window.renderAllCards();

@@ -169,10 +169,10 @@
 
         if (hasRev) {
             app.status = 'gmc_revision';
-            window.addLog(app, 'ГРП / PIU', 'Бо эродҳо ба ШИГ баргашт', 'Возвращено с комментариями в КУГ', 'amber', 'alert-triangle', finalComment);
+            window.addLog(app, 'ГТЛ / ГРП', 'Бо эродҳо ба ШИГ баргашт', 'Возвращено с комментариями в КУГ', 'amber', 'alert-triangle', finalComment);
         } else {
             app.status = 'gmc_preparation';
-            window.addLog(app, 'ГРП / PIU', 'Баҳогузории иҷтимоӣ-экологӣ гузашт', 'Социально-экологическая оценка пройдена', 'emerald', 'check-circle');
+            window.addLog(app, 'ГТЛ / ГРП', 'Баҳогузории иҷтимоӣ-экологӣ гузашт', 'Социально-экологическая оценка пройдена', 'emerald', 'check-circle');
         }
         document.getElementById('piu-evaluation-content').classList.add('hidden');
         window.renderAllCards();

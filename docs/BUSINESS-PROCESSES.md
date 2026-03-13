@@ -23,7 +23,7 @@ graph TB
         B["👤 Бенефициар<br/>(заявитель)"]
         F["🧑‍💼 Фасилитатор<br/>(полевой координатор)"]
         G["📊 ШИГ / КУГ<br/>(оценка и скоринг)"]
-        P["🔍 ГРП / PIU<br/>(социально-экологическая<br/>проверка)"]
+        P["🔍 ГТЛ / ГРП<br/>(социально-экологическая<br/>проверка)"]
         C["🏛 Комитет<br/>(финальное утверждение)"]
         S["⚙️ Система<br/>(автоматические действия)"]
     end
@@ -198,7 +198,7 @@ sequenceDiagram
 
 ---
 
-## БП-3: Проверка ГРП / PIU
+## БП-3: Проверка ГТЛ / ГРП
 
 ### Описание
 ГРП проводит социально-экологическую оценку заявки.
@@ -472,7 +472,7 @@ flowchart TD
 sequenceDiagram
     participant F as Фасилитатор
     participant G as ШИГ / КУГ
-    participant P as ГРП / PIU
+    participant P as ГТЛ / ГРП
     participant ST as State.documents
 
     F->>ST: Первичная подача: Word V1 + basePdf + 4 basePhotos
@@ -538,7 +538,7 @@ flowchart TB
         B8 --> B9[com_review]
     end
 
-    subgraph "ГРП / PIU"
+    subgraph "ГТЛ / ГРП"
         C1[Социально-экологическая<br/>оценка] --> C2{Результат?}
         C2 -->|Пройдена| C3[gmc_preparation]
         C2 -->|Возврат| C4[gmc_revision]

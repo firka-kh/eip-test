@@ -120,7 +120,7 @@
             ownedStatuses: ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry']
         },
         piu: {
-            label: 'ГРП / PIU',
+            label: 'ГТЛ / ГРП',
             ownedStatuses: ['piu_review']
         },
         committee: {
@@ -549,7 +549,7 @@
                 aHtml = '<button onclick="openGmcFor(\'' + id + '\')" class="bg-white text-[#5B4AF0] border border-[#C6D4FF] text-[12px] font-bold px-3 py-1.5 rounded-lg">Омода кардан <span class="ru font-normal">/ Подготовить</span></button>';
             } else if (status === 'gmc_revision') {
                 bClass = 'bg-amber-50 border-amber-300';
-                bHtml = '<div class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Аз ГРП баргашт <span class="ru font-normal">/ Возврат из ГРП</span></div>';
+                bHtml = '<div class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Аз ГТЛ баргашт <span class="ru font-normal">/ Возврат из ГРП</span></div>';
                 badgeHtmlList = bHtml;
                 aHtml = '<button onclick="openGmcFor(\'' + id + '\')" class="bg-white text-amber-700 border border-amber-300 text-[12px] font-bold px-3 py-1.5 rounded-lg">Баррасӣ <span class="ru font-normal">/ Проверить</span></button>';
             } else {
@@ -560,9 +560,9 @@
             }
         } else if (status === 'piu_review') {
             bClass = 'bg-indigo-50 border-indigo-200';
-            bHtml = '<div class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md text-[10px] font-bold">Барои баррасӣ ба ГРП <span class="ru font-normal">/ В ГРП</span></div>';
+            bHtml = '<div class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md text-[10px] font-bold">Барои баррасӣ ба ГТЛ <span class="ru font-normal">/ В ГРП</span></div>';
             badgeHtmlList = bHtml;
-            aHtml = '<span class="text-indigo-600 text-[12px] font-bold cursor-pointer" onclick="openPiuFor(\'' + id + '\')">Санҷиши ГРП <span class="ru font-normal">/ Проверка ГРП</span></span>';
+            aHtml = '<span class="text-indigo-600 text-[12px] font-bold cursor-pointer" onclick="openPiuFor(\'' + id + '\')">Санҷиши ГТЛ <span class="ru font-normal">/ Проверка ГРП</span></span>';
         } else if (status === 'com_review') {
             bClass = 'bg-teal-50 border-teal-200';
             bHtml = '<div class="bg-teal-100 text-teal-700 px-2 py-1 rounded-md text-[10px] font-bold">Қарори Кумита <span class="ru font-normal">/ Решение Комитета</span></div>';
@@ -880,7 +880,7 @@
         const mainLabels = {
             facilitator: 'Фасилитатор',
             gmc: 'ШИГ / КУГ',
-            piu: 'ГРП / PIU',
+            piu: 'ГТЛ / ГРП',
             committee: 'Кумита / Комитет',
             approved_registry: 'Тасдиқшуда / Одобренные',
             statuses: 'Аз рӯи статус / По статусам'
