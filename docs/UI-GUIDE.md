@@ -70,6 +70,20 @@ graph LR
 | `committee` | com_review + протоколы + реестры | incoming / protocols |
 | `statuses` | все статусы | all / draft / revision / review / approved / postponed / rejected |
 
+### Фильтр «Одобренные» (`approved_registry`)
+
+В режиме одобренных используются поля:
+- `#filter-sector`
+- `#filter-region`
+- `#filter-gender`
+- `#filter-search-issued`
+
+Режим поиска работает в двух сценариях:
+- По ID/ФИО заявителя: показываются карточки отдельных заявителей (`approved_item`).
+- По номеру списка/протокола: показываются карточки списков (`approved_list`).
+
+Если поисковая строка пустая, по умолчанию отображаются карточки списков одобрений.
+
 ### Подфильтры
 
 #### Фасилитатор (`#facilitator-filters-bar`)
@@ -95,6 +109,16 @@ graph LR
 ---
 
 ## Карточки заявок
+
+### Карточки в разделе «Одобренные»
+
+В `approved_registry` рендерятся два типа карточек:
+- `approved_list`: карточка списка/протокола с агрегированной статистикой.
+- `approved_item`: карточка конкретного одобренного заявителя.
+
+Открытие:
+- `approved_list` открывает список через `openCommitteeBatch(protocolId)`.
+- `approved_item` открывает карточку заявителя через `openApprovedFor(appId)`.
 
 ### Режим Grid (карточки)
 

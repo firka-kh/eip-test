@@ -336,3 +336,38 @@ graph TB
     APP -->|auditLog[]| LOG[AuditLogEntry]
     APP -->|gmcEvaluation| EVAL[GmcEvaluation]
 ```
+
+---
+
+## UI View-модели (раздел одобренных)
+
+В `approved_registry` используются два DOM-типа карточек/строк (это не `ApplicationStatus`, а маркеры представления):
+
+```typescript
+type ApprovedDashboardItemType = 'approved_list' | 'approved_item';
+
+interface ApprovedListViewModel {
+  itemType: 'approved_list';
+  listId: string;             // protocolId
+  sectorValues: string;       // агрегированные значения для фильтра
+  regionValues: string;       // агрегированные значения для фильтра
+  genderValues: string;       // агрегированные значения для фильтра
+  search: string;             // индекс поиска по списку
+}
+
+interface ApprovedApplicantViewModel {
+  itemType: 'approved_item';
+  appId: string;
+  listId?: string;            // protocolId заявки
+  sectorValues: string;
+  regionValues: string;
+  genderValues: string;
+  search: string;             // индекс поиска по заявителю (ID/ФИО/ИНН/адрес)
+}
+```
+
+### Правило отображения в поиске
+
+- Если в `#filter-search-issued` есть текст и найдены совпадения по `approved_item`, показываются карточки заявителей.
+- Если совпадений по `approved_item` нет, показываются карточки `approved_list`.
+- При пустом поиске по умолчанию отображаются карточки `approved_list`.
