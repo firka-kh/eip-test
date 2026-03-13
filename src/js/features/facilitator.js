@@ -267,8 +267,7 @@
             contacts: document.getElementById('contacts-input').value
         }, appId);
         if (hardDuplicate) {
-            alert('Эҷоди дархост блок шуд: такрор аз рӯи ИНН ё телефон ёфт шуд.
-Создание / отправка заблокированы: найден дубль по ИНН или телефону.');
+            alert('Эҷоди дархост блок шуд: такрор аз рӯи ИНН ё телефон ёфт шуд.\nСоздание / отправка заблокированы: найден дубль по ИНН или телефону.');
             return;
         }
         const sectorSelect = document.getElementById('sector-input');
@@ -536,8 +535,7 @@
         submitApplicationBtn.addEventListener('click', function () {
             if (!selectedBeneficiaryId) return;
             if (selectedHasHardDuplicate) {
-                alert('Эҷод блок шуд: такрор аз рӯи ИНН ё телефон ёфт шуд.
-Создание заблокировано: найден дубль по ИНН или телефону.');
+                alert('Эҷод блок шуд: такрор аз рӯи ИНН ё телефон ёфт шуд.\nСоздание заблокировано: найден дубль по ИНН или телефону.');
                 return;
             }
             window.setAvailableTabs(['pane-facilitator']);
