@@ -166,8 +166,21 @@
             ]
         };
 
-        if (status === 'fac_revision' || status === 'postponed') {
+        if (status === 'fac_revision') {
             app.revisionCount = (i % 3) + 1;
+        }
+        if (status === 'postponed') {
+            // Postponed status is reached only after the 3rd disapproval.
+            app.revisionCount = 3;
+
+            // Provide demo variants that are already unlock-ready for facilitator.
+            if (i % 2 === 0) {
+                app.postponedAtISO = '2025-10-15';
+                app.postponedUntilISO = '2026-01-15';
+            } else {
+                app.postponedAtISO = '2026-03-01';
+                app.postponedUntilISO = '2026-06-01';
+            }
         }
         if (status === 'piu_review') {
             app.gmcEvaluation = perfGmc;
