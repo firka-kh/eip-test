@@ -55,6 +55,17 @@ interface Application {
   beneficiaryName?: string;      // ФИО из формы (sanitized)
   inn?: string;                  // ИНН (sanitized)
   contacts?: string;             // Контакты (sanitized)
+  beneficiarySnapshot?: {        // Снимок данных заявителя на момент сохранения/отправки
+    fullName?: string;
+    birthDate?: string;
+    gender?: string;
+    contacts?: string;
+    address?: string;
+    inn?: string;
+    category?: string;
+    education?: string;
+    course?: string;
+  };
 
   // === Данные заявки ===
   sector: string;                // Сектор (может содержать HTML: <span class="ru">)
@@ -65,13 +76,17 @@ interface Application {
   // === Доработка ===
   revisionCount?: number;        // Счетчик доработок (0-3). На карточке отображается как компактный бейдж "1/3" (inline <span>, не блочный)
   reactivated?: boolean;         // Реактивирована после 3 мес. паузы
+  postponedAtISO?: string;       // Дата блокировки (YYYY-MM-DD)
+  postponedUntilISO?: string;    // Дата окончания блокировки (YYYY-MM-DD)
+  reactivatedAtISO?: string;     // Дата ручной разблокировки (YYYY-MM-DD)
+  unlockNoticeProcessedAtISO?: string; // Отметка "обработано" в ленте уведомлений
   missingFields?: string[];      // Недостающие поля бенефициара (при status = incomplete_data)
 
   // === Протокол Комитета ===
   protocolId?: string;           // ID протокола ("СП-9001")
 
   // === Оценки ===
-  gmcEvaluation?: GmcEvaluation; // Результат скоринга ШИГ
+  gmcEvaluation?: GmcEvaluation; // Результат скоринга ШИГ / КУГ
   piuDecisions?: { [step: number]: string | null };  // Решения ГРП
   piuStatus?: { [step: number]: string };             // Статус шагов ГРП
   piuComment?: string;           // Комментарий ГРП при возврате
@@ -87,12 +102,12 @@ interface Application {
 type ApplicationStatus =
   | 'draft'                    // Черновик
   | 'incomplete_data'           // Неполные данные бенефициара
-  | 'gmc_review'              // На рассмотрении в ШИГ
+  | 'gmc_review'              // На рассмотрении в ШИГ / КУГ
   | 'fac_revision'            // На доработке у Фасилитатора
   | 'postponed'               // Отложена (3 мес.)
   | 'piu_review'              // На проверке в ГРП
-  | 'gmc_revision'            // Возвращена из ГРП в ШИГ
-  | 'gmc_preparation'         // Подготовка к реестру (ШИГ)
+  | 'gmc_revision'            // Возвращена из ГРП в ШИГ / КУГ
+  | 'gmc_preparation'         // Подготовка к реестру (ШИГ / КУГ)
   | 'gmc_ready_for_registry'  // Готова для реестра
   | 'com_review'              // На решении Комитета
   | 'approved'                // Одобрена
@@ -126,6 +141,13 @@ interface CompletenessResult {
 
 Поле считается пустым, если значение: `undefined`, `null`, `""` или `"—"`.
 
+### Примечания по postponed
+
+- Для статуса `postponed` карточка всегда показывает индикатор доработки `3/3`.
+- После истечения срока блокировки заявка не активируется автоматически.
+- После истечения срока заявка получает признак `unlock-ready` (готова к разблокировке), но остается в `postponed`.
+- Переход `postponed -> fac_revision` выполняется только вручную Фасилитатором.
+
 ---
 
 ## AuditLogEntry (Запись аудита)
@@ -144,7 +166,7 @@ interface AuditLogEntry {
 
 ---
 
-## GmcEvaluation (Скоринг ШИГ)
+## GmcEvaluation (Скоринг ШИГ / КУГ)
 
 ```typescript
 interface GmcEvaluation {
