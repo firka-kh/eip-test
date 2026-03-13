@@ -122,18 +122,40 @@
         return Array.prototype.map.call(input.files, function (f) { return f && f.name ? f.name : ''; }).filter(Boolean);
     }
 
-    function updateUploadTextsFromInputs() {
+    function updateUploadTextsFromInputs(app) {
         var wordNames = getSelectedFileNames('fac-word-upload');
         var pdfNames = getSelectedFileNames('fac-pdf-upload');
         var photoNames = getSelectedFileNames('fac-photo-upload');
+        var docs = app && typeof window.ensureDocumentBundle === 'function' ? window.ensureDocumentBundle(app) : null;
+        var currentWordInfo = app && typeof window.getCurrentWordVersionInfo === 'function' ? window.getCurrentWordVersionInfo(app) : null;
 
         var wordText = document.getElementById('fac-word-upload-text');
         var pdfText = document.getElementById('fac-pdf-upload-text');
         var photoText = document.getElementById('fac-photo-upload-text');
 
-        if (wordText) wordText.textContent = wordNames[0] || 'Файл не выбран';
-        if (pdfText) pdfText.textContent = pdfNames[0] || 'Файл не выбран';
-        if (photoText) photoText.textContent = String(photoNames.length) + ' / 4';
+        if (wordText) wordText.textContent = wordNames[0] || (currentWordInfo && currentWordInfo.name) || 'Файл не выбран';
+        if (pdfText) pdfText.textContent = pdfNames[0] || (docs && docs.basePdf && docs.basePdf.name) || 'Файл не выбран';
+        if (photoText) {
+            var total = photoNames.length > 0 ? photoNames.length : ((docs && docs.basePhotos && docs.basePhotos.length) || 0);
+            photoText.textContent = String(total) + ' / 4';
+        }
+    }
+
+    function applyRevisionDocumentMode(app) {
+        var isRevision = !!(app && app.status === 'fac_revision');
+        var pdfInput = document.getElementById('fac-pdf-upload');
+        var photoInput = document.getElementById('fac-photo-upload');
+        var revisionNote = document.getElementById('fac-revision-docs-note');
+
+        [pdfInput, photoInput].forEach(function (input) {
+            if (!input) return;
+            input.disabled = isRevision;
+            input.classList.toggle('opacity-60', isRevision);
+            input.classList.toggle('cursor-not-allowed', isRevision);
+            if (isRevision) input.value = '';
+        });
+
+        if (revisionNote) revisionNote.classList.toggle('hidden', !isRevision);
     }
 
     function getExistingDocumentState(app) {
@@ -163,6 +185,15 @@
         var selectedWord = getSelectedFileNames('fac-word-upload');
         var selectedPdf = getSelectedFileNames('fac-pdf-upload');
         var selectedPhotos = getSelectedFileNames('fac-photo-upload');
+        var isRevision = !!(app && app.status === 'fac_revision');
+
+        if (isRevision) {
+            if (selectedWord.length === 0) {
+                alert('Барои такмил фақат Word версияи навро бор кунед.\nДля доработки загрузите новую Word версию бизнес-плана.');
+                return false;
+            }
+            return true;
+        }
 
         var hasWord = existing.hasWord || selectedWord.length > 0;
         var hasPdf = existing.hasPdf || selectedPdf.length > 0;
@@ -208,7 +239,9 @@
             });
         }
 
-        if ((!docs.wordVersions || docs.wordVersions.length === 0) && wordNames.length > 0 && typeof window.registerWordVersion === 'function') {
+        var shouldRegisterWord = wordNames.length > 0
+            && ((!docs.wordVersions || docs.wordVersions.length === 0) || app.status === 'fac_revision');
+        if (shouldRegisterWord && typeof window.registerWordVersion === 'function') {
             var v = window.registerWordVersion(app, {
                 fileName: wordNames[0],
                 uploadedByRole: 'Фасилитатор',
@@ -252,8 +285,9 @@
         document.getElementById('course').value = '';
         document.getElementById('display-course').textContent = source.course || snapshot.course || '—';
 
-        updateUploadTextsFromInputs();
+        updateUploadTextsFromInputs(app);
         updateWordVersionBadge(app);
+        applyRevisionDocumentMode(app);
 
         // Check data completeness and highlight missing fields
         applyCompletenessCheck(source);
@@ -350,6 +384,7 @@
         app.contacts = sanitize(document.getElementById('contacts-input').value);
         app.beneficiarySnapshot = buildBeneficiarySnapshot(source);
         app.sector = sectorText || 'Номаълум / Неизвестно';
+        app.sectorValue = sectorSelect.value || app.sectorValue || '';
         app.amount = sanitize(amount || '0');
         app.date = timestamp;
 
@@ -421,6 +456,7 @@
         app.contacts = sanitize(document.getElementById('contacts-input').value);
         app.beneficiarySnapshot = buildBeneficiarySnapshot(source);
         app.sector = sectorText;
+        app.sectorValue = sectorValue || app.sectorValue || '';
         app.amount = sanitize(amount);
         app.date = timestamp;
 
@@ -507,7 +543,8 @@
                     alert('Мумкин аст танҳо 4 сурат замима шавад.\nМожно прикрепить только 4 фото.');
                     input.value = '';
                 }
-                updateUploadTextsFromInputs();
+                var openedApp = window.getApp(window.currentOpenedAppId || document.getElementById('id-input').value);
+                updateUploadTextsFromInputs(openedApp || null);
             });
         });
 
