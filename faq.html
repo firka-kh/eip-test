@@ -206,7 +206,7 @@
         }
 
         .quick {
-            margin: 1rem 0;
+            margin: 1rem auto;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: .7rem;
@@ -231,6 +231,7 @@
         }
 
         .quick-start {
+            /* Keep horizontal centering when used with .wrap (prevent layout drift). */
             margin: .35rem auto 1rem;
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
