@@ -217,6 +217,67 @@
             gap: .7rem;
         }
 
+        .faq-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 260px;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .faq-main {
+            min-width: 0;
+        }
+
+        .toc {
+            position: sticky;
+            top: 92px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .toc-head {
+            padding: .8rem .9rem;
+            border-bottom: 1px dashed #d4ded7;
+            background: #fcfefc;
+        }
+
+        .toc-head h3 {
+            font-size: .98rem;
+        }
+
+        .toc-list {
+            padding: .4rem;
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+        }
+
+        .toc-link {
+            display: block;
+            text-decoration: none;
+            color: #0f3d39;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: .45rem .55rem;
+            font-size: .86rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .toc-link:hover {
+            border-color: #bfe6da;
+            background: #f0fdfa;
+        }
+
+        .toc-link.active {
+            color: #fff;
+            border-color: transparent;
+            background: linear-gradient(135deg, #0f766e, #0ea5a5);
+        }
+
         .qs-card {
             border: 1px solid var(--line);
             border-radius: 14px;
@@ -448,6 +509,14 @@
             .quick-start {
                 grid-template-columns: 1fr;
             }
+
+            .faq-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .toc {
+                display: none;
+            }
         }
 
         @media (max-width: 600px) {
@@ -546,297 +615,327 @@
         </article>
     </section>
 
-    <main class="wrap">
-        <section class="section" id="common">
-            <div class="section-head">
-                <h2>Общие вопросы</h2>
-                <small>Базовые правила интерфейса</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-role="common" data-keywords="интерфейс язык журнал история audit">
-                    <summary>На каком языке работает интерфейс? <span class="tag">Общее</span></summary>
-                    <div class="answer">
-                        <p>Интерфейс двуязычный: таджикский + русский. Все ключевые действия и статусы показаны в обоих
-                            языках.</p>
-                        <div class="callout">Все действия фиксируются в истории заявки автоматически.</div>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="common" data-keywords="read only approved rejected открыть">
-                    <summary>Почему некоторые заявки открываются только для просмотра? <span class="tag">Доступ</span>
-                    </summary>
-                    <div class="answer">
-                        <p>Для статусов <strong>approved</strong> и <strong>rejected</strong> доступ из любой роли идет
-                            в read-only режиме.</p>
-                        <p>Редактирование доступно только в статусах, закрепленных за вашей ролью.</p>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="common" data-keywords="не могу найти заявку поиск фильтр">
-                    <summary>Не могу найти заявку в списке. Что проверить? <span class="tag">Поиск</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Проверьте выбранный главный фильтр роли.</li>
-                            <li>Очистите строку поиска.</li>
-                            <li>Переключите вид Grid/List и проверьте снова.</li>
-                            <li>Для одобренных проверьте фильтры сектор/регион/пол.</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <section class="section" id="facilitator">
-            <div class="section-head">
-                <h2>Фасилитатор</h2>
-                <small>Создание, документы, договор, мониторинг</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-role="facilitator"
-                    data-keywords="новая заявка создать beneficiary certified">
-                    <summary>Как правильно создать новую заявку? <span class="tag">F1</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Нажмите <strong>Новая заявка</strong>.</li>
-                            <li>Найдите бенефициара по ФИО/ИНН/телефону.</li>
-                            <li>Выберите запись и нажмите <strong>Создать</strong>.</li>
-                            <li>Заполните поля вкладки Фасилитатора.</li>
-                        </ul>
-                        <div class="callout warn">Если не создается: проверьте certStatus и предупреждение о дубле.
+    <div class="wrap faq-layout">
+        <main class="faq-main">
+            <section class="section" id="common">
+                <div class="section-head">
+                    <h2>Общие вопросы</h2>
+                    <small>Базовые правила интерфейса</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="common" data-keywords="интерфейс язык журнал история audit">
+                        <summary>На каком языке работает интерфейс? <span class="tag">Общее</span></summary>
+                        <div class="answer">
+                            <p>Интерфейс двуязычный: таджикский + русский. Все ключевые действия и статусы показаны в
+                                обоих
+                                языках.</p>
+                            <div class="callout">Все действия фиксируются в истории заявки автоматически.</div>
                         </div>
-                    </div>
-                </details>
+                    </details>
 
-                <details class="faq-item" data-role="facilitator" data-keywords="отправка шиг word pdf 4 фото комплект">
-                    <summary>Что обязательно перед отправкой в ШИГ / КУГ? <span class="tag">F3</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Заполнены поле сектора и сумма.</li>
-                            <li>Загружен комплект: Word + PDF + ровно 4 фото.</li>
-                            <li>Нет блокирующих дублей и неполного профиля.</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="facilitator" data-keywords="номер договора система авто Ш-000001">
-                    <summary>Как формируется номер договора? <span class="tag">Договор</span></summary>
-                    <div class="answer">
-                        <p>Номер полностью системный и генерируется автоматически. Пользователь его не вводит.</p>
-                        <p>Шаблон: <strong>Ш-000001-ДДММГГ</strong>, затем <strong>Ш-000002-ДДММГГ</strong> и далее по
-                            порядку.</p>
-                        <div class="callout good">Серия сквозная и не зависит от ID заявки.</div>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="facilitator"
-                    data-keywords="договор создать редактировать approved preview print pdf">
-                    <summary>Как сформировать договор в системе? <span class="tag">F6</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Откройте заявку в статусе <strong>approved</strong>.</li>
-                            <li>Раскройте блок <strong>Создание договора</strong>.</li>
-                            <li>Заполните разделы сверху вниз.</li>
-                            <li>Сохраните черновик.</li>
-                            <li>Откройте предпросмотр, затем печать или экспорт PDF.</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="facilitator"
-                    data-keywords="подписанный договор загрузить pdf jpg png 10mb">
-                    <summary>Как загрузить подписанный договор? <span class="tag">F7</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>В approved-заявке откройте блок <strong>Подписанный договор</strong>.</li>
-                            <li>Выберите файл PDF/JPG/JPEG/PNG до 10MB.</li>
-                            <li>Нажмите <strong>Загрузить</strong>.</li>
-                            <li>Проверьте метаданные и скачивание.</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <section class="section" id="gmc">
-            <div class="section-head">
-                <h2>ШИГ / КУГ</h2>
-                <small>Оценка и маршруты возврата</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-role="gmc"
-                    data-keywords="скоринг 15 критериев решение approve revision reject">
-                    <summary>Как провести первичную оценку? <span class="tag">G1</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Заполните 3 критерия соответствия.</li>
-                            <li>Заполните 15 критериев скоринга.</li>
-                            <li>Добавьте комментарий и выберите решение.</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="gmc" data-keywords="gmc_revision возврат грп комитет word версия">
-                    <summary>Что делать в статусе gmc_revision? <span class="tag">G2</span></summary>
-                    <div class="answer">
-                        <p>Изучить комментарий возврата, загрузить новую Word-версию и выбрать маршрут: обратно в ГРП
-                            или к Фасилитатору.</p>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="gmc" data-keywords="реестр gmc_ready_for_registry комитет">
-                    <summary>Как отправить заявки в Комитет? <span class="tag">G3</span></summary>
-                    <div class="answer">
-                        <p>Переведите заявки в <strong>gmc_ready_for_registry</strong>, отметьте чекбоксами, создайте
-                            реестр и отправьте в Комитет.</p>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <section class="section" id="piu">
-            <div class="section-head">
-                <h2>ГТЛ / ГРП</h2>
-                <small>Проверка и завершение этапа</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-role="piu" data-keywords="piu_review approve resubmit комментарий">
-                    <summary>Как завершить проверку ГРП? <span class="tag">P1</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Откройте заявку в <strong>piu_review</strong>.</li>
-                            <li>Заполните решение и комментарий.</li>
-                            <li>При возврате комментарий обязателен.</li>
-                            <li>Завершите проверку.</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <section class="section" id="committee">
-            <div class="section-head">
-                <h2>Комитет</h2>
-                <small>Решение по реестру и протокол</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-role="committee"
-                    data-keywords="комитет реестр протокол дата отклонить причина">
-                    <summary>Как правильно утвердить список? <span class="tag">C1</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Откройте входящий реестр.</li>
-                            <li>Заполните дату протокола.</li>
-                            <li>Для каждой заявки выставьте решение.</li>
-                            <li>Для отклонения обязательно укажите причину.</li>
-                            <li>Нажмите утверждение списка.</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <section class="section" id="monitoring">
-            <div class="section-head">
-                <h2>Мониторинг</h2>
-                <small>Пост-грантовые визиты</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-role="monitoring"
-                    data-keywords="визит monitoring active pending completed">
-                    <summary>Как заполнить активный визит? <span class="tag">M1</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Откройте вкладку мониторинга в approved-заявке.</li>
-                            <li>Выберите активный визит и нажмите <strong>Оформить</strong>.</li>
-                            <li>Заполните оборудование, бизнес, доход, эко-проверку.</li>
-                            <li>Сохраните визит.</li>
-                        </ul>
-                        <div class="callout">После сохранения текущий визит становится completed, следующий - active.
+                    <details class="faq-item" data-role="common" data-keywords="read only approved rejected открыть">
+                        <summary>Почему некоторые заявки открываются только для просмотра? <span
+                                class="tag">Доступ</span>
+                        </summary>
+                        <div class="answer">
+                            <p>Для статусов <strong>approved</strong> и <strong>rejected</strong> доступ из любой роли
+                                идет
+                                в read-only режиме.</p>
+                            <p>Редактирование доступно только в статусах, закрепленных за вашей ролью.</p>
                         </div>
-                    </div>
-                </details>
+                    </details>
+
+                    <details class="faq-item" data-role="common" data-keywords="не могу найти заявку поиск фильтр">
+                        <summary>Не могу найти заявку в списке. Что проверить? <span class="tag">Поиск</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Проверьте выбранный главный фильтр роли.</li>
+                                <li>Очистите строку поиска.</li>
+                                <li>Переключите вид Grid/List и проверьте снова.</li>
+                                <li>Для одобренных проверьте фильтры сектор/регион/пол.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="facilitator">
+                <div class="section-head">
+                    <h2>Фасилитатор</h2>
+                    <small>Создание, документы, договор, мониторинг</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="новая заявка создать beneficiary certified">
+                        <summary>Как правильно создать новую заявку? <span class="tag">F1</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Нажмите <strong>Новая заявка</strong>.</li>
+                                <li>Найдите бенефициара по ФИО/ИНН/телефону.</li>
+                                <li>Выберите запись и нажмите <strong>Создать</strong>.</li>
+                                <li>Заполните поля вкладки Фасилитатора.</li>
+                            </ul>
+                            <div class="callout warn">Если не создается: проверьте certStatus и предупреждение о дубле.
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="отправка шиг word pdf 4 фото комплект">
+                        <summary>Что обязательно перед отправкой в ШИГ / КУГ? <span class="tag">F3</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Заполнены поле сектора и сумма.</li>
+                                <li>Загружен комплект: Word + PDF + ровно 4 фото.</li>
+                                <li>Нет блокирующих дублей и неполного профиля.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="номер договора система авто Ш-000001">
+                        <summary>Как формируется номер договора? <span class="tag">Договор</span></summary>
+                        <div class="answer">
+                            <p>Номер полностью системный и генерируется автоматически. Пользователь его не вводит.</p>
+                            <p>Шаблон: <strong>Ш-000001-ДДММГГ</strong>, затем <strong>Ш-000002-ДДММГГ</strong> и далее
+                                по
+                                порядку.</p>
+                            <div class="callout good">Серия сквозная и не зависит от ID заявки.</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="договор создать редактировать approved preview print pdf">
+                        <summary>Как сформировать договор в системе? <span class="tag">F6</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Откройте заявку в статусе <strong>approved</strong>.</li>
+                                <li>Раскройте блок <strong>Создание договора</strong>.</li>
+                                <li>Заполните разделы сверху вниз.</li>
+                                <li>Сохраните черновик.</li>
+                                <li>Откройте предпросмотр, затем печать или экспорт PDF.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="подписанный договор загрузить pdf jpg png 10mb">
+                        <summary>Как загрузить подписанный договор? <span class="tag">F7</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>В approved-заявке откройте блок <strong>Подписанный договор</strong>.</li>
+                                <li>Выберите файл PDF/JPG/JPEG/PNG до 10MB.</li>
+                                <li>Нажмите <strong>Загрузить</strong>.</li>
+                                <li>Проверьте метаданные и скачивание.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="gmc">
+                <div class="section-head">
+                    <h2>ШИГ / КУГ</h2>
+                    <small>Оценка и маршруты возврата</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="gmc"
+                        data-keywords="скоринг 15 критериев решение approve revision reject">
+                        <summary>Как провести первичную оценку? <span class="tag">G1</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Заполните 3 критерия соответствия.</li>
+                                <li>Заполните 15 критериев скоринга.</li>
+                                <li>Добавьте комментарий и выберите решение.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="gmc"
+                        data-keywords="gmc_revision возврат грп комитет word версия">
+                        <summary>Что делать в статусе gmc_revision? <span class="tag">G2</span></summary>
+                        <div class="answer">
+                            <p>Изучить комментарий возврата, загрузить новую Word-версию и выбрать маршрут: обратно в
+                                ГРП
+                                или к Фасилитатору.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="gmc" data-keywords="реестр gmc_ready_for_registry комитет">
+                        <summary>Как отправить заявки в Комитет? <span class="tag">G3</span></summary>
+                        <div class="answer">
+                            <p>Переведите заявки в <strong>gmc_ready_for_registry</strong>, отметьте чекбоксами,
+                                создайте
+                                реестр и отправьте в Комитет.</p>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="piu">
+                <div class="section-head">
+                    <h2>ГТЛ / ГРП</h2>
+                    <small>Проверка и завершение этапа</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="piu" data-keywords="piu_review approve resubmit комментарий">
+                        <summary>Как завершить проверку ГРП? <span class="tag">P1</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Откройте заявку в <strong>piu_review</strong>.</li>
+                                <li>Заполните решение и комментарий.</li>
+                                <li>При возврате комментарий обязателен.</li>
+                                <li>Завершите проверку.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="committee">
+                <div class="section-head">
+                    <h2>Комитет</h2>
+                    <small>Решение по реестру и протокол</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="committee"
+                        data-keywords="комитет реестр протокол дата отклонить причина">
+                        <summary>Как правильно утвердить список? <span class="tag">C1</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Откройте входящий реестр.</li>
+                                <li>Заполните дату протокола.</li>
+                                <li>Для каждой заявки выставьте решение.</li>
+                                <li>Для отклонения обязательно укажите причину.</li>
+                                <li>Нажмите утверждение списка.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="monitoring">
+                <div class="section-head">
+                    <h2>Мониторинг</h2>
+                    <small>Пост-грантовые визиты</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="monitoring"
+                        data-keywords="визит monitoring active pending completed">
+                        <summary>Как заполнить активный визит? <span class="tag">M1</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Откройте вкладку мониторинга в approved-заявке.</li>
+                                <li>Выберите активный визит и нажмите <strong>Оформить</strong>.</li>
+                                <li>Заполните оборудование, бизнес, доход, эко-проверку.</li>
+                                <li>Сохраните визит.</li>
+                            </ul>
+                            <div class="callout">После сохранения текущий визит становится completed, следующий -
+                                active.
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="errors">
+                <div class="section-head">
+                    <h2>Типовые ошибки</h2>
+                    <small>Быстрая диагностика</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-keywords="не отправляется заявка сектор сумма комплект">
+                        <summary>Заявка не отправляется из Фасилитатора. Почему? <span class="tag">Ошибка</span>
+                        </summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Не заполнены сектор/сумма.</li>
+                                <li>Нет полного документного пакета.</li>
+                                <li>Неполный профиль бенефициара.</li>
+                                <li>Сработала блокировка по дублю.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-keywords="postponed unlock-ready разблокировать">
+                        <summary>Почему заявка остается в postponed после 3 месяцев? <span class="tag">Ошибка</span>
+                        </summary>
+                        <div class="answer">
+                            <p>Потому что автоматического снятия блокировки нет. Нужна ручная разблокировка
+                                Фасилитатором.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors"
+                        data-keywords="alert Бахш ва маблағро пур кунед сектор сумма">
+                        <summary>Alert: "Бахш ва маблағро пур кунед!" / "Заполните сектор и сумму!" <span
+                                class="tag">Alert</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Откройте вкладку Фасилитатора.</li>
+                                <li>Заполните поля `Сектор` и `Сумма`.</li>
+                                <li>Повторите отправку в ШИГ / КУГ.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors"
+                        data-keywords="alert Маълумоти бенефициар нопурра аст неполные данные">
+                        <summary>Alert: "Маълумоти бенефициар нопурра аст!" <span class="tag">Alert</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Проверьте недостающие поля профиля бенефициара.</li>
+                                <li>Обновите данные в базе бенефициара.</li>
+                                <li>Снова сохраните/отправьте заявку.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors" data-keywords="alert номер договора Ш-******-ДДММГГ">
+                        <summary>Alert: "Номер договора должен быть в формате Ш-******-ДДММГГ" <span
+                                class="tag">Alert</span></summary>
+                        <div class="answer">
+                            <p>Номер договора системный и выставляется автоматически. Проверьте, что поле не изменялось
+                                вручную.</p>
+                            <div class="callout good">Система генерирует сквозную серию: Ш-000001-..., Ш-000002-...,
+                                Ш-000003-...</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors"
+                        data-keywords="alert Лутфан ҳамаи майдонҳои ҳатмиро пур кунед мониторинг">
+                        <summary>Alert: "Лутфан ҳамаи майдонҳои ҳатмиро пур кунед!" / "Заполните все обязательные поля!"
+                            <span class="tag">Alert</span>
+                        </summary>
+                        <div class="answer">
+                            <ul>
+                                <li>В мониторинге заполните 4 обязательных поля: оборудование, бизнес, доход,
+                                    эко-проверка.
+                                </li>
+                                <li>После этого повторите сохранение визита.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+        </main>
+
+        <aside class="toc" aria-label="Оглавление FAQ">
+            <div class="toc-head">
+                <h3>Разделы FAQ</h3>
             </div>
-        </section>
-
-        <section class="section" id="errors">
-            <div class="section-head">
-                <h2>Типовые ошибки</h2>
-                <small>Быстрая диагностика</small>
-            </div>
-            <div class="items">
-                <details class="faq-item" data-keywords="не отправляется заявка сектор сумма комплект">
-                    <summary>Заявка не отправляется из Фасилитатора. Почему? <span class="tag">Ошибка</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Не заполнены сектор/сумма.</li>
-                            <li>Нет полного документного пакета.</li>
-                            <li>Неполный профиль бенефициара.</li>
-                            <li>Сработала блокировка по дублю.</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-keywords="postponed unlock-ready разблокировать">
-                    <summary>Почему заявка остается в postponed после 3 месяцев? <span class="tag">Ошибка</span>
-                    </summary>
-                    <div class="answer">
-                        <p>Потому что автоматического снятия блокировки нет. Нужна ручная разблокировка Фасилитатором.
-                        </p>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="errors"
-                    data-keywords="alert Бахш ва маблағро пур кунед сектор сумма">
-                    <summary>Alert: "Бахш ва маблағро пур кунед!" / "Заполните сектор и сумму!" <span
-                            class="tag">Alert</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Откройте вкладку Фасилитатора.</li>
-                            <li>Заполните поля `Сектор` и `Сумма`.</li>
-                            <li>Повторите отправку в ШИГ / КУГ.</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="errors"
-                    data-keywords="alert Маълумоти бенефициар нопурра аст неполные данные">
-                    <summary>Alert: "Маълумоти бенефициар нопурра аст!" <span class="tag">Alert</span></summary>
-                    <div class="answer">
-                        <ul>
-                            <li>Проверьте недостающие поля профиля бенефициара.</li>
-                            <li>Обновите данные в базе бенефициара.</li>
-                            <li>Снова сохраните/отправьте заявку.</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="errors" data-keywords="alert номер договора Ш-******-ДДММГГ">
-                    <summary>Alert: "Номер договора должен быть в формате Ш-******-ДДММГГ" <span
-                            class="tag">Alert</span></summary>
-                    <div class="answer">
-                        <p>Номер договора системный и выставляется автоматически. Проверьте, что поле не изменялось
-                            вручную.</p>
-                        <div class="callout good">Система генерирует сквозную серию: Ш-000001-..., Ш-000002-...,
-                            Ш-000003-...</div>
-                    </div>
-                </details>
-
-                <details class="faq-item" data-role="errors"
-                    data-keywords="alert Лутфан ҳамаи майдонҳои ҳатмиро пур кунед мониторинг">
-                    <summary>Alert: "Лутфан ҳамаи майдонҳои ҳатмиро пур кунед!" / "Заполните все обязательные поля!"
-                        <span class="tag">Alert</span>
-                    </summary>
-                    <div class="answer">
-                        <ul>
-                            <li>В мониторинге заполните 4 обязательных поля: оборудование, бизнес, доход, эко-проверка.
-                            </li>
-                            <li>После этого повторите сохранение визита.</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
-        </section>
-    </main>
+            <nav class="toc-list">
+                <a class="toc-link" href="#common" data-toc="common">Общие вопросы</a>
+                <a class="toc-link" href="#facilitator" data-toc="facilitator">Фасилитатор</a>
+                <a class="toc-link" href="#gmc" data-toc="gmc">ШИГ / КУГ</a>
+                <a class="toc-link" href="#piu" data-toc="piu">ГТЛ / ГРП</a>
+                <a class="toc-link" href="#committee" data-toc="committee">Комитет</a>
+                <a class="toc-link" href="#monitoring" data-toc="monitoring">Мониторинг</a>
+                <a class="toc-link" href="#errors" data-toc="errors">Типовые ошибки</a>
+            </nav>
+        </aside>
+    </div>
 
     <footer class="wrap">
         FAQ обновляется вместе с изменениями интерфейса. Подробный регламент: docs/DOCS-MAINTENANCE.md
@@ -852,6 +951,7 @@
             var roleFilterButtons = Array.prototype.slice.call(document.querySelectorAll("#roleFilters [data-role-filter]"));
             var tagButtons = Array.prototype.slice.call(document.querySelectorAll("#quickTags [data-tag]"));
             var sectionBlocks = Array.prototype.slice.call(document.querySelectorAll("main .section"));
+            var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc-link"));
             var resetFiltersBtn = document.getElementById("resetFiltersBtn");
             var shareStateBtn = document.getElementById("shareStateBtn");
             var activeRoleFilter = "all";
@@ -1025,6 +1125,41 @@
                 });
             }
 
+            function setActiveTocBySection(sectionId) {
+                if (!sectionId) return;
+                tocLinks.forEach(function (link) {
+                    link.classList.toggle("active", String(link.getAttribute("data-toc") || "") === sectionId);
+                });
+            }
+
+            function getFirstVisibleSectionId() {
+                var visibleSection = sectionBlocks.find(function (section) {
+                    return !section.classList.contains("hidden-section");
+                });
+                return visibleSection ? visibleSection.id : "";
+            }
+
+            function observeSectionsForToc() {
+                if (!("IntersectionObserver" in window)) {
+                    setActiveTocBySection(getFirstVisibleSectionId());
+                    return;
+                }
+
+                var io = new IntersectionObserver(function (entries) {
+                    var best = null;
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting) return;
+                        if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+                    });
+                    if (best && best.target && best.target.id) setActiveTocBySection(best.target.id);
+                }, {
+                    rootMargin: "-35% 0px -55% 0px",
+                    threshold: [0.05, 0.2, 0.4, 0.7]
+                });
+
+                sectionBlocks.forEach(function (section) { io.observe(section); });
+            }
+
             function applyRoleFilter() {
                 faqItems.forEach(function (item) {
                     var role = String(item.getAttribute("data-role") || "").toLowerCase();
@@ -1049,6 +1184,9 @@
                 updateSectionVisibility();
                 applySearchHighlights(q);
                 updateUrlState();
+
+                var firstVisible = getFirstVisibleSectionId();
+                if (firstVisible) setActiveTocBySection(firstVisible);
             }
 
             openAllBtn.addEventListener("click", function () {
@@ -1083,6 +1221,13 @@
                 });
             }
 
+            tocLinks.forEach(function (link) {
+                link.addEventListener("click", function () {
+                    var targetId = String(link.getAttribute("data-toc") || "");
+                    setActiveTocBySection(targetId);
+                });
+            });
+
             roleFilterButtons.forEach(function (btn) {
                 btn.addEventListener("click", function () {
                     activeRoleFilter = String(btn.getAttribute("data-role-filter") || "all").toLowerCase();
@@ -1111,6 +1256,7 @@
                 });
             });
             runSearch();
+            observeSectionsForToc();
             openHashQuestionIfAny();
         })();
     </script>
