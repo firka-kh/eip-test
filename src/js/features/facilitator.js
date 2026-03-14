@@ -31,6 +31,14 @@
         return String(status || '');
     }
 
+    function getMissingFieldLabels(missingFields) {
+        var fields = window.requiredBeneficiaryFields || [];
+        return (missingFields || []).map(function (key) {
+            var fieldDef = fields.find(function (f) { return f.key === key; });
+            return (fieldDef && fieldDef.label) ? fieldDef.label : 'Майдони номаълум / Неизвестное поле';
+        });
+    }
+
     function getExistingAppProfiles(excludeAppId) {
         const db = getSearchDatabase();
         const fallbackDb = window.mockDatabase || {};
@@ -756,7 +764,8 @@
                 const badgeColor = user.certStatus === 'certified' ? 'bg-emerald-100 text-emerald-600' : (user.certStatus === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600');
                 var incompleteHtml = '';
                 if (!completeness.isComplete) {
-                    incompleteHtml = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-medium ml-1" title="' + esc(completeness.missingFields.join(', ')) + '">⚠ нопурра <span class="ru font-normal">/ неполные</span></span>';
+                    var missingLabelsForTitle = getMissingFieldLabels(completeness.missingFields);
+                    incompleteHtml = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-medium ml-1" title="' + esc(missingLabelsForTitle.join(', ')) + '">⚠ нопурра <span class="ru font-normal">/ неполные</span></span>';
                 }
                 var sessionsState = getTrainingSessionsState(user);
                 if (!sessionsState.isComplete) {
@@ -787,7 +796,7 @@
                     var selCompleteness = window.checkBeneficiaryDataComplete ? window.checkBeneficiaryDataComplete(user) : { isComplete: true, missingFields: [] };
                     var sessionsState = getTrainingSessionsState(user);
                     if (!selCompleteness.isComplete) {
-                        var missingLabels = selCompleteness.missingFields.join(', ');
+                        var missingLabels = getMissingFieldLabels(selCompleteness.missingFields).join(', ');
                         duplicateWarning.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-800', 'bg-amber-50', 'border-amber-200', 'text-amber-800');
                         duplicateWarning.classList.add('bg-orange-50', 'border-orange-300', 'text-orange-800');
                         duplicateWarning.textContent = '⚠ Маълумоти бенефициар нопурра аст! / Данные бенефициара неполные! Нопурра / Неполное: ' + missingLabels + '.';
