@@ -189,7 +189,9 @@
     function validateTrainingSessionsForGrant(source) {
         var state = getTrainingSessionsState(source || {});
         if (state.isComplete) return true;
-        alert('Заявитель не прошел все обязательные сессии: ' + state.missingLabels.join(', ') + '.\nНевозможно включить в заявку на грант.');
+        if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
+            window.AppNotify.errorByKey('validation.errorDetailed');
+        }
         return false;
     }
 
@@ -488,7 +490,7 @@
         document.getElementById('toggleFormBtn').click();
     }
 
-    function submitToGmc() {
+    async function submitToGmc() {
         const appId = document.getElementById('id-input').value;
         if (!appId) return;
         const beneficiaryId = document.getElementById('beneficiary-id-input').value;
@@ -499,7 +501,9 @@
         var source = db[beneficiaryId] || fallbackDb[beneficiaryId] || {};
         var completeness = window.checkBeneficiaryDataComplete(source);
         if (!completeness.isComplete) {
-            alert('Маълумоти бенефитсиар нопурра аст. Фиристодан имконпазир / Данные неполные. Отправка невозможна.');
+            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
+                window.AppNotify.errorByKey('validation.error');
+            }
             return;
         }
 
@@ -510,7 +514,9 @@
             contacts: document.getElementById('contacts-input').value
         }, appId);
         if (hardDuplicate) {
-            alert('Эҷоди дархост блок шуд: такрор аз рӯи ИНН ё телефон ёфт шуд.\nСоздание / отправка заблокированы: найден дубль по ИНН или телефону.');
+            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
+                window.AppNotify.errorByKey('submitToGmc.error');
+            }
             return;
         }
         const sectorSelect = document.getElementById('sector-input');
@@ -518,7 +524,9 @@
         const sectorValue = sectorSelect.value;
         const amount = document.getElementById('amount-input').value;
         if (!sectorValue || !amount) {
-            alert('Бахш ва маблағро пур кунед! / Заполните сектор и сумму!');
+            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
+                window.AppNotify.errorByKey('validation.error');
+            }
             return;
         }
 
@@ -545,11 +553,20 @@
         persistDocumentBundle(app, 'facilitator_submit');
         if (!validateRequiredDocumentSet(app)) return;
 
+        var confirmed = true;
+        if (window.AppNotify && typeof window.AppNotify.confirmByKey === 'function') {
+            confirmed = await window.AppNotify.confirmByKey('submitToGmc.confirm');
+        }
+        if (!confirmed) return;
+
         app.status = 'gmc_review';
         window.addLog(app, 'Фасилитатор', 'Ба ШИГ фиристода шуд', 'Отправлено в КУГ', 'blue', 'send');
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
         document.getElementById('toggleFormBtn').click();
+        if (window.AppNotify && typeof window.AppNotify.successByKey === 'function') {
+            window.AppNotify.successByKey('submitToGmc.success');
+        }
     }
 
     function openDraftFor(id) {
@@ -563,7 +580,7 @@
         openDraftFor(id);
     }
 
-    function unlockPostponedApp(id) {
+    async function unlockPostponedApp(id) {
         const app = window.getApp(id);
         if (!app || app.status !== 'postponed') return;
 
@@ -578,15 +595,24 @@
             : (untilIso || '—');
 
         if (!isReady) {
-            alert('Снятие блокировки пока недоступно. Срок блокировки до ' + untilRu + '.');
+            if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
+                window.AppNotify.warningByKey('deadline.unlockNotAvailableUntilDate', { date: untilRu });
+            } else {
+                alert('Снятие блокировки пока недоступно. Срок блокировки до ' + untilRu + '.');
+            }
             return;
         }
 
-        var shouldUnlock = window.confirm(
-            'Вы уверены, что хотите разблокировать заявку?\n\n' +
-            'Пас аз кушодан, ариза ба ҳолати ислоҳ бармегардад.\n' +
-            'После разблокировки заявка будет переведена в режим редактирования.'
-        );
+        var shouldUnlock = true;
+        if (window.AppNotify && typeof window.AppNotify.confirmByKey === 'function') {
+            shouldUnlock = await window.AppNotify.confirmByKey('unlock.confirm');
+        } else {
+            shouldUnlock = window.confirm(
+                'Вы уверены, что хотите разблокировать заявку?\n\n' +
+                'Пас аз кушодан, ариза ба ҳолати ислоҳ бармегардад.\n' +
+                'После разблокировки заявка будет переведена в режим редактирования.'
+            );
+        }
         if (!shouldUnlock) return;
 
         app.status = 'fac_revision';
@@ -606,7 +632,11 @@
             'unlock'
         );
 
-        alert('Блокировка снята. Заявка переведена в режим редактирования.');
+        if (window.AppNotify && typeof window.AppNotify.successByKey === 'function') {
+            window.AppNotify.successByKey('unlock.success');
+        } else {
+            alert('Блокировка снята. Заявка переведена в режим редактирования.');
+        }
         if (typeof window.renderAllCards === 'function') window.renderAllCards();
     }
 

@@ -132,11 +132,19 @@
         const app = window.getApp(window.currentPiuAppId);
         if (!app) return;
         if (!app.piuDecisions[id]) {
-            alert('Қарорро интихоб кунед / Выберите решение');
+            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
+                window.AppNotify.errorByKey('validation.error');
+            } else {
+                alert('Қарорро интихоб кунед / Выберите решение');
+            }
             return;
         }
         if (app.piuDecisions[id] === 'resubmit' && !document.getElementById('piu-comment-' + id).value.trim()) {
-            alert('Лутфан сабаби баргардониданро нависед! / Укажите причину возврата!');
+            if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
+                window.AppNotify.warningByKey('returnForRevision.warningCommentRequired');
+            } else {
+                alert('Лутфан сабаби баргардониданро нависед! / Укажите причину возврата!');
+            }
             return;
         }
         app.piuStatus[id] = 'completed';
@@ -154,7 +162,7 @@
         }
     }
 
-    function finalizePiu() {
+    async function finalizePiu() {
         const app = window.getApp(window.currentPiuAppId);
         if (!app) return;
         app.date = window.getCurrentDateTime();
@@ -167,9 +175,17 @@
         });
         const finalComment = combinedComments.join(' | ');
 
+        if (hasRev && window.AppNotify && typeof window.AppNotify.confirmByKey === 'function') {
+            var confirmed = await window.AppNotify.confirmByKey('returnForRevision.confirm');
+            if (!confirmed) return;
+        }
+
         if (hasRev) {
             app.status = 'gmc_revision';
             window.addLog(app, 'ГТЛ / ГРП', 'Бо эродҳо ба ШИГ баргашт', 'Возвращено с комментариями в КУГ', 'amber', 'alert-triangle', finalComment);
+            if (window.AppNotify && typeof window.AppNotify.successByKey === 'function') {
+                window.AppNotify.successByKey('returnForRevision.success');
+            }
         } else {
             app.status = 'gmc_preparation';
             window.addLog(app, 'ГТЛ / ГРП', 'Баҳогузории иҷтимоӣ-экологӣ гузашт', 'Социально-экологическая оценка пройдена', 'emerald', 'check-circle');

@@ -78,6 +78,375 @@
         return now.getTime() >= until.getTime();
     }
 
+    var NOTIFICATION_COPY = {
+        notifications: {
+            unlock: {
+                confirm: {
+                    title: 'Разблокировать заявку?',
+                    message: 'Ариза ба ҳолати ислоҳ бармегардад. / Заявка будет переведена в режим редактирования.',
+                    consequence: 'Тағйирот дар журнал сабт мешавад. / Действие будет зафиксировано в журнале.',
+                    buttons: { cancel: 'Отмена', confirm: 'Да, разблокировать' }
+                },
+                success: {
+                    title: 'Кушодашавӣ анҷом ёфт / Разблокировка выполнена',
+                    message: 'Ариза ба таҳрир баргашт. / Заявка возвращена в режим редактирования.'
+                },
+                errorNotReady: {
+                    title: 'Снятие блокировки пока недоступно',
+                    message: 'Срок блокировки еще не истек.'
+                }
+            },
+            submitToGmc: {
+                confirm: {
+                    title: 'Отправить заявку в КУГ?',
+                    message: 'Ариза барои баррасӣ ба ШИГ фиристода мешавад. / Заявка будет отправлена в КУГ на рассмотрение.',
+                    consequence: 'Баъд аз фиристодан, таҳрири баъзе майдонҳо маҳдуд мешавад. / После отправки часть полей станет недоступна для редактирования.',
+                    buttons: { cancel: 'Отмена', confirm: 'Да, отправить' }
+                },
+                success: {
+                    title: 'Ба ШИГ фиристода шуд / Отправлено в КУГ',
+                    message: 'Заявка успешно передана на этап рассмотрения.'
+                },
+                error: {
+                    title: 'Не удалось отправить',
+                    message: 'Проверьте обязательные поля и попробуйте снова.'
+                }
+            },
+            returnForRevision: {
+                confirm: {
+                    title: 'Вернуть на доработку?',
+                    message: 'Ариза ба фасилитатор барои ислоҳ бармегардад. / Заявка будет возвращена фасилитатору на доработку.',
+                    consequence: 'Лутфан сабаби баргардонданро нишон диҳед. / Укажите причину возврата.',
+                    buttons: { cancel: 'Отмена', confirm: 'Вернуть на доработку' }
+                },
+                success: {
+                    title: 'Баргардонда шуд / Возвращено на доработку',
+                    message: 'Фасилитатор может внести исправления и отправить повторно.'
+                },
+                warningCommentRequired: {
+                    title: 'Комментарий обязателен',
+                    message: 'Укажите замечания перед возвратом заявки.'
+                }
+            },
+            validation: {
+                error: {
+                    title: 'Хатогии санҷиш / Ошибка валидации',
+                    message: 'Некоторые обязательные поля не заполнены.'
+                },
+                errorDetailed: {
+                    title: 'Исправьте поля формы',
+                    message: 'Проверьте выделенные поля и заполните недостающие данные.'
+                }
+            },
+            deadline: {
+                warning: {
+                    title: 'Амал дастнорас аст / Действие недоступно',
+                    message: 'Срок для выполнения этого действия еще не наступил.'
+                },
+                unlockNotAvailableUntilDate: {
+                    title: 'Снятие блокировки пока недоступно',
+                    message: 'Ариза то {date} дар ҳолати мавқуф мемонад. / Заявка остается отложенной до {date}.'
+                }
+            }
+        }
+    };
+
+    var notifyState = {
+        initialized: false,
+        toastHost: null,
+        modalHost: null,
+        modalCard: null,
+        modalTitle: null,
+        modalMessage: null,
+        modalConsequence: null,
+        modalCancelBtn: null,
+        modalConfirmBtn: null,
+        confirmResolve: null,
+        escHandler: null
+    };
+
+    function notifyTemplate(text, params) {
+        var output = String(text == null ? '' : text);
+        Object.keys(params || {}).forEach(function (k) {
+            output = output.replace(new RegExp('\\{' + k + '\\}', 'g'), String(params[k] == null ? '' : params[k]));
+        });
+        return output;
+    }
+
+    function notifyGet(path) {
+        var parts = String(path || '').split('.').filter(Boolean);
+        var node = NOTIFICATION_COPY;
+        for (var i = 0; i < parts.length; i++) {
+            if (!node || typeof node !== 'object') return null;
+            node = node[parts[i]];
+        }
+        return node || null;
+    }
+
+    function ensureNotifyUi() {
+        if (notifyState.initialized) return;
+        notifyState.initialized = true;
+
+        var toastHost = document.createElement('div');
+        toastHost.id = 'app-toast-host';
+        toastHost.style.position = 'fixed';
+        toastHost.style.right = '16px';
+        toastHost.style.bottom = '16px';
+        toastHost.style.zIndex = '9998';
+        toastHost.style.display = 'flex';
+        toastHost.style.flexDirection = 'column';
+        toastHost.style.gap = '10px';
+        toastHost.style.maxWidth = '420px';
+        toastHost.style.pointerEvents = 'none';
+        document.body.appendChild(toastHost);
+        notifyState.toastHost = toastHost;
+
+        var overlay = document.createElement('div');
+        overlay.id = 'app-confirm-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.zIndex = '9999';
+        overlay.style.background = 'rgba(15,23,42,0.45)';
+        overlay.style.display = 'none';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.padding = '18px';
+
+        var card = document.createElement('div');
+        card.style.width = 'min(560px, 100%)';
+        card.style.background = '#ffffff';
+        card.style.border = '1px solid #e2e8f0';
+        card.style.borderRadius = '16px';
+        card.style.boxShadow = '0 12px 36px rgba(15,23,42,0.24)';
+        card.style.padding = '18px 18px 14px';
+
+        var title = document.createElement('h3');
+        title.style.margin = '0 0 8px 0';
+        title.style.fontSize = '18px';
+        title.style.fontWeight = '700';
+        title.style.color = '#0f172a';
+
+        var msg = document.createElement('p');
+        msg.style.margin = '0 0 10px 0';
+        msg.style.fontSize = '14px';
+        msg.style.color = '#334155';
+        msg.style.lineHeight = '1.45';
+
+        var cons = document.createElement('p');
+        cons.style.margin = '0';
+        cons.style.fontSize = '13px';
+        cons.style.color = '#475569';
+        cons.style.lineHeight = '1.45';
+        cons.style.background = '#f8fafc';
+        cons.style.border = '1px solid #e2e8f0';
+        cons.style.borderRadius = '10px';
+        cons.style.padding = '10px 12px';
+
+        var actions = document.createElement('div');
+        actions.style.display = 'flex';
+        actions.style.justifyContent = 'flex-end';
+        actions.style.gap = '10px';
+        actions.style.marginTop = '14px';
+
+        var cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.style.padding = '8px 14px';
+        cancelBtn.style.border = '1px solid #cbd5e1';
+        cancelBtn.style.background = '#ffffff';
+        cancelBtn.style.color = '#334155';
+        cancelBtn.style.borderRadius = '10px';
+        cancelBtn.style.fontWeight = '600';
+        cancelBtn.style.cursor = 'pointer';
+
+        var confirmBtn = document.createElement('button');
+        confirmBtn.type = 'button';
+        confirmBtn.style.padding = '8px 14px';
+        confirmBtn.style.border = '1px solid #16a34a';
+        confirmBtn.style.background = '#16a34a';
+        confirmBtn.style.color = '#ffffff';
+        confirmBtn.style.borderRadius = '10px';
+        confirmBtn.style.fontWeight = '700';
+        confirmBtn.style.cursor = 'pointer';
+
+        actions.appendChild(cancelBtn);
+        actions.appendChild(confirmBtn);
+        card.appendChild(title);
+        card.appendChild(msg);
+        card.appendChild(cons);
+        card.appendChild(actions);
+        overlay.appendChild(card);
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) closeConfirm(false);
+        });
+        cancelBtn.addEventListener('click', function () { closeConfirm(false); });
+        confirmBtn.addEventListener('click', function () { closeConfirm(true); });
+
+        notifyState.modalHost = overlay;
+        notifyState.modalCard = card;
+        notifyState.modalTitle = title;
+        notifyState.modalMessage = msg;
+        notifyState.modalConsequence = cons;
+        notifyState.modalCancelBtn = cancelBtn;
+        notifyState.modalConfirmBtn = confirmBtn;
+    }
+
+    function closeConfirm(result) {
+        if (!notifyState.modalHost) return;
+        notifyState.modalHost.style.display = 'none';
+        if (notifyState.escHandler) {
+            document.removeEventListener('keydown', notifyState.escHandler);
+            notifyState.escHandler = null;
+        }
+        var resolve = notifyState.confirmResolve;
+        notifyState.confirmResolve = null;
+        if (resolve) resolve(!!result);
+    }
+
+    function notifyConfirm(config) {
+        ensureNotifyUi();
+        var safe = config || {};
+        notifyState.modalTitle.textContent = safe.title || 'Подтвердите действие';
+        notifyState.modalMessage.textContent = safe.message || '';
+        notifyState.modalConsequence.textContent = safe.consequence || '';
+        notifyState.modalConsequence.style.display = safe.consequence ? 'block' : 'none';
+        notifyState.modalCancelBtn.textContent = (safe.buttons && safe.buttons.cancel) || 'Отмена';
+        notifyState.modalConfirmBtn.textContent = (safe.buttons && safe.buttons.confirm) || 'Подтвердить';
+        notifyState.modalConfirmBtn.style.borderColor = safe.confirmColor || '#16a34a';
+        notifyState.modalConfirmBtn.style.background = safe.confirmColor || '#16a34a';
+
+        notifyState.modalHost.style.display = 'flex';
+        notifyState.modalCancelBtn.focus();
+
+        return new Promise(function (resolve) {
+            notifyState.confirmResolve = resolve;
+            notifyState.escHandler = function (e) {
+                if (e.key === 'Escape') closeConfirm(false);
+            };
+            document.addEventListener('keydown', notifyState.escHandler);
+        });
+    }
+
+    function notifyToast(kind, title, message, timeoutMs) {
+        ensureNotifyUi();
+
+        var tone = kind || 'info';
+        var palette = {
+            success: { bg: '#e8f7ef', fg: '#0f5132', bd: '#b7e4c7' },
+            info: { bg: '#eaf3ff', fg: '#0b3a75', bd: '#b6d4fe' },
+            warning: { bg: '#fff4e5', fg: '#7a4b00', bd: '#ffd8a8' },
+            error: { bg: '#fdecec', fg: '#7f1d1d', bd: '#f5b5b5' }
+        };
+        var ui = palette[tone] || palette.info;
+
+        while (notifyState.toastHost.children.length >= 3) {
+            notifyState.toastHost.removeChild(notifyState.toastHost.children[0]);
+        }
+
+        var toast = document.createElement('div');
+        toast.style.pointerEvents = 'auto';
+        toast.style.background = ui.bg;
+        toast.style.color = ui.fg;
+        toast.style.border = '1px solid ' + ui.bd;
+        toast.style.borderRadius = '14px';
+        toast.style.padding = '10px 12px';
+        toast.style.boxShadow = '0 10px 30px rgba(15,23,42,0.14)';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 180ms ease, transform 180ms ease';
+
+        var topRow = document.createElement('div');
+        topRow.style.display = 'flex';
+        topRow.style.justifyContent = 'space-between';
+        topRow.style.alignItems = 'start';
+        topRow.style.gap = '10px';
+
+        var titleEl = document.createElement('div');
+        titleEl.style.fontSize = '13px';
+        titleEl.style.fontWeight = '700';
+        titleEl.textContent = title || '';
+
+        var closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.textContent = '×';
+        closeBtn.style.border = 'none';
+        closeBtn.style.background = 'transparent';
+        closeBtn.style.color = ui.fg;
+        closeBtn.style.fontSize = '16px';
+        closeBtn.style.lineHeight = '1';
+        closeBtn.style.cursor = 'pointer';
+
+        var msgEl = document.createElement('div');
+        msgEl.style.marginTop = '4px';
+        msgEl.style.fontSize = '12px';
+        msgEl.style.lineHeight = '1.4';
+        msgEl.textContent = message || '';
+
+        topRow.appendChild(titleEl);
+        topRow.appendChild(closeBtn);
+        toast.appendChild(topRow);
+        if (message) toast.appendChild(msgEl);
+        notifyState.toastHost.appendChild(toast);
+
+        requestAnimationFrame(function () {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        });
+
+        var timeout = timeoutMs;
+        if (!timeout) {
+            timeout = tone === 'error' ? 7000 : tone === 'warning' ? 5000 : 3500;
+        }
+
+        var timer = setTimeout(removeToast, timeout);
+        closeBtn.addEventListener('click', removeToast);
+        toast.addEventListener('mouseenter', function () { clearTimeout(timer); });
+        toast.addEventListener('mouseleave', function () { timer = setTimeout(removeToast, 1400); });
+
+        function removeToast() {
+            if (!toast.parentNode) return;
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(8px)';
+            setTimeout(function () {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 170);
+        }
+    }
+
+    function notifyFromKey(path, kind, params) {
+        var entry = notifyGet('notifications.' + path);
+        if (!entry) return;
+        notifyToast(kind, notifyTemplate(entry.title, params), notifyTemplate(entry.message, params));
+    }
+
+    function notifyConfirmByKey(path, params) {
+        var entry = notifyGet('notifications.' + path);
+        if (!entry) return Promise.resolve(false);
+        return notifyConfirm({
+            title: notifyTemplate(entry.title, params),
+            message: notifyTemplate(entry.message, params),
+            consequence: notifyTemplate(entry.consequence || '', params),
+            buttons: {
+                cancel: notifyTemplate(entry.buttons && entry.buttons.cancel, params),
+                confirm: notifyTemplate(entry.buttons && entry.buttons.confirm, params)
+            }
+        });
+    }
+
+    var AppNotify = {
+        copy: NOTIFICATION_COPY,
+        template: notifyTemplate,
+        get: notifyGet,
+        toast: notifyToast,
+        confirm: notifyConfirm,
+        successByKey: function (path, params) { notifyFromKey(path, 'success', params); },
+        infoByKey: function (path, params) { notifyFromKey(path, 'info', params); },
+        warningByKey: function (path, params) { notifyFromKey(path, 'warning', params); },
+        errorByKey: function (path, params) { notifyFromKey(path, 'error', params); },
+        confirmByKey: notifyConfirmByKey
+    };
+
     function addLog(app, actor, action, actionRu, color, icon, comment) {
         if (!app.auditLog) app.auditLog = [];
         app.auditLog.push({
@@ -453,6 +822,7 @@
         ensureGrantContractDraft,
         registerGrantContractDraft,
         getApplicationDocumentCompleteness,
+        AppNotify,
         downloadGrantAgreementFile,
         downloadBusinessPlanFile,
         downloadBusinessPlanPdfFile,
@@ -479,6 +849,7 @@
     window.ensureGrantContractDraft = ensureGrantContractDraft;
     window.registerGrantContractDraft = registerGrantContractDraft;
     window.getApplicationDocumentCompleteness = getApplicationDocumentCompleteness;
+    window.AppNotify = AppNotify;
     window.downloadGrantAgreementFile = downloadGrantAgreementFile;
     window.downloadBusinessPlanFile = downloadBusinessPlanFile;
     window.downloadBusinessPlanPdfFile = downloadBusinessPlanPdfFile;
