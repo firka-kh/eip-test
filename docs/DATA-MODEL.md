@@ -99,6 +99,7 @@ interface Application {
 
   // === Подписанный договор ===
   grantAgreement?: GrantAgreement; // Скан подписанного договора после approved
+  grantContractDraft?: GrantContractDraft; // Черновик формируемого текста договора
 
   // === Аудит ===
   auditLog: AuditLogEntry[];     // История действий
@@ -160,6 +161,46 @@ interface GrantAgreement {
   note?: string;             // Опциональный комментарий
   replaceCount?: number;     // Сколько раз договор обновлялся
 }
+
+interface GrantContractDraft {
+  fields: GrantContractFields;
+  updatedAt?: string;        // Последнее обновление черновика
+  updatedByRole?: string;    // Роль обновившего
+  updatedByName?: string;    // Отображаемое имя обновившего
+}
+
+interface GrantContractFields {
+  contractNumber: string;            // Ш-******-ДДММГГ
+  grantIdentifier: string;           // ID заявки
+  committeeGrantNumber: string;      // Номер протокола/списка
+  approvalDate: string;              // ДД.ММ.ГГГГ
+  projectName: string;
+  grantAmount: string;               // Всегда из approved заявки
+  organizerName: string;
+  donorEntityForText: string;
+  granteeEntityForText: string;
+
+  beneficiaryStatusOrName: string;
+  beneficiaryLegalName: string;
+  beneficiaryRegAddress: string;
+  beneficiaryProjectAddress: string;
+  beneficiaryPhone: string;
+  beneficiaryEmail: string;
+
+  donorRepName: string;
+  donorRepPosition: string;
+  donorAddress: string;
+  donorPhone: string;
+  donorEmail: string;
+
+  bankName: string;
+  currentAccount: string;
+  correspondentAccount: string;
+  bik: string;
+
+  signDateDonor: string;
+  signDateBeneficiary: string;
+}
 ```
 
 Инварианты документного пакета:
@@ -174,6 +215,13 @@ interface GrantAgreement {
 - Форматы: PDF/JPG/JPEG/PNG, до 10MB.
 - Каждая загрузка/обновление записывается в `auditLog`.
 - При наличии `fileDataUrl` скачивание возвращает исходный загруженный файл.
+
+Инварианты черновика договора:
+- Черновик доступен только в `approved` и редактируется только Фасилитатором.
+- UI рендерит форму как collapsible full-width блок в `pane-approved`.
+- Поле `grantAmount` всегда синхронизируется из заявки и не редактируется вручную.
+- Номер договора нормализуется к шаблону `Ш-******-ДДММГГ`.
+- При сохранении допускается частично заполненный черновик; строгая валидация применяется перед предпросмотром/печатью/PDF.
 
 ### ApplicationStatus (все возможные значения)
 

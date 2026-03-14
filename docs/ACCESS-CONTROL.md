@@ -33,7 +33,7 @@ graph LR
 | `gmc_ready_for_registry` | 👁 Просмотр | ✅ **Формирование реестра** | 👁 Просмотр | 👁 Просмотр |
 | `piu_review` | 👁 Просмотр | 👁 Просмотр | ✅ **Проверка** | 👁 Просмотр |
 | `com_review` | 👁 Просмотр | 👁 Просмотр | 👁 Просмотр | ✅ **Утверждение** |
-| `approved` | 👁 + 📎 Договор + 📊 Мониторинг | 👁 Просмотр | 👁 Просмотр | 👁 Просмотр |
+| `approved` | 👁 + 📝 Черновик договора + 📎 Договор + 📊 Мониторинг | 👁 Просмотр | 👁 Просмотр | 👁 Просмотр |
 | `rejected` | 👁 История | 👁 История | 👁 История | 👁 История |
 | `postponed` | ✅ **Разблокировка/история** (если срок блокировки истек) | 👁 История | 👁 История | 👁 История |
 
@@ -51,6 +51,8 @@ graph LR
 | Доработать заявку | `openRevFor()` | Статус `fac_revision` |
 | Проводить мониторинг | `saveMonitoringVisit()` | Статус `approved`, визит `active` |
 | Просмотр истории | `openApprovedFor()` | Любой статус |
+| Заполнить/сохранить черновик договора | `saveGrantContractDraftFromModal()` | Только `approved`, только Фасилитатор |
+| Предпросмотр/печать/PDF договора | `previewGrantContractDraftFromModal()`, `printGrantContractDraftFromModal()`, `exportGrantContractPdfFromModal()` | Только `approved`, обязательные поля валидны |
 | Загрузить подписанный договор | `uploadGrantAgreementFromModal()` | Только `approved`, только Фасилитатор |
 | Скачать подписанный договор | `downloadCurrentGrantAgreementFromModal()` | Если договор загружен |
 
