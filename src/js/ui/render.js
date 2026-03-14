@@ -434,11 +434,12 @@
         var now = new Date();
         var day = String(now.getDate()).padStart(2, '0');
         var monthNum = String(now.getMonth() + 1).padStart(2, '0');
-        var yy = String(now.getFullYear()).slice(-2);
+        var yyyy = String(now.getFullYear());
         if (m) {
             day = m[1];
             monthNum = m[2];
-            yy = String(m[3]).slice(-2);
+            var yRaw = String(m[3]);
+            yyyy = yRaw.length === 2 ? ('20' + yRaw) : yRaw;
         }
         var monthNamesTj = {
             '01': 'январ',
@@ -457,7 +458,7 @@
         return {
             day: day,
             month: monthNamesTj[monthNum] || monthNum,
-            year: yy
+            year: yyyy
         };
     }
 
@@ -588,7 +589,7 @@
             '<div class="contract-doc">' +
             '<section class="paper-page page-1">' +
             '<h1 class="contract-head-title">ШАРТНОМА ДАР БОРАИ ГРАНТ № ' + lineValue('contractNumber', ' ', 'lf-contract-no') + '</h1>' +
-            '<p class="contract-place-date"><span class="meta-left">Аз «' + lineValue('contractDateDay', '__', 'lf-day') + '» ' + lineValue('contractDateMonth', ' ', 'lf-month') + ' соли 20' + lineValue('contractDateYear', '__', 'lf-year') + '</span><span class="meta-right">ш. ' + lineValue('contractCity', 'Душанбе', 'lf-city') + '</span></p>' +
+            '<p class="contract-place-date"><span class="meta-left">Аз «' + lineValue('contractDateDay', '__', 'lf-day') + '» ' + lineValue('contractDateMonth', ' ', 'lf-month') + ' соли ' + lineValue('contractDateYear', '____', 'lf-year') + '</span><span class="meta-right">ш. ' + lineValue('contractCity', 'Душанбе', 'lf-city') + '</span></p>' +
             '<h3>I. МАВЗӮИ ШАРТНОМА</h3>' +
             '<p>Шартномаи мазкур байни Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон / Лоиҳаи навсозии ҳифзи иҷтимоӣ ва ҳамгироии иқтисодӣ,<br>ки аз ҷониби <b>' + val('donorEntityForText') + '</b>, минбаъд «Грантдиҳанда» номида мешавад ва <b>' + val('granteeEntityForText') + '</b>, минбаъд «Грантгир» номида мешавад, дар алоҳидагӣ «Тараф» ё якҷоя «Тарафҳо» дар доираи «Лоиҳаи навсозии ҳифзи иҷтимоӣ ва ҳамгироии иқтисодӣ», минбаъд «Лоиҳа» номида мешаванд, амал мекунанд, ба мазмуни зерин Шартномаи мазкурро ба имзо расониданд:</p>' +
             '<h3>II. ӮҲДАДОРИҲОИ ТАРАФҲО</h3>' +
@@ -691,7 +692,7 @@
         }
 
         popup.document.open();
-        popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + (title || 'Grant Contract Preview') + '</title><style>@page{size:A4;margin:18mm 16mm 18mm 16mm}html,body{margin:0;padding:0;background:#fff;color:#111}body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.32} .hint{font-size:10pt;color:#555;margin:0 0 10px 0;padding:7px 10px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc} .contract-doc{max-width:180mm;margin:0 auto} .paper-page{position:relative;min-height:238mm;padding-bottom:10mm;page-break-inside:avoid} .page-1{padding-top:1.8mm} .paper-page+.paper-page{page-break-before:always} .contract-doc .contract-head-title{font-size:15pt;text-align:center;margin:0 0 7.6mm 0;line-height:1.2;font-weight:700} .contract-doc .contract-place-date{margin:0 0 7mm 0;display:flex;align-items:flex-end;justify-content:space-between;gap:6mm} .contract-doc .meta-left,.contract-doc .meta-right{display:inline-flex;align-items:flex-end;gap:1.8mm;white-space:nowrap} .contract-doc h3{font-size:12pt;margin:0 0 4mm 0;line-height:1.2;page-break-after:avoid;text-align:center;font-weight:700} .contract-doc p{margin:0 0 3.2mm 0;text-align:justify;text-wrap:pretty} .contract-doc .subpoint{margin-left:4mm;text-indent:-4mm} .contract-doc ul{margin:2mm 0 4mm 7mm;padding:0} .contract-doc li{margin:0 0 2.3mm 0} .line-list{list-style:disc} .line-fill{display:inline-block;border-bottom:0.7pt solid #111;line-height:1.05;vertical-align:baseline;word-break:break-word} .lf-contract-no{min-width:40mm} .lf-day{min-width:11mm;text-align:center} .lf-month{min-width:42mm} .lf-year{min-width:14mm;text-align:center} .lf-city{min-width:38mm} .signature-gap{margin-top:10mm} .page-no{position:absolute;right:0;bottom:0;font-size:10pt;color:#555} @media print {.hint{display:none} body{font-size:12pt} .contract-doc{max-width:none;margin:0} .paper-page{min-height:auto;padding-bottom:10mm} .contract-doc .contract-head-title,.contract-doc h3,.contract-doc p,.contract-doc li{orphans:3;widows:3}}</style></head><body>' + (showPdfHint ? '<div class="hint">Для экспорта в PDF выберите в окне печати: Save as PDF / Сохранить как PDF.</div>' : '') + bodyHtml + '</body></html>');
+        popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + (title || 'Grant Contract Preview') + '</title><style>@page{size:A4;margin:18mm 16mm 18mm 16mm}html,body{margin:0;padding:0;background:#fff;color:#111}body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.32} .hint{font-size:10pt;color:#555;margin:0 0 10px 0;padding:7px 10px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc} .contract-doc{max-width:180mm;margin:0 auto} .paper-page{position:relative;min-height:238mm;padding-bottom:10mm;page-break-inside:avoid} .page-1{padding-top:1.8mm} .paper-page+.paper-page{page-break-before:always} .contract-doc .contract-head-title{font-size:15pt;text-align:center;margin:0 0 7.6mm 0;line-height:1.2;font-weight:700} .contract-doc .contract-place-date{margin:0 0 7mm 0;display:flex;align-items:flex-end;justify-content:space-between;gap:6mm} .contract-doc .meta-left,.contract-doc .meta-right{display:inline-flex;align-items:flex-end;gap:1.8mm;white-space:nowrap} .contract-doc h3{font-size:12pt;margin:0 0 4mm 0;line-height:1.2;page-break-after:avoid;text-align:center;font-weight:700} .contract-doc p{margin:0 0 3.2mm 0;text-align:justify;text-wrap:pretty} .contract-doc .subpoint{margin-left:4mm;text-indent:-4mm} .contract-doc ul{margin:2mm 0 4mm 7mm;padding:0} .contract-doc li{margin:0 0 2.3mm 0} .line-list{list-style:disc} .line-fill{display:inline-block;border-bottom:0.7pt solid #111;line-height:1.05;vertical-align:baseline;word-break:break-word} .lf-contract-no{min-width:40mm} .lf-day{min-width:11mm;text-align:center} .lf-month{min-width:42mm} .lf-year{min-width:18mm;text-align:center} .lf-city{min-width:38mm} .signature-gap{margin-top:10mm} .page-no{position:absolute;right:0;bottom:0;font-size:10pt;color:#555} @media print {.hint{display:none} body{font-size:12pt} .contract-doc{max-width:none;margin:0} .paper-page{min-height:auto;padding-bottom:10mm} .contract-doc .contract-head-title,.contract-doc h3,.contract-doc p,.contract-doc li{orphans:3;widows:3}}</style></head><body>' + (showPdfHint ? '<div class="hint">Для экспорта в PDF выберите в окне печати: Save as PDF / Сохранить как PDF.</div>' : '') + bodyHtml + '</body></html>');
         popup.document.close();
 
         if (autoPrint) {
