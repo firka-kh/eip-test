@@ -276,4 +276,61 @@
             apps: apps
         });
     });
+
+    function buildContractDraftForApproved(app, serial) {
+        const beneficiaryId = app.beneficiaryId || app.id;
+        const db = (window.beneficiarySearchDatabase && window.beneficiarySearchDatabase[beneficiaryId])
+            || (window.mockDatabase && window.mockDatabase[beneficiaryId])
+            || {};
+
+        const approvalDate = String(app.date || '').split(',')[0] || '01.03.2026';
+        const sectorPlain = String(app.sector || '').replace(/<[^>]*>?/gm, '').trim();
+        const contractNumber = String(serial).padStart(6, '0');
+        const baseAccount = String(40702810000000000000 + serial);
+        const corrAccount = String(30101810100000000000 + serial);
+        const bik = String(350101000 + (serial % 900)).slice(0, 9);
+
+        return {
+            fields: {
+                contractNumber: contractNumber,
+                grantIdentifier: String(app.id || ''),
+                committeeGrantNumber: String(app.protocolId || ''),
+                approvalDate: approvalDate,
+                projectName: sectorPlain,
+                grantAmount: String(app.amount || ''),
+                organizerName: 'Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон',
+                donorEntityForText: 'Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон',
+                beneficiaryStatusOrName: String(app.name || db['full-name'] || ''),
+                granteeEntityForText: String(app.name || db['full-name'] || ''),
+                beneficiaryLegalName: String(app.name || db['full-name'] || ''),
+                beneficiaryRegAddress: String(db.address || 'ш. Душанбе'),
+                beneficiaryProjectAddress: String(db.address || 'ш. Душанбе'),
+                beneficiaryPhone: String(app.contacts || db.contacts || '+992 90 000 0000'),
+                beneficiaryEmail: 'grant' + String(serial) + '@example.tj',
+                donorRepName: 'Муҳаммад Саидов',
+                donorRepPosition: 'Ҳамоҳангсози грантҳо',
+                donorAddress: 'ш. Душанбе, кӯч. Рӯдакӣ 42',
+                donorPhone: '+992 37 221 00 00',
+                donorEmail: 'grants@mehnat.tj',
+                bankName: 'Амонатбонк',
+                currentAccount: baseAccount,
+                correspondentAccount: corrAccount,
+                bik: bik,
+                signDateDonor: approvalDate,
+                signDateBeneficiary: approvalDate
+            },
+            updatedAt: app.date || (approvalDate + ', 10:00'),
+            updatedByRole: 'Фасилитатор',
+            updatedByName: 'Фасилитатор'
+        };
+    }
+
+    // Prepare several approved applications with fully filled contract draft data.
+    const approvedForContractSeed = window.seedApplications.filter(function (a) {
+        return a && a.status === 'approved';
+    }).slice(0, 8);
+
+    approvedForContractSeed.forEach(function (app, idx) {
+        app.grantContractDraft = buildContractDraftForApproved(app, idx + 1);
+    });
 })();

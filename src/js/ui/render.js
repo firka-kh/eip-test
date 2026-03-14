@@ -197,15 +197,16 @@
         var appDate = String((app && app.date) || '').split(',')[0] || '';
         var grantAmount = String((app && app.amount) || '').trim();
         var projectName = String((app && app.sector) || '').replace(/<[^>]*>?/gm, '').trim();
+        var numericId = parseInt(String((app && app.id) || '').replace(/\D/g, ''), 10);
+        var contractNoDefault = isNaN(numericId) ? '000001' : String(numericId).padStart(6, '0').slice(0, 6);
 
         return {
-            contractNumber: '___-____',
+            contractNumber: contractNoDefault,
             grantIdentifier: String((app && app.id) || ''),
             committeeGrantNumber: String((app && app.protocolId) || ''),
             approvalDate: appDate,
             projectName: projectName,
             grantAmount: grantAmount,
-            grantAmountWords: '',
             organizerName: 'Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон',
             donorEntityForText: 'Грантдиҳанда',
             beneficiaryStatusOrName: String((app && app.name) || db['full-name'] || ''),
@@ -256,6 +257,12 @@
             el.disabled = !canEdit;
             el.classList.toggle('bg-slate-100', !canEdit);
             el.classList.toggle('cursor-not-allowed', !canEdit);
+
+            // Amount is always sourced from approved application and cannot be edited manually.
+            if (key === 'grantAmount') {
+                el.readOnly = true;
+                el.classList.add('bg-emerald-50');
+            }
         });
 
         var draft = typeof window.ensureGrantContractDraft === 'function' ? window.ensureGrantContractDraft(app) : null;
@@ -286,7 +293,6 @@
     function collectGrantContractFieldsFromForm() {
         var keys = [
             'contractNumber', 'grantIdentifier', 'committeeGrantNumber', 'approvalDate', 'projectName', 'grantAmount',
-            'grantAmountWords',
             'organizerName', 'beneficiaryStatusOrName', 'beneficiaryLegalName', 'beneficiaryRegAddress',
             'donorEntityForText', 'granteeEntityForText',
             'beneficiaryProjectAddress', 'beneficiaryPhone', 'beneficiaryEmail', 'donorRepName', 'donorRepPosition',
@@ -299,6 +305,11 @@
             out[key] = el ? String(el.value || '').trim() : '';
         });
         out.contractNumber = formatContractNumberValue(out.contractNumber);
+
+        // Force amount from approved application source, not manual input.
+        var id = window.currentOpenedAppId || window.currentApprovedAppId;
+        var app = id ? window.getApp(id) : null;
+        if (app) out.grantAmount = String(app.amount || '').trim();
         return out;
     }
 
@@ -316,14 +327,12 @@
     }
 
     function formatContractNumberValue(raw) {
-        var value = String(raw || '').toUpperCase().replace(/\s+/g, '');
+        var value = String(raw || '').replace(/\s+/g, '');
         if (!value) return '';
 
-        var cleaned = value.replace(/[^A-ZА-Я0-9\-_]/g, '');
-        if (cleaned.indexOf('-') >= 0) return cleaned;
-
-        if (cleaned.length <= 3) return cleaned;
-        return cleaned.slice(0, 3) + '-' + cleaned.slice(3, 7);
+        var cleaned = value.replace(/\D/g, '');
+        if (!cleaned) return '';
+        return cleaned.slice(0, 6).padStart(6, '0');
     }
 
     function clearGrantContractValidationUi() {
@@ -335,7 +344,6 @@
 
         var keys = [
             'contractNumber', 'grantIdentifier', 'approvalDate', 'projectName', 'grantAmount',
-            'grantAmountWords',
             'beneficiaryStatusOrName', 'beneficiaryRegAddress', 'beneficiaryPhone',
             'donorRepName', 'donorRepPosition'
         ];
@@ -358,7 +366,6 @@
             { key: 'approvalDate', label: 'Дата утверждения' },
             { key: 'projectName', label: 'Название проекта' },
             { key: 'grantAmount', label: 'Сумма гранта' },
-            { key: 'grantAmountWords', label: 'Сумма гранта прописью' },
             { key: 'beneficiaryStatusOrName', label: 'Грантополучатель' },
             { key: 'beneficiaryRegAddress', label: 'Адрес регистрации' },
             { key: 'beneficiaryPhone', label: 'Телефон грантополучателя' },
@@ -379,8 +386,8 @@
         });
 
         var contractNumber = String(fields.contractNumber || '');
-        if (contractNumber && !/^[A-ZА-Я0-9_]{3,}-[A-ZА-Я0-9_]{1,}$/.test(contractNumber)) {
-            errors.push('Номер договора должен быть в формате XXX-XXXX');
+        if (contractNumber && !/^\d{6}$/.test(contractNumber)) {
+            errors.push('Номер договора должен быть в формате 000001 (6 цифр)');
             var noEl = document.getElementById('contract-contractNumber');
             if (noEl) {
                 noEl.classList.remove('border-emerald-300', 'bg-emerald-50');
@@ -411,13 +418,13 @@
 
         return '' +
             '<div class="contract-doc">' +
-            '<h1>ШАРТНОМА ДАР БОРАИ ГРАНТ № ' + val('contractNumber', '___-____') + '</h1>' +
+            '<h1>ШАРТНОМА ДАР БОРАИ ГРАНТ № ' + val('contractNumber', '000001') + '</h1>' +
             '<h3>I. МАЪЛУМОТИ УМУМӢ ВА ТЕХНИКИИ ГРАНТ</h3>' +
             '<p><b>Идентификатори грант:</b> ' + val('grantIdentifier') + '</p>' +
             '<p><b>Рақами гранти аз ҷониби кумита тасдиқшуда:</b> ' + val('committeeGrantNumber') + '</p>' +
             '<p><b>Санаи тасдиқ:</b> ' + val('approvalDate') + '</p>' +
             '<p><b>Номи лоиҳа:</b> ' + val('projectName') + '</p>' +
-            '<p><b>Маблағи грант:</b> ' + val('grantAmount') + ' (' + val('grantAmountWords', 'маблағ бо ҳарфҳо') + ') сомонӣ</p>' +
+            '<p><b>Маблағи грант:</b> ' + val('grantAmount') + ' сомонӣ</p>' +
             '<p><b>Муассисаи ташкилкунанда:</b> «' + val('organizerName') + '»</p>' +
 
             '<h3>II. МАЪЛУМОТ ДАР БОРАИ ТАРАФҲО</h3>' +
@@ -449,7 +456,7 @@
             '<p>Созишномаи мазкур байни Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон / Лоиҳаи навсозии ҳифзи иҷтимоӣ ва ҳамгироии иқтисодӣ, ки аз ҷониби <b>' + val('donorEntityForText') + '</b>, минбаъд «Грантдиҳанда» номида мешавад ва <b>' + val('granteeEntityForText') + '</b>, минбаъд «Грантгир» номида мешавад, баста шудааст.</p>' +
             '<p>Тарафҳо ба таври зайл ба созиш расиданд:</p>' +
             '<h4>1. МАБЛАҒГУЗОРӢ</h4>' +
-            '<p>1.1. Грантгир дар доираи Лоиҳа барои гирифтани грант ба маблағи <b>' + val('grantAmount') + ' (' + val('grantAmountWords', 'маблағ бо ҳарфҳо') + ') сомонӣ</b> дархост пешниҳод кардааст.</p>' +
+            '<p>1.1. Грантгир дар доираи Лоиҳа барои гирифтани грант ба маблағи <b>' + val('grantAmount') + ' сомонӣ</b> дархост пешниҳод кардааст.</p>' +
             '<p>1.2. Ӯҳдадориҳо ва масъулияти Грантдиҳанда тибқи Шартномаи мазкур танҳо бо пардохти Грант маҳдуд аст.</p>' +
             '<h4>2. ИСТИФОДАИ МАБЛАҒГУЗОРӢ</h4>' +
             '<p>2.1. Маблағгузорӣ аз ҷониби Грантгир барои харидани молҳо/таҷҳизот/хизматрасонӣ истифода мешавад. Дигар харидҳо бе розигии пешакии хаттии Грантдиҳанда манъ аст.</p>' +
