@@ -121,6 +121,17 @@
             border-color: var(--accent-2);
         }
 
+        .btn-accent {
+            background: #0f766e;
+            border-color: #0f766e;
+            color: #fff;
+        }
+
+        .btn-accent:hover {
+            background: #0e6962;
+            border-color: #0e6962;
+        }
+
         .meta {
             display: flex;
             justify-content: space-between;
@@ -313,6 +324,70 @@
             margin: .15rem 0;
         }
 
+        .hl {
+            background: #fff7cc;
+            color: #7c2d12;
+            border-radius: 4px;
+            padding: 0 .15rem;
+        }
+
+        .summary-tools {
+            display: inline-flex;
+            gap: .35rem;
+            margin-left: .5rem;
+            align-items: center;
+        }
+
+        .mini-link {
+            border: 1px solid #c9ddd3;
+            background: #fff;
+            color: #0f766e;
+            border-radius: 999px;
+            padding: 0 .4rem;
+            line-height: 1.4;
+            font-size: .7rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .mini-link:hover {
+            border-color: #0ea5a5;
+            background: #f0fdfa;
+        }
+
+        .feedback {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .45rem;
+            margin-top: .55rem;
+            padding-top: .5rem;
+            border-top: 1px dashed #dbe4dd;
+            font-size: .82rem;
+            color: #475569;
+        }
+
+        .fb-btn {
+            border: 1px solid #c7d7ce;
+            background: #fff;
+            color: #134e4a;
+            border-radius: 999px;
+            padding: .15rem .55rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .78rem;
+        }
+
+        .fb-btn:hover {
+            border-color: #0ea5a5;
+            background: #f0fdfa;
+        }
+
+        .feedback-note {
+            color: #166534;
+            font-weight: 700;
+        }
+
         .callout {
             margin-top: .5rem;
             border-left: 4px solid #0ea5a5;
@@ -396,6 +471,8 @@
                     aria-label="Поиск по FAQ">
                 <button class="btn" id="openAllBtn" type="button">Раскрыть все</button>
                 <button class="btn" id="closeAllBtn" type="button">Свернуть все</button>
+                <button class="btn" id="resetFiltersBtn" type="button">Сбросить фильтры</button>
+                <button class="btn btn-accent" id="shareStateBtn" type="button">Поделиться ссылкой</button>
                 <a class="btn" href="grant.html">Открыть систему</a>
             </div>
             <div class="meta">
@@ -747,7 +824,8 @@
                 <details class="faq-item" data-role="errors"
                     data-keywords="alert Лутфан ҳамаи майдонҳои ҳатмиро пур кунед мониторинг">
                     <summary>Alert: "Лутфан ҳамаи майдонҳои ҳатмиро пур кунед!" / "Заполните все обязательные поля!"
-                        <span class="tag">Alert</span></summary>
+                        <span class="tag">Alert</span>
+                    </summary>
                     <div class="answer">
                         <ul>
                             <li>В мониторинге заполните 4 обязательных поля: оборудование, бизнес, доход, эко-проверка.
@@ -774,7 +852,158 @@
             var roleFilterButtons = Array.prototype.slice.call(document.querySelectorAll("#roleFilters [data-role-filter]"));
             var tagButtons = Array.prototype.slice.call(document.querySelectorAll("#quickTags [data-tag]"));
             var sectionBlocks = Array.prototype.slice.call(document.querySelectorAll("main .section"));
+            var resetFiltersBtn = document.getElementById("resetFiltersBtn");
+            var shareStateBtn = document.getElementById("shareStateBtn");
             var activeRoleFilter = "all";
+
+            function escapeRegExp(value) {
+                return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            }
+
+            function clearHighlights(root) {
+                (root || document).querySelectorAll("mark.hl").forEach(function (mark) {
+                    var parent = mark.parentNode;
+                    if (!parent) return;
+                    parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                    parent.normalize();
+                });
+            }
+
+            function highlightText(root, query) {
+                var q = String(query || "").trim();
+                if (!q) return;
+                var regex = new RegExp("(" + escapeRegExp(q) + ")", "ig");
+                var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+                var targets = [];
+                while (walker.nextNode()) {
+                    var node = walker.currentNode;
+                    if (!node.nodeValue || !regex.test(node.nodeValue)) continue;
+                    regex.lastIndex = 0;
+                    targets.push(node);
+                }
+
+                targets.forEach(function (textNode) {
+                    var frag = document.createDocumentFragment();
+                    var content = textNode.nodeValue;
+                    var lastIdx = 0;
+                    content.replace(regex, function (match, grp, idx) {
+                        if (idx > lastIdx) frag.appendChild(document.createTextNode(content.slice(lastIdx, idx)));
+                        var m = document.createElement("mark");
+                        m.className = "hl";
+                        m.textContent = match;
+                        frag.appendChild(m);
+                        lastIdx = idx + match.length;
+                        return match;
+                    });
+                    if (lastIdx < content.length) frag.appendChild(document.createTextNode(content.slice(lastIdx)));
+                    textNode.parentNode.replaceChild(frag, textNode);
+                });
+            }
+
+            function applySearchHighlights(q) {
+                clearHighlights(document);
+                if (!q) return;
+                faqItems.forEach(function (item) {
+                    if (item.classList.contains("hidden-by-search") || item.classList.contains("hidden-by-role")) return;
+                    var summary = item.querySelector("summary");
+                    var answer = item.querySelector(".answer");
+                    if (summary) highlightText(summary, q);
+                    if (answer) highlightText(answer, q);
+                });
+            }
+
+            function updateUrlState() {
+                var params = new URLSearchParams(window.location.search);
+                var q = String(searchInput.value || "").trim();
+                if (q) params.set("q", q);
+                else params.delete("q");
+
+                if (activeRoleFilter && activeRoleFilter !== "all") params.set("role", activeRoleFilter);
+                else params.delete("role");
+
+                var hash = window.location.hash || "";
+                var next = window.location.pathname + (params.toString() ? ("?" + params.toString()) : "") + hash;
+                window.history.replaceState({}, "", next);
+            }
+
+            function applyStateFromUrl() {
+                var params = new URLSearchParams(window.location.search);
+                var role = String(params.get("role") || "all").toLowerCase();
+                var q = String(params.get("q") || "");
+
+                if (q) searchInput.value = q;
+                if (role) {
+                    activeRoleFilter = role;
+                    roleFilterButtons.forEach(function (b) {
+                        b.classList.toggle("active", String(b.getAttribute("data-role-filter") || "all").toLowerCase() === role);
+                    });
+                }
+            }
+
+            function ensureQuestionIdsAndTools() {
+                faqItems.forEach(function (item, idx) {
+                    if (!item.id) item.id = "faq-q-" + (idx + 1);
+                    var summary = item.querySelector("summary");
+                    if (!summary || summary.querySelector(".summary-tools")) return;
+                    var tools = document.createElement("span");
+                    tools.className = "summary-tools";
+                    var linkBtn = document.createElement("button");
+                    linkBtn.type = "button";
+                    linkBtn.className = "mini-link";
+                    linkBtn.textContent = "link";
+                    linkBtn.title = "Скопировать ссылку на этот вопрос";
+                    linkBtn.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var params = new URLSearchParams(window.location.search);
+                        var role = activeRoleFilter;
+                        var q = String(searchInput.value || "").trim();
+                        if (role && role !== "all") params.set("role", role); else params.delete("role");
+                        if (q) params.set("q", q); else params.delete("q");
+                        var shareUrl = window.location.origin + window.location.pathname + (params.toString() ? ("?" + params.toString()) : "") + "#" + item.id;
+                        navigator.clipboard.writeText(shareUrl).then(function () {
+                            linkBtn.textContent = "copied";
+                            setTimeout(function () { linkBtn.textContent = "link"; }, 900);
+                        });
+                    });
+                    tools.appendChild(linkBtn);
+                    summary.appendChild(tools);
+                });
+            }
+
+            function attachFeedback() {
+                faqItems.forEach(function (item) {
+                    var answer = item.querySelector(".answer");
+                    if (!answer || answer.querySelector(".feedback")) return;
+                    var box = document.createElement("div");
+                    box.className = "feedback";
+                    box.innerHTML = '<span>Этот ответ помог?</span><button type="button" class="fb-btn" data-v="yes">Да</button><button type="button" class="fb-btn" data-v="no">Нет</button><span class="feedback-note" hidden>Спасибо, отметка сохранена.</span>';
+                    box.addEventListener("click", function (e) {
+                        var btn = e.target.closest(".fb-btn");
+                        if (!btn) return;
+                        var vote = btn.getAttribute("data-v");
+                        var key = "faq-feedback-" + item.id;
+                        try { localStorage.setItem(key, vote); } catch (err) { }
+                        var note = box.querySelector(".feedback-note");
+                        if (note) {
+                            note.hidden = false;
+                            setTimeout(function () { note.hidden = true; }, 1400);
+                        }
+                    });
+                    answer.appendChild(box);
+                });
+            }
+
+            function openHashQuestionIfAny() {
+                var hash = String(window.location.hash || "").replace(/^#/, "");
+                if (!hash) return;
+                var target = document.getElementById(hash);
+                if (!target || !target.classList.contains("faq-item")) return;
+                target.setAttribute("open", "open");
+                setTimeout(function () {
+                    target.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 80);
+            }
 
             function normalize(text) {
                 return String(text || "").toLowerCase().trim();
@@ -818,6 +1047,8 @@
                 });
                 updateCounter();
                 updateSectionVisibility();
+                applySearchHighlights(q);
+                updateUrlState();
             }
 
             openAllBtn.addEventListener("click", function () {
@@ -829,6 +1060,28 @@
             closeAllBtn.addEventListener("click", function () {
                 faqItems.forEach(function (item) { item.removeAttribute("open"); });
             });
+
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener("click", function () {
+                    activeRoleFilter = "all";
+                    searchInput.value = "";
+                    roleFilterButtons.forEach(function (b) {
+                        b.classList.toggle("active", String(b.getAttribute("data-role-filter") || "").toLowerCase() === "all");
+                    });
+                    runSearch();
+                });
+            }
+
+            if (shareStateBtn) {
+                shareStateBtn.addEventListener("click", function () {
+                    updateUrlState();
+                    var shareUrl = window.location.href;
+                    navigator.clipboard.writeText(shareUrl).then(function () {
+                        shareStateBtn.textContent = "Ссылка скопирована";
+                        setTimeout(function () { shareStateBtn.textContent = "Поделиться ссылкой"; }, 1200);
+                    });
+                });
+            }
 
             roleFilterButtons.forEach(function (btn) {
                 btn.addEventListener("click", function () {
@@ -847,8 +1100,18 @@
                 });
             });
 
+            ensureQuestionIdsAndTools();
+            attachFeedback();
+            applyStateFromUrl();
             searchInput.addEventListener("input", runSearch);
+            faqItems.forEach(function (item) {
+                item.addEventListener("toggle", function () {
+                    if (!item.open) return;
+                    window.history.replaceState({}, "", window.location.pathname + window.location.search + "#" + item.id);
+                });
+            });
             runSearch();
+            openHashQuestionIfAny();
         })();
     </script>
 </body>
