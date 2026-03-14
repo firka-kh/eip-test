@@ -27,6 +27,9 @@ python3 -m http.server 8000
 
 Перейдите на `http://localhost:8000/grant.html`
 
+Дополнительная страница справки для пользователей:
+- `http://localhost:8000/faq.html`
+
 ## Структура проекта
 
 ```

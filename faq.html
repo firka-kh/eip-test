@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EIP FAQ - Справка по интерфейсу</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=PT+Sans:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7f5;
+            --surface: #ffffff;
+            --ink: #0f172a;
+            --muted: #475569;
+            --accent: #0f766e;
+            --accent-2: #0ea5a5;
+            --line: #dbe4dd;
+            --warn: #b45309;
+            --good: #166534;
+            --hero-a: #dff4f0;
+            --hero-b: #fff4df;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "PT Sans", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% -10%, #ecfdf5 0%, rgba(236, 253, 245, 0) 45%),
+                radial-gradient(circle at 95% 0%, #fef3c7 0%, rgba(254, 243, 199, 0) 40%),
+                var(--bg);
+            line-height: 1.5;
+        }
+
+        .wrap {
+            width: min(1120px, calc(100% - 2rem));
+            margin: 0 auto;
+        }
+
+        .hero {
+            margin: 1.2rem auto 1rem;
+            border: 1px solid #d1e4db;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+            padding: 1.5rem;
+            box-shadow: 0 14px 40px rgba(14, 116, 110, 0.1);
+            animation: rise .45s ease-out;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: "Exo 2", sans-serif;
+            margin: 0;
+            letter-spacing: .2px;
+        }
+
+        h1 {
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+            margin-bottom: .55rem;
+        }
+
+        .hero p {
+            margin: 0;
+            color: #134e4a;
+            max-width: 74ch;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            background: rgba(244, 247, 245, .86);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .topbar-inner {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: .8rem;
+            padding: .75rem 0;
+        }
+
+        .search {
+            display: flex;
+            gap: .65rem;
+            flex-wrap: wrap;
+        }
+
+        .search input {
+            flex: 1 1 350px;
+            min-width: 220px;
+            border: 1px solid #b8cfc4;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: .72rem .8rem;
+            font-size: .96rem;
+        }
+
+        .btn {
+            border: 1px solid #bfd6cb;
+            background: var(--surface);
+            color: #0f3d39;
+            border-radius: 10px;
+            padding: .65rem .85rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-2);
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            gap: .6rem;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .quick {
+            margin: 1rem 0;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .7rem;
+        }
+
+        .quick a {
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: .8rem;
+            background: var(--surface);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .quick strong {
+            display: block;
+            font-family: "Exo 2", sans-serif;
+            margin-bottom: .2rem;
+        }
+
+        main {
+            padding: .2rem 0 2rem;
+        }
+
+        .section {
+            margin: 1rem 0;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--surface);
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        }
+
+        .section-head {
+            padding: .9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px dashed #d4ded7;
+            background: #fcfefc;
+        }
+
+        .section small {
+            color: var(--muted);
+        }
+
+        .items {
+            padding: .35rem 0;
+        }
+
+        details {
+            border-bottom: 1px solid #edf2ee;
+            padding: .2rem 1rem;
+        }
+
+        details:last-child {
+            border-bottom: none;
+        }
+
+        summary {
+            list-style: none;
+            cursor: pointer;
+            font-family: "Exo 2", sans-serif;
+            font-weight: 700;
+            padding: .62rem 0;
+            display: flex;
+            justify-content: space-between;
+            gap: .9rem;
+            align-items: baseline;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .tag {
+            font-size: .76rem;
+            font-weight: 700;
+            color: #0f766e;
+            background: #ebfffd;
+            border: 1px solid #a7f3d0;
+            padding: .15rem .45rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .answer {
+            color: #1f2937;
+            padding: 0 0 .85rem;
+        }
+
+        .answer p {
+            margin: .3rem 0;
+        }
+
+        .answer ul {
+            margin: .35rem 0 .1rem;
+            padding-left: 1rem;
+        }
+
+        .answer li {
+            margin: .15rem 0;
+        }
+
+        .callout {
+            margin-top: .5rem;
+            border-left: 4px solid #0ea5a5;
+            background: #f0fdfa;
+            padding: .5rem .7rem;
+            border-radius: 0 10px 10px 0;
+            color: #0f3d39;
+        }
+
+        .warn {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+            color: #7c2d12;
+        }
+
+        .good {
+            border-left-color: #16a34a;
+            background: #f0fdf4;
+            color: #14532d;
+        }
+
+        .hidden-by-search {
+            display: none;
+        }
+
+        footer {
+            color: var(--muted);
+            font-size: .9rem;
+            text-align: center;
+            padding: 1rem 0 2rem;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .quick {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .quick {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="wrap topbar-inner">
+            <div class="search">
+                <input id="faqSearch" type="search"
+                    placeholder="Поиск по вопросам: договор, отправка, мониторинг, комитет..."
+                    aria-label="Поиск по FAQ">
+                <button class="btn" id="openAllBtn" type="button">Раскрыть все</button>
+                <button class="btn" id="closeAllBtn" type="button">Свернуть все</button>
+                <a class="btn" href="grant.html">Открыть систему</a>
+            </div>
+            <div class="meta">
+                <div id="faqCount">Показано вопросов: 0</div>
+                <div>Роли: Фасилитатор, ШИГ / КУГ, ГТЛ / ГРП, Комитет</div>
+            </div>
+        </div>
+    </div>
+
+    <header class="wrap hero">
+        <h1>FAQ по интерфейсу EIP</h1>
+        <p>
+            Страница для быстрого поиска ответов: как работать по ролям, как формировать договор,
+            как отправлять заявку по этапам и что делать при ошибках. Если вы не знаете, с чего начать,
+            используйте карточки ниже.
+        </p>
+    </header>
+
+    <div class="wrap quick">
+        <a href="#facilitator"><strong>Я Фасилитатор</strong><span>Создание, доработка, договоры, мониторинг</span></a>
+        <a href="#gmc"><strong>Я ШИГ / КУГ</strong><span>Скоринг, возвраты, подготовка реестра</span></a>
+        <a href="#piu"><strong>Я ГТЛ / ГРП</strong><span>Проверка и маршрутизация заявок</span></a>
+        <a href="#committee"><strong>Я Комитет</strong><span>Реестры, решения, протоколы</span></a>
+    </div>
+
+    <main class="wrap">
+        <section class="section" id="common">
+            <div class="section-head">
+                <h2>Общие вопросы</h2>
+                <small>Базовые правила интерфейса</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="интерфейс язык журнал история audit">
+                    <summary>На каком языке работает интерфейс? <span class="tag">Общее</span></summary>
+                    <div class="answer">
+                        <p>Интерфейс двуязычный: таджикский + русский. Все ключевые действия и статусы показаны в обоих
+                            языках.</p>
+                        <div class="callout">Все действия фиксируются в истории заявки автоматически.</div>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="read only approved rejected открыть">
+                    <summary>Почему некоторые заявки открываются только для просмотра? <span class="tag">Доступ</span>
+                    </summary>
+                    <div class="answer">
+                        <p>Для статусов <strong>approved</strong> и <strong>rejected</strong> доступ из любой роли идет
+                            в read-only режиме.</p>
+                        <p>Редактирование доступно только в статусах, закрепленных за вашей ролью.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="не могу найти заявку поиск фильтр">
+                    <summary>Не могу найти заявку в списке. Что проверить? <span class="tag">Поиск</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Проверьте выбранный главный фильтр роли.</li>
+                            <li>Очистите строку поиска.</li>
+                            <li>Переключите вид Grid/List и проверьте снова.</li>
+                            <li>Для одобренных проверьте фильтры сектор/регион/пол.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section" id="facilitator">
+            <div class="section-head">
+                <h2>Фасилитатор</h2>
+                <small>Создание, документы, договор, мониторинг</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="новая заявка создать beneficiary certified">
+                    <summary>Как правильно создать новую заявку? <span class="tag">F1</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Нажмите <strong>Новая заявка</strong>.</li>
+                            <li>Найдите бенефициара по ФИО/ИНН/телефону.</li>
+                            <li>Выберите запись и нажмите <strong>Создать</strong>.</li>
+                            <li>Заполните поля вкладки Фасилитатора.</li>
+                        </ul>
+                        <div class="callout warn">Если не создается: проверьте certStatus и предупреждение о дубле.
+                        </div>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="отправка шиг word pdf 4 фото комплект">
+                    <summary>Что обязательно перед отправкой в ШИГ / КУГ? <span class="tag">F3</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Заполнены поле сектора и сумма.</li>
+                            <li>Загружен комплект: Word + PDF + ровно 4 фото.</li>
+                            <li>Нет блокирующих дублей и неполного профиля.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="номер договора система авто Ш-000001">
+                    <summary>Как формируется номер договора? <span class="tag">Договор</span></summary>
+                    <div class="answer">
+                        <p>Номер полностью системный и генерируется автоматически. Пользователь его не вводит.</p>
+                        <p>Шаблон: <strong>Ш-000001-ДДММГГ</strong>, затем <strong>Ш-000002-ДДММГГ</strong> и далее по
+                            порядку.</p>
+                        <div class="callout good">Серия сквозная и не зависит от ID заявки.</div>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="договор создать редактировать approved preview print pdf">
+                    <summary>Как сформировать договор в системе? <span class="tag">F6</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Откройте заявку в статусе <strong>approved</strong>.</li>
+                            <li>Раскройте блок <strong>Создание договора</strong>.</li>
+                            <li>Заполните разделы сверху вниз.</li>
+                            <li>Сохраните черновик.</li>
+                            <li>Откройте предпросмотр, затем печать или экспорт PDF.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="подписанный договор загрузить pdf jpg png 10mb">
+                    <summary>Как загрузить подписанный договор? <span class="tag">F7</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>В approved-заявке откройте блок <strong>Подписанный договор</strong>.</li>
+                            <li>Выберите файл PDF/JPG/JPEG/PNG до 10MB.</li>
+                            <li>Нажмите <strong>Загрузить</strong>.</li>
+                            <li>Проверьте метаданные и скачивание.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section" id="gmc">
+            <div class="section-head">
+                <h2>ШИГ / КУГ</h2>
+                <small>Оценка и маршруты возврата</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="скоринг 15 критериев решение approve revision reject">
+                    <summary>Как провести первичную оценку? <span class="tag">G1</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Заполните 3 критерия соответствия.</li>
+                            <li>Заполните 15 критериев скоринга.</li>
+                            <li>Добавьте комментарий и выберите решение.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="gmc_revision возврат грп комитет word версия">
+                    <summary>Что делать в статусе gmc_revision? <span class="tag">G2</span></summary>
+                    <div class="answer">
+                        <p>Изучить комментарий возврата, загрузить новую Word-версию и выбрать маршрут: обратно в ГРП
+                            или к Фасилитатору.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="реестр gmc_ready_for_registry комитет">
+                    <summary>Как отправить заявки в Комитет? <span class="tag">G3</span></summary>
+                    <div class="answer">
+                        <p>Переведите заявки в <strong>gmc_ready_for_registry</strong>, отметьте чекбоксами, создайте
+                            реестр и отправьте в Комитет.</p>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section" id="piu">
+            <div class="section-head">
+                <h2>ГТЛ / ГРП</h2>
+                <small>Проверка и завершение этапа</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="piu_review approve resubmit комментарий">
+                    <summary>Как завершить проверку ГРП? <span class="tag">P1</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Откройте заявку в <strong>piu_review</strong>.</li>
+                            <li>Заполните решение и комментарий.</li>
+                            <li>При возврате комментарий обязателен.</li>
+                            <li>Завершите проверку.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section" id="committee">
+            <div class="section-head">
+                <h2>Комитет</h2>
+                <small>Решение по реестру и протокол</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="комитет реестр протокол дата отклонить причина">
+                    <summary>Как правильно утвердить список? <span class="tag">C1</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Откройте входящий реестр.</li>
+                            <li>Заполните дату протокола.</li>
+                            <li>Для каждой заявки выставьте решение.</li>
+                            <li>Для отклонения обязательно укажите причину.</li>
+                            <li>Нажмите утверждение списка.</li>
+                        </ul>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section" id="monitoring">
+            <div class="section-head">
+                <h2>Мониторинг</h2>
+                <small>Пост-грантовые визиты</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="визит monitoring active pending completed">
+                    <summary>Как заполнить активный визит? <span class="tag">M1</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Откройте вкладку мониторинга в approved-заявке.</li>
+                            <li>Выберите активный визит и нажмите <strong>Оформить</strong>.</li>
+                            <li>Заполните оборудование, бизнес, доход, эко-проверку.</li>
+                            <li>Сохраните визит.</li>
+                        </ul>
+                        <div class="callout">После сохранения текущий визит становится completed, следующий - active.
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="section" id="errors">
+            <div class="section-head">
+                <h2>Типовые ошибки</h2>
+                <small>Быстрая диагностика</small>
+            </div>
+            <div class="items">
+                <details class="faq-item" data-keywords="не отправляется заявка сектор сумма комплект">
+                    <summary>Заявка не отправляется из Фасилитатора. Почему? <span class="tag">Ошибка</span></summary>
+                    <div class="answer">
+                        <ul>
+                            <li>Не заполнены сектор/сумма.</li>
+                            <li>Нет полного документного пакета.</li>
+                            <li>Неполный профиль бенефициара.</li>
+                            <li>Сработала блокировка по дублю.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item" data-keywords="postponed unlock-ready разблокировать">
+                    <summary>Почему заявка остается в postponed после 3 месяцев? <span class="tag">Ошибка</span>
+                    </summary>
+                    <div class="answer">
+                        <p>Потому что автоматического снятия блокировки нет. Нужна ручная разблокировка Фасилитатором.
+                        </p>
+                    </div>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wrap">
+        FAQ обновляется вместе с изменениями интерфейса. Подробный регламент: docs/DOCS-MAINTENANCE.md
+    </footer>
+
+    <script>
+        (function initFaqPage() {
+            var searchInput = document.getElementById("faqSearch");
+            var faqItems = Array.prototype.slice.call(document.querySelectorAll(".faq-item"));
+            var faqCount = document.getElementById("faqCount");
+            var openAllBtn = document.getElementById("openAllBtn");
+            var closeAllBtn = document.getElementById("closeAllBtn");
+
+            function normalize(text) {
+                return String(text || "").toLowerCase().trim();
+            }
+
+            function updateCounter() {
+                var visible = faqItems.filter(function (item) {
+                    return !item.classList.contains("hidden-by-search");
+                }).length;
+                faqCount.textContent = "Показано вопросов: " + visible;
+            }
+
+            function runSearch() {
+                var q = normalize(searchInput.value);
+                faqItems.forEach(function (item) {
+                    var text = normalize(item.textContent);
+                    var keywords = normalize(item.getAttribute("data-keywords"));
+                    var hit = !q || text.indexOf(q) >= 0 || keywords.indexOf(q) >= 0;
+                    item.classList.toggle("hidden-by-search", !hit);
+                    if (!hit) item.removeAttribute("open");
+                });
+                updateCounter();
+            }
+
+            openAllBtn.addEventListener("click", function () {
+                faqItems.forEach(function (item) {
+                    if (!item.classList.contains("hidden-by-search")) item.setAttribute("open", "open");
+                });
+            });
+
+            closeAllBtn.addEventListener("click", function () {
+                faqItems.forEach(function (item) { item.removeAttribute("open"); });
+            });
+
+            searchInput.addEventListener("input", runSearch);
+            runSearch();
+        })();
+    </script>
+</body>
+
+</html>
