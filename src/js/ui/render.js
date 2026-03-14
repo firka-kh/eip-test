@@ -200,7 +200,8 @@
         var grantAmount = String((app && app.amount) || '').trim();
         var projectName = String((app && app.sector) || '').replace(/<[^>]*>?/gm, '').trim();
         var numericId = parseInt(String((app && app.id) || '').replace(/\D/g, ''), 10);
-        var contractNoDefault = isNaN(numericId) ? '000001' : String(numericId).padStart(6, '0').slice(0, 6);
+        var serial = isNaN(numericId) ? '000001' : String(numericId).padStart(6, '0').slice(0, 6);
+        var contractNoDefault = 'Ш-' + serial + '-' + getContractShortDateDigits(appDate);
 
         return {
             contractNumber: contractNoDefault,
@@ -251,6 +252,7 @@
 
         var canEdit = !!(app && app.status === 'approved' && getActiveRoleContext() === 'facilitator');
         var fields = ensureMergedContractFields(app || {});
+        fields.contractNumber = formatContractNumberValue(fields.contractNumber, fields.approvalDate);
 
         Object.keys(fields).forEach(function (key) {
             var el = document.getElementById('contract-' + key);
@@ -286,7 +288,9 @@
         var contractNoInput = document.getElementById('contract-contractNumber');
         if (contractNoInput && !contractNoInput.dataset.boundFormatter) {
             contractNoInput.addEventListener('blur', function () {
-                contractNoInput.value = formatContractNumberValue(contractNoInput.value);
+                var approvalDateInput = document.getElementById('contract-approvalDate');
+                var approvalDate = approvalDateInput ? approvalDateInput.value : '';
+                contractNoInput.value = formatContractNumberValue(contractNoInput.value, approvalDate);
             });
             contractNoInput.dataset.boundFormatter = '1';
         }
@@ -366,7 +370,7 @@
             var el = document.getElementById('contract-' + key);
             out[key] = el ? String(el.value || '').trim() : '';
         });
-        out.contractNumber = formatContractNumberValue(out.contractNumber);
+        out.contractNumber = formatContractNumberValue(out.contractNumber, out.approvalDate);
 
         // Force amount from approved application source, not manual input.
         var id = window.currentOpenedAppId || window.currentApprovedAppId;
@@ -388,13 +392,34 @@
         ];
     }
 
-    function formatContractNumberValue(raw) {
-        var value = String(raw || '').replace(/\s+/g, '');
+    function getContractShortDateDigits(rawDate) {
+        var value = String(rawDate || '').trim();
+        var m = value.match(/^(\d{2})\.(\d{2})\.(\d{2,4})$/);
+        if (m) {
+            var yy = String(m[3]).slice(-2);
+            return m[1] + m[2] + yy;
+        }
+
+        var now = new Date();
+        var dd = String(now.getDate()).padStart(2, '0');
+        var mm = String(now.getMonth() + 1).padStart(2, '0');
+        var yyNow = String(now.getFullYear()).slice(-2);
+        return dd + mm + yyNow;
+    }
+
+    function formatContractNumberValue(raw, approvalDate) {
+        var value = String(raw || '').trim().toUpperCase().replace(/[\u2012\u2013\u2014\u2015]/g, '-');
         if (!value) return '';
 
-        var cleaned = value.replace(/\D/g, '');
-        if (!cleaned) return '';
-        return cleaned.slice(0, 6).padStart(6, '0');
+        var strict = value.match(/^Ш-(\d{6})-(\d{6})$/);
+        if (strict) return 'Ш-' + strict[1] + '-' + strict[2];
+
+        var digits = value.replace(/\D/g, '');
+        if (!digits) return '';
+
+        var serial = digits.slice(0, 6).padStart(6, '0');
+        var datePart = digits.length >= 12 ? digits.slice(6, 12) : getContractShortDateDigits(approvalDate);
+        return 'Ш-' + serial + '-' + datePart;
     }
 
     function clearGrantContractValidationUi() {
@@ -448,8 +473,8 @@
         });
 
         var contractNumber = String(fields.contractNumber || '');
-        if (contractNumber && !/^\d{6}$/.test(contractNumber)) {
-            errors.push('Номер договора должен быть в формате 000001 (6 цифр)');
+        if (contractNumber && !/^Ш-\d{6}-\d{6}$/.test(contractNumber)) {
+            errors.push('Номер договора должен быть в формате Ш-******-ДДММГГ');
             var noEl = document.getElementById('contract-contractNumber');
             if (noEl) {
                 noEl.classList.remove('border-emerald-300', 'bg-emerald-50');
@@ -480,7 +505,7 @@
 
         return '' +
             '<div class="contract-doc">' +
-            '<h1>ШАРТНОМА ДАР БОРАИ ГРАНТ № ' + val('contractNumber', '000001') + '</h1>' +
+            '<h1>ШАРТНОМА ДАР БОРАИ ГРАНТ № ' + val('contractNumber', 'Ш-000001-010126') + '</h1>' +
             '<h3>I. МАЪЛУМОТИ УМУМӢ ВА ТЕХНИКИИ ГРАНТ</h3>' +
             '<p><b>Идентификатори грант:</b> ' + val('grantIdentifier') + '</p>' +
             '<p><b>Рақами гранти аз ҷониби кумита тасдиқшуда:</b> ' + val('committeeGrantNumber') + '</p>' +

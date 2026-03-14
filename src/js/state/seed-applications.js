@@ -285,7 +285,12 @@
 
         const approvalDate = String(app.date || '').split(',')[0] || '01.03.2026';
         const sectorPlain = String(app.sector || '').replace(/<[^>]*>?/gm, '').trim();
-        const contractNumber = String(serial).padStart(6, '0');
+        const serialCode = String(serial).padStart(6, '0');
+        const dateMatch = approvalDate.match(/^(\d{2})\.(\d{2})\.(\d{2,4})$/);
+        const shortDate = dateMatch
+            ? (dateMatch[1] + dateMatch[2] + String(dateMatch[3]).slice(-2))
+            : '010126';
+        const contractNumber = 'Ш-' + serialCode + '-' + shortDate;
         const baseAccount = String(40702810000000000000 + serial);
         const corrAccount = String(30101810100000000000 + serial);
         const bik = String(350101000 + (serial % 900)).slice(0, 9);
