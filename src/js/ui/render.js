@@ -240,18 +240,19 @@
         var db = ctx.db;
         var appDate = String((app && app.date) || '').split(',')[0] || '';
         var grantAmount = String((app && app.amount) || '').trim();
-        var projectName = String((app && app.sector) || '').replace(/<[^>]*>?/gm, '').trim();
         var contractNoDefault = getSystemGeneratedContractNumber(app, appDate, '');
+        var headerDate = getContractHeaderDateParts(appDate);
 
         return {
             contractNumber: contractNoDefault,
-            grantIdentifier: String((app && app.id) || ''),
-            committeeGrantNumber: String((app && app.protocolId) || ''),
             approvalDate: appDate,
-            projectName: projectName,
+            contractDateDay: headerDate.day,
+            contractDateMonth: headerDate.month,
+            contractDateYear: headerDate.year,
+            contractCity: 'Душанбе',
             grantAmount: grantAmount,
-            organizerName: 'Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон',
-            donorEntityForText: 'Грантдиҳанда',
+            grantAmountWords: '',
+            donorEntityForText: '',
             beneficiaryStatusOrName: String((app && app.name) || db['full-name'] || ''),
             granteeEntityForText: String((app && app.name) || db['full-name'] || ''),
             beneficiaryLegalName: '',
@@ -267,9 +268,7 @@
             bankName: '',
             currentAccount: '',
             correspondentAccount: '',
-            bik: '',
-            signDateDonor: '',
-            signDateBeneficiary: ''
+            bik: ''
         };
     }
 
@@ -395,12 +394,11 @@
 
     function collectGrantContractFieldsFromForm() {
         var keys = [
-            'contractNumber', 'grantIdentifier', 'committeeGrantNumber', 'approvalDate', 'projectName', 'grantAmount',
-            'organizerName', 'beneficiaryStatusOrName', 'beneficiaryLegalName', 'beneficiaryRegAddress',
+            'contractNumber', 'approvalDate', 'contractDateDay', 'contractDateMonth', 'contractDateYear', 'contractCity',
+            'grantAmount', 'grantAmountWords', 'beneficiaryStatusOrName', 'beneficiaryLegalName', 'beneficiaryRegAddress',
             'donorEntityForText', 'granteeEntityForText',
             'beneficiaryProjectAddress', 'beneficiaryPhone', 'beneficiaryEmail', 'donorRepName', 'donorRepPosition',
-            'donorAddress', 'donorPhone', 'donorEmail', 'bankName', 'currentAccount', 'correspondentAccount', 'bik',
-            'signDateDonor', 'signDateBeneficiary'
+            'donorAddress', 'donorPhone', 'donorEmail', 'bankName', 'currentAccount', 'correspondentAccount', 'bik'
         ];
         var out = {};
         keys.forEach(function (key) {
@@ -418,15 +416,49 @@
 
     function getGrantContractAutoFieldKeys() {
         return [
-            'grantIdentifier',
-            'committeeGrantNumber',
             'approvalDate',
-            'projectName',
+            'contractDateDay',
+            'contractDateMonth',
+            'contractDateYear',
+            'contractCity',
             'grantAmount',
             'beneficiaryStatusOrName',
             'beneficiaryRegAddress',
             'beneficiaryPhone'
         ];
+    }
+
+    function getContractHeaderDateParts(rawDate) {
+        var value = String(rawDate || '').trim();
+        var m = value.match(/^(\d{2})\.(\d{2})\.(\d{2,4})$/);
+        var now = new Date();
+        var day = String(now.getDate()).padStart(2, '0');
+        var monthNum = String(now.getMonth() + 1).padStart(2, '0');
+        var yy = String(now.getFullYear()).slice(-2);
+        if (m) {
+            day = m[1];
+            monthNum = m[2];
+            yy = String(m[3]).slice(-2);
+        }
+        var monthNamesTj = {
+            '01': 'январ',
+            '02': 'феврал',
+            '03': 'март',
+            '04': 'апрел',
+            '05': 'май',
+            '06': 'июн',
+            '07': 'июл',
+            '08': 'август',
+            '09': 'сентябр',
+            '10': 'октябр',
+            '11': 'ноябр',
+            '12': 'декабр'
+        };
+        return {
+            day: day,
+            month: monthNamesTj[monthNum] || monthNum,
+            year: yy
+        };
     }
 
     function getContractShortDateDigits(rawDate) {
@@ -467,15 +499,15 @@
         }
 
         var keys = [
-            'contractNumber', 'grantIdentifier', 'approvalDate', 'projectName', 'grantAmount',
+            'contractNumber', 'contractDateDay', 'contractDateMonth', 'contractDateYear', 'contractCity', 'grantAmount', 'grantAmountWords',
             'beneficiaryStatusOrName', 'beneficiaryRegAddress', 'beneficiaryPhone',
-            'donorRepName', 'donorRepPosition'
+            'donorRepName', 'donorRepPosition', 'donorEntityForText', 'granteeEntityForText'
         ];
         keys.forEach(function (k) {
             var el = document.getElementById('contract-' + k);
             if (!el) return;
             el.classList.remove('border-red-400', 'bg-red-50');
-            if (k === 'grantIdentifier' || k === 'projectName' || k === 'grantAmount' || k === 'beneficiaryStatusOrName' || k === 'beneficiaryRegAddress' || k === 'beneficiaryPhone' || k === 'approvalDate') {
+            if (k === 'grantAmount' || k === 'beneficiaryStatusOrName' || k === 'beneficiaryRegAddress' || k === 'beneficiaryPhone') {
                 el.classList.add('border-emerald-300', 'bg-emerald-50');
             }
         });
@@ -486,10 +518,14 @@
 
         var checks = [
             { key: 'contractNumber', label: 'Номер договора' },
-            { key: 'grantIdentifier', label: 'Идентификатор гранта' },
-            { key: 'approvalDate', label: 'Дата утверждения' },
-            { key: 'projectName', label: 'Название проекта' },
+            { key: 'contractDateDay', label: 'День договора' },
+            { key: 'contractDateMonth', label: 'Месяц договора' },
+            { key: 'contractDateYear', label: 'Год договора' },
+            { key: 'contractCity', label: 'Город договора' },
+            { key: 'donorEntityForText', label: 'Грантдиҳанда (в тексте)' },
+            { key: 'granteeEntityForText', label: 'Грантгир (в тексте)' },
             { key: 'grantAmount', label: 'Сумма гранта' },
+            { key: 'grantAmountWords', label: 'Сумма гранта словами' },
             { key: 'beneficiaryStatusOrName', label: 'Грантополучатель' },
             { key: 'beneficiaryRegAddress', label: 'Адрес регистрации' },
             { key: 'beneficiaryPhone', label: 'Телефон грантополучателя' },
@@ -539,89 +575,89 @@
             var x = get(k);
             return x || (fallback || '____________________________');
         };
+        var lineValue = function (k, fallback) {
+            var x = get(k);
+            return '<span class="line-fill">' + (x || (fallback || '')) + '</span>';
+        };
+        var lineLabel = function (label, key) {
+            return '<li><b>' + label + ':</b> ' + lineValue(key, ' ') + '</li>';
+        };
 
         return '' +
             '<div class="contract-doc">' +
-            '<h1>ШАРТНОМА ДАР БОРАИ ГРАНТ № ' + val('contractNumber', 'Ш-000001-010126') + '</h1>' +
-            '<h3>I. МАЪЛУМОТИ УМУМӢ ВА ТЕХНИКИИ ГРАНТ</h3>' +
-            '<p><b>Идентификатори грант:</b> ' + val('grantIdentifier') + '</p>' +
-            '<p><b>Рақами гранти аз ҷониби кумита тасдиқшуда:</b> ' + val('committeeGrantNumber') + '</p>' +
-            '<p><b>Санаи тасдиқ:</b> ' + val('approvalDate') + '</p>' +
-            '<p><b>Номи лоиҳа:</b> ' + val('projectName') + '</p>' +
-            '<p><b>Маблағи грант:</b> ' + val('grantAmount') + ' сомонӣ</p>' +
-            '<p><b>Муассисаи ташкилкунанда:</b> «' + val('organizerName') + '»</p>' +
+            '<section class="paper-page page-1">' +
+            '<h1>ШАРТНОМА ДАР БОРАИ GRANT № ' + lineValue('contractNumber', ' ') + '</h1>' +
+            '<p class="contract-place-date">Аз «' + lineValue('contractDateDay', ' ') + '» ' + lineValue('contractDateMonth', ' ') + ' соли 20' + lineValue('contractDateYear', ' ') + ' <span class="city-slot">ш. ' + lineValue('contractCity', ' ') + '</span></p>' +
+            '<h3>I. МАВЗӮИ ШАРТНОМА</h3>' +
+            '<p>Шартномаи мазкур байни Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон / Лоиҳаи навсозии ҳифзи иҷтимоӣ ва ҳамгироии иқтисодӣ, ки аз ҷониби <b>' + val('donorEntityForText') + '</b>, минбаъд «Грантдиҳанда» номида мешавад ва <b>' + val('granteeEntityForText') + '</b>, минбаъд «Грантгир» номида мешавад, дар алоҳидагӣ «Тараф» ё якҷоя «Тарафҳо» дар доираи «Лоиҳаи навсозии ҳифзи иҷтимоӣ ва ҳамгироии иқтисодӣ», минбаъд «Лоиҳа» номида мешаванд, амал мекунанд, ба мазмуни зерин Шартномаи мазкурро ба имзо расониданд:</p>' +
+            '<h3>II. ӮҲДАДОРИҲОИ ТАРАФҲО</h3>' +
+            '<p><b>2.1. Грантгиранда ӯҳдадор аст:</b></p>' +
+            '<p class="subpoint">а) Лоиҳаро дар мутобиқат бо шартҳои Шартномаи мазкур бомулоҳиза ва самаранок амалӣ намояд.</p>' +
+            '<p class="subpoint">б) Танҳо маҳсулот ва хизматрасониҳоеро харидорӣ намояд, ки дар нақшаҳои соҳибкорӣ нишон дода шудаанд. Барои харидҳо ҳисобнома-фактураҳо ва квитансияҳо пешниҳод кунад.</p>' +
+            '<p class="subpoint">в) Ягон ашёи бо маблағҳои грант харидашударо нафурӯшад, интиқол надиҳад, ба иҷора надиҳад ва ба шахси сеюм иҷозат надиҳад, ки онҳоро истифода барад.</p>' +
+            '<p class="subpoint">г) Ҳама намуди маълумотро дар бораи татбиқ, ки Грантдиҳанда ё шахси ваколатдори он асоснок талаб мекунад, пешниҳод намояд.</p>' +
+            '<p class="subpoint">д) Хариди ҳама гуна намуди молҳо/таҷҳизот/хизматрасониҳоро бо иштироки намояндаи Грантдиҳанда анҷом диҳад.</p>' +
+            '<p><b>2.2. Грантдиҳанда ӯҳдадор аст:</b></p>' +
+            '<p class="subpoint">а) Мувофиқи тартиби пардохт, ки дар дастури Барномаи фарогирии иқтисодӣ (БФИ) муқаррар шудааст, пардохтҳоро сари вақт анҷом диҳад.</p>' +
+            '<p class="subpoint">б) Дар доираи салоҳияти худ ба Грантгир барои татбиқи бомуваффақияти лоиҳа кӯмак расонад.</p>' +
+            '<div class="page-no">1</div>' +
+            '</section>' +
 
-            '<h3>II. МАЪЛУМОТ ДАР БОРАИ ТАРАФҲО</h3>' +
+            '<section class="paper-page page-2">' +
+            '<h3>III. МАБЛАҒГУЗОРӢ</h3>' +
+            '<p>3.1. Грантгир дар доираи Лоиҳа барои гирифтани грант ба маблағи ' + lineValue('grantAmountWords', ' ') + ' (' + val('grantAmount') + ') сомонӣ (минбаъд – Грант) дархост пешниҳод кардааст.</p>' +
+            '<p>3.2. Ӯҳдадориҳо ва масъулияти Грантдиҳанда тибқи Шартномаи мазкур танҳо бо пардохти Грант маҳдуд аст. Грантгир масъулияти пурраи молиявиро барои татбиқи Лоиҳа ба дӯш мегирад.</p>' +
+            '<h3>IV. ИСТИФОДАИ МАБЛАҒГУЗОРӢ</h3>' +
+            '<p>4.1. Маблағгузорӣ аз ҷониби Грантгир барои харидани молҳо / таҷҳизот / хизматрасонӣ / гардиши пули нақд, ки дар Нақшаи соҳибкорӣ тавсиф шудааст, истифода мешавад. Дигар харидҳо бе розигии пешакии хаттии Грантдиҳанда манъ аст.</p>' +
+            '<h3>V. ТАРТИБИ ПАРДОХТИ ГРАНТ</h3>' +
+            '<p>5.1. Грантгиранда бояд дар давоми 10 рӯз пас аз имзои Шартномаи грантӣ аз ҷониби ҳарду тараф маблағҳои грантиро гирад.</p>' +
+            '<p>5.2. Грант мустақиман ба суратҳисоби бонкии Грантгиранда пардохт карда мешавад:</p>' +
+            '<ul class="line-list">' +
+            lineLabel('Номи бонк', 'bankName') +
+            lineLabel('Суратҳисоби ҷорӣ', 'currentAccount') +
+            lineLabel('Суратҳисоби муросилотӣ', 'correspondentAccount') +
+            lineLabel('БИК', 'bik') +
+            '</ul>' +
+            '<p>5.3. Интиқоли маблағҳои грантӣ ба Грантгиранда бо пули миллӣ — сомонӣ сурат мегирад.</p>' +
+            '<h3>VI. ТАРТИБИ ВОРИД НАМУДАНИ ТАҒЙИРОТ</h3>' +
+            '<p class="subpoint">а) Ҳама гуна дархост оид ба тағйир додани Шартномаи мазкур бояд аз ҷониби Тарафҳо дар шакли хаттӣ пешниҳод карда шавад.</p>' +
+            '<p class="subpoint">б) Пас аз гирифтани дархост, тарафи дигар дар давоми 20 рӯзи корӣ ҷавоби худро (тасдиқ ё рад) пешниҳод менамояд.</p>' +
+            '<p class="subpoint">в) Ҳангоми тасдиқ, замимаи дахлдори Шартнома бо дарҷи тағйирот тартиб дода шуда, имзо карда мешавад, ки он қисми ҷудонашавандаи ҳамин Шартнома мегардад.</p>' +
+            '<div class="page-no">2</div>' +
+            '</section>' +
+
+            '<section class="paper-page page-3">' +
+            '<h3>VII. ИМЗОҲОИ ТАРАФҲО</h3>' +
             '<p><b>1. ГРАНТГИРАНДА:</b></p>' +
-            '<ul>' +
-            '<li><b>Вазъи ҳуқуқӣ / Ному насаби баҳрагир:</b> ' + val('beneficiaryStatusOrName') + '</li>' +
-            '<li><b>Номи ҳуқуқӣ:</b> ' + val('beneficiaryLegalName') + '</li>' +
-            '<li><b>Суроғаи ҷойи бақайдгирӣ:</b> ' + val('beneficiaryRegAddress') + '</li>' +
-            '<li><b>Суроғаи ҷойи татбиқи лоиҳа:</b> ' + val('beneficiaryProjectAddress') + '</li>' +
-            '<li><b>Телефон:</b> ' + val('beneficiaryPhone') + '</li>' +
-            '<li><b>E-mail:</b> ' + val('beneficiaryEmail') + '</li>' +
+            '<ul class="line-list">' +
+            lineLabel('Вазъи ҳуқуқӣ/ному насаби баҳрагир', 'beneficiaryStatusOrName') +
+            lineLabel('Номи ҳуқуқӣ', 'beneficiaryLegalName') +
+            lineLabel('Суроғаи ҷойи бақайдгирӣ', 'beneficiaryRegAddress') +
+            lineLabel('Суроғаи ҷойи татбиқи лоиҳа', 'beneficiaryProjectAddress') +
+            lineLabel('Телефон', 'beneficiaryPhone') +
+            lineLabel('E-mail', 'beneficiaryEmail') +
             '</ul>' +
-
-            '<p><b>2. ГРАНТДИҲАНДА (Намояндаи ваколатдор):</b></p>' +
-            '<ul>' +
-            '<li><b>Ному насаб:</b> ' + val('donorRepName') + '</li>' +
-            '<li><b>Вазифа:</b> ' + val('donorRepPosition') + '</li>' +
-            '<li><b>Суроға:</b> ' + val('donorAddress') + '</li>' +
-            '<li><b>Телефон:</b> ' + val('donorPhone') + '</li>' +
-            '<li><b>E-mail:</b> ' + val('donorEmail') + '</li>' +
+            '<p>Имзо: ' + lineValue('', ' ') + '</p>' +
+            '<p>Сана: ' + lineValue('', ' ') + '</p>' +
+            '<p><i>(ҷойи мӯҳр)</i></p>' +
+            '<p class="signature-gap"><b>2. ГРАНТДИҲАНДА (намояндаи ваколатдор):</b></p>' +
+            '<ul class="line-list">' +
+            lineLabel('Ному насаб', 'donorRepName') +
+            lineLabel('Вазифа', 'donorRepPosition') +
+            lineLabel('Суроға', 'donorAddress') +
+            lineLabel('Телефон', 'donorPhone') +
+            lineLabel('E-mail', 'donorEmail') +
             '</ul>' +
-            getGrantContractLegalTextTemplateHtml(val) +
+            '<p>Имзо: ' + lineValue('', ' ') + '</p>' +
+            '<p>Сана: ' + lineValue('', ' ') + '</p>' +
+            '<p><i>(ҷойи мӯҳр)</i></p>' +
+            '<div class="page-no">3</div>' +
+            '</section>' +
             '</div>';
     }
 
     function getGrantContractLegalTextTemplateHtml(val) {
-        return '' +
-            '<h3>III. МАТНИ СОЗИШНОМА</h3>' +
-            '<p>Созишномаи мазкур байни Вазорати меҳнат, муҳоҷират ва шуғли аҳолии Ҷумҳурии Тоҷикистон / Лоиҳаи навсозии ҳифзи иҷтимоӣ ва ҳамгироии иқтисодӣ, ки аз ҷониби <b>' + val('donorEntityForText') + '</b>, минбаъд «Грантдиҳанда» номида мешавад ва <b>' + val('granteeEntityForText') + '</b>, минбаъд «Грантгир» номида мешавад, баста шудааст.</p>' +
-            '<p>Тарафҳо ба таври зайл ба созиш расиданд:</p>' +
-            '<h4>1. МАБЛАҒГУЗОРӢ</h4>' +
-            '<p>1.1. Грантгир дар доираи Лоиҳа барои гирифтани грант ба маблағи <b>' + val('grantAmount') + ' сомонӣ</b> дархост пешниҳод кардааст.</p>' +
-            '<p>1.2. Ӯҳдадориҳо ва масъулияти Грантдиҳанда тибқи Шартномаи мазкур танҳо бо пардохти Грант маҳдуд аст.</p>' +
-            '<h4>2. ИСТИФОДАИ МАБЛАҒГУЗОРӢ</h4>' +
-            '<p>2.1. Маблағгузорӣ аз ҷониби Грантгир барои харидани молҳо/таҷҳизот/хизматрасонӣ истифода мешавад. Дигар харидҳо бе розигии пешакии хаттии Грантдиҳанда манъ аст.</p>' +
-            '<h4>3. ТАРТИБИ ПАРДОХТИ ГРАНТ</h4>' +
-            '<p>3.1. Грантгиранда бояд дар давоми 10 рӯз пас аз имзои Шартномаи грантӣ аз ҷониби ҳарду тараф маблағҳои грантиро гирад.</p>' +
-            '<p>3.2. Грант мустақиман ба суратҳисоби бонкии Грантгиранда пардохт карда мешавад:</p>' +
-            '<ul>' +
-            '<li><b>Номи бонк:</b> ' + val('bankName') + '</li>' +
-            '<li><b>Суратҳисоби ҷорӣ:</b> ' + val('currentAccount') + '</li>' +
-            '<li><b>Суратҳисоби муросилотӣ:</b> ' + val('correspondentAccount') + '</li>' +
-            '<li><b>БИК:</b> ' + val('bik') + '</li>' +
-            '</ul>' +
-            '<p>3.3. Интиқоли маблағҳои грантӣ ба Грантгиранда бо пули миллӣ - сомонӣ сурат мегирад.</p>' +
-
-            '<h4>4. ӮҲДАДОРИҲОИ ТАРАФҲО</h4>' +
-            '<p><b>4.1. Грантгиранда ӯҳдадор аст:</b></p>' +
-            '<ul>' +
-            '<li>а) Лоиҳаро дар мутобиқат бо шартҳои Шартномаи мазкур самаранок амалӣ намояд.</li>' +
-            '<li>б) Танҳо маҳсулот ва хизматрасониҳоеро харидорӣ намояд, ки дар нақшаҳои соҳибкорӣ нишон дода шудаанд.</li>' +
-            '<li>в) Нафурӯшад, интиқол надиҳад ва ба шахси сеюм иҷозат надиҳад, ки ашёи бо маблағҳои грантӣ харидашударо истифода барад.</li>' +
-            '<li>г) Ҳама намуди маълумоти заруриро оид ба татбиқи лоиҳа пешниҳод намояд.</li>' +
-            '<li>д) Харидҳоро бо иштироки намояндаи Грантдиҳанда анҷом диҳад.</li>' +
-            '</ul>' +
-            '<p><b>4.2. Грантдиҳанда ӯҳдадор аст:</b></p>' +
-            '<ul>' +
-            '<li>а) Пардохтҳоро сари вақт анҷом диҳад.</li>' +
-            '<li>б) Дар доираи салоҳияти худ ба Грантгир барои татбиқи бомуваффақияти лоиҳа кӯмак расонад.</li>' +
-            '</ul>' +
-
-            '<h4>5. ТАРТИБИ ВОРИД НАМУДАНИ ТАҒЙИРОТ</h4>' +
-            '<ul>' +
-            '<li>а) Ҳама гуна дархост оид ба тағйир додани Созишномаи мазкур бояд дар шакли хаттӣ пешниҳод карда шавад.</li>' +
-            '<li>б) Тарафи дигар дар давоми 20 рӯзи корӣ ҷавоби худро пешниҳод менамояд.</li>' +
-            '<li>в) Ҳангоми тасдиқ, замимаи дахлдор тартиб дода ва имзо карда мешавад.</li>' +
-            '</ul>' +
-
-            '<h3>IV. ИМЗОҲОИ ТАРАФҲО</h3>' +
-            '<div class="sign-grid">' +
-            '<div class="sign-col"><p><b>ГРАНТДИҲАНДА</b></p><p>Имзо: _________________________</p><p>Сана: ' + val('signDateDonor', '________________') + '</p><p><i>(ҷойи мӯҳр)</i></p></div>' +
-            '<div class="sign-col"><p><b>ГРАНТГИРАНДА</b></p><p>Имзо: _________________________</p><p>Сана: ' + val('signDateBeneficiary', '________________') + '</p><p><i>(ҷойи мӯҳр)</i></p></div>' +
-            '</div>';
+        return '';
     }
 
     function resetGrantContractAutoFieldsFromModal() {
@@ -654,7 +690,7 @@
         }
 
         popup.document.open();
-        popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + (title || 'Grant Contract Preview') + '</title><style>@page{size:A4;margin:18mm 16mm 18mm 16mm}html,body{margin:0;padding:0;background:#fff;color:#111}body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.45} .hint{font-size:10pt;color:#555;margin:0 0 10px 0;padding:7px 10px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc} .contract-doc{max-width:180mm;margin:0 auto} .contract-doc h1{font-size:15pt;text-align:center;margin:0 0 10px 0;line-height:1.3} .contract-doc h3{font-size:12pt;margin:12px 0 6px 0;line-height:1.3;page-break-after:avoid} .contract-doc h4{font-size:12pt;margin:8px 0 4px 0;line-height:1.3;page-break-after:avoid} .contract-doc p{margin:0 0 6px 0;text-align:justify} .contract-doc ul{margin:4px 0 8px 18px;padding:0} .contract-doc li{margin:0 0 4px 0} .sign-grid{display:flex;gap:18mm;justify-content:space-between;margin-top:10mm} .sign-col{flex:1;min-width:0} .sign-col p{text-align:left} @media print {.hint{display:none} body{font-size:12pt} .contract-doc{max-width:none;margin:0} .contract-doc h1,.contract-doc h3,.contract-doc h4,.contract-doc p,.contract-doc li{orphans:3;widows:3}}</style></head><body>' + (showPdfHint ? '<div class="hint">Для экспорта в PDF выберите в окне печати: Save as PDF / Сохранить как PDF.</div>' : '') + bodyHtml + '</body></html>');
+        popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + (title || 'Grant Contract Preview') + '</title><style>@page{size:A4;margin:18mm 16mm 18mm 16mm}html,body{margin:0;padding:0;background:#fff;color:#111}body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.32} .hint{font-size:10pt;color:#555;margin:0 0 10px 0;padding:7px 10px;border:1px dashed #cbd5e1;border-radius:8px;background:#f8fafc} .contract-doc{max-width:180mm;margin:0 auto} .paper-page{position:relative;min-height:238mm;padding-bottom:10mm;page-break-inside:avoid} .paper-page+.paper-page{page-break-before:always} .contract-doc h1{font-size:15pt;text-align:center;margin:0 0 8mm 0;line-height:1.25} .contract-doc .contract-place-date{text-align:left;margin:0 0 7mm 0;display:flex;align-items:flex-end;gap:2mm;flex-wrap:wrap} .contract-doc h3{font-size:12pt;margin:0 0 4mm 0;line-height:1.2;page-break-after:avoid;text-align:center;font-weight:700} .contract-doc p{margin:0 0 3.2mm 0;text-align:justify} .contract-doc .subpoint{margin-left:4mm;text-indent:-4mm} .contract-doc ul{margin:2mm 0 4mm 7mm;padding:0} .contract-doc li{margin:0 0 2.3mm 0} .line-list{list-style:disc} .line-fill{display:inline-block;min-width:62mm;border-bottom:1px solid #111;line-height:1.1;vertical-align:baseline;word-break:break-word} .city-slot{margin-left:auto} .signature-gap{margin-top:10mm} .page-no{position:absolute;right:0;bottom:0;font-size:10pt;color:#555} @media print {.hint{display:none} body{font-size:12pt} .contract-doc{max-width:none;margin:0} .paper-page{min-height:auto;padding-bottom:10mm} .contract-doc h1,.contract-doc h3,.contract-doc p,.contract-doc li{orphans:3;widows:3}}</style></head><body>' + (showPdfHint ? '<div class="hint">Для экспорта в PDF выберите в окне печати: Save as PDF / Сохранить как PDF.</div>' : '') + bodyHtml + '</body></html>');
         popup.document.close();
 
         if (autoPrint) {

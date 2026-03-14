@@ -1673,82 +1673,80 @@
                                 <div id="grant-contract-draft-panel" class="mt-3 space-y-4">
                                     <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
                                         <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
-                                            Реквизиты гранта</h4>
+                                            Шапка договора</h4>
                                         <div class="space-y-3">
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Номер
-                                                    договора (авто)</label>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Номер договора
+                                                    (системный, авто)</label>
                                                 <input id="contract-contractNumber" type="text"
                                                     placeholder="Ш-000001-140326"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                                <p class="text-[10px] text-slate-500 mt-1">Системный номер. Формат:
-                                                    Ш-******-ДДММГГ</p>
+                                                <p class="text-[10px] text-slate-500 mt-1">Формат: Ш-******-ДДММГГ</p>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-[11px] text-slate-600 mb-1">День (Аз
+                                                        «__»)</label>
+                                                    <input id="contract-contractDateDay" type="text" placeholder="01"
+                                                        class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] text-slate-600 mb-1">Месяц</label>
+                                                    <input id="contract-contractDateMonth" type="text"
+                                                        placeholder="январ"
+                                                        class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-[11px] text-slate-600 mb-1">Год
+                                                        (20__)</label>
+                                                    <input id="contract-contractDateYear" type="text" placeholder="26"
+                                                        class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] text-slate-600 mb-1">Город</label>
+                                                    <input id="contract-contractCity" type="text" placeholder="Душанбе"
+                                                        class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
+                                        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
+                                            Стороны для преамбулы</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Грантдиҳанда (как в
+                                                    тексте)</label>
+                                                <input id="contract-donorEntityForText" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Идентификатор
-                                                    гранта
-                                                    (авто)</label>
-                                                <input id="contract-grantIdentifier" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
+                                                <label class="block text-[11px] text-slate-600 mb-1">Грантгир (как в
+                                                    тексте)</label>
+                                                <input id="contract-granteeEntityForText" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Номер от Комитета
-                                                    (авто)</label>
-                                                <input id="contract-committeeGrantNumber" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Дата утверждения
-                                                    (авто)</label>
-                                                <input id="contract-approvalDate" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Название проекта
-                                                    (авто)</label>
-                                                <input id="contract-projectName" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
+                                        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
+                                            Раздел III. Маблағгузорӣ</h4>
+                                        <div class="space-y-3">
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Сумма гранта
                                                     (авто)</label>
                                                 <input id="contract-grantAmount" type="text"
                                                     class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
-                                        </div>
-                                    </section>
-
-                                    <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
-                                        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
-                                            Стороны</h4>
-                                        <div class="space-y-3">
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Организатор</label>
-                                                <input id="contract-organizerName" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Кто выступает
-                                                    Грантодателем (для текста)</label>
-                                                <input id="contract-donorEntityForText" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Кто выступает
-                                                    Грантгиром (для текста)</label>
-                                                <input id="contract-granteeEntityForText" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Грантополучатель
-                                                    (авто)</label>
-                                                <input id="contract-beneficiaryStatusOrName" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Юридическое
-                                                    наименование</label>
-                                                <input id="contract-beneficiaryLegalName" type="text"
+                                                <label class="block text-[11px] text-slate-600 mb-1">Сумма словами
+                                                    (тадж.)</label>
+                                                <input id="contract-grantAmountWords" type="text"
+                                                    placeholder="(маблағ бо калимаҳо)"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                         </div>
@@ -1756,80 +1754,22 @@
 
                                     <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
                                         <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
-                                            Контакты</h4>
+                                            Раздел V. Банковские реквизиты</h4>
                                         <div class="space-y-3">
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Адрес регистрации
-                                                    (авто)</label>
-                                                <input id="contract-beneficiaryRegAddress" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Адрес
-                                                    проекта</label>
-                                                <input id="contract-beneficiaryProjectAddress" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Телефон
-                                                    (авто)</label>
-                                                <input id="contract-beneficiaryPhone" type="text"
-                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">E-mail</label>
-                                                <input id="contract-beneficiaryEmail" type="email"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Представитель
-                                                    грантодателя</label>
-                                                <input id="contract-donorRepName" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Должность</label>
-                                                <input id="contract-donorRepPosition" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Адрес
-                                                    грантодателя</label>
-                                                <input id="contract-donorAddress" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Телефон
-                                                    грантодателя</label>
-                                                <input id="contract-donorPhone" type="text"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">E-mail
-                                                    грантодателя</label>
-                                                <input id="contract-donorEmail" type="email"
-                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
-                                        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
-                                            Банковские данные</h4>
-                                        <div class="space-y-3">
-                                            <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Банк</label>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Номи бонк</label>
                                                 <input id="contract-bankName" type="text"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Расчетный
-                                                    счет</label>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Суратҳисоби
+                                                    ҷорӣ</label>
                                                 <input id="contract-currentAccount" type="text"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Корр. счет</label>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Суратҳисоби
+                                                    муросилотӣ</label>
                                                 <input id="contract-correspondentAccount" type="text"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
@@ -1843,19 +1783,66 @@
 
                                     <section class="border border-slate-200 rounded-lg p-3 bg-slate-50/60">
                                         <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-3">
-                                            Подписи</h4>
+                                            Раздел VII. Имзоҳои тарафҳо</h4>
                                         <div class="space-y-3">
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Дата подписи
-                                                    Грантодателя</label>
-                                                <input id="contract-signDateDonor" type="text" placeholder="ДД.ММ.ГГГГ"
+                                                <label class="block text-[11px] text-slate-600 mb-1">Вазъи ҳуқуқӣ/ному
+                                                    насаби баҳрагир</label>
+                                                <input id="contract-beneficiaryStatusOrName" type="text"
+                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Номи ҳуқуқӣ</label>
+                                                <input id="contract-beneficiaryLegalName" type="text"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
-                                                <label class="block text-[11px] text-slate-600 mb-1">Дата подписи
-                                                    Грантополучателя</label>
-                                                <input id="contract-signDateBeneficiary" type="text"
-                                                    placeholder="ДД.ММ.ГГГГ"
+                                                <label class="block text-[11px] text-slate-600 mb-1">Суроғаи ҷойи
+                                                    бақайдгирӣ</label>
+                                                <input id="contract-beneficiaryRegAddress" type="text"
+                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Суроғаи ҷойи
+                                                    татбиқи лоиҳа</label>
+                                                <input id="contract-beneficiaryProjectAddress" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Телефон</label>
+                                                <input id="contract-beneficiaryPhone" type="text"
+                                                    class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">E-mail</label>
+                                                <input id="contract-beneficiaryEmail" type="email"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div class="pt-1 border-t border-slate-200"></div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Ному насаб
+                                                    (намояндаи ваколатдор)</label>
+                                                <input id="contract-donorRepName" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Вазифа</label>
+                                                <input id="contract-donorRepPosition" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Суроға</label>
+                                                <input id="contract-donorAddress" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">Телефон</label>
+                                                <input id="contract-donorPhone" type="text"
+                                                    class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] text-slate-600 mb-1">E-mail</label>
+                                                <input id="contract-donorEmail" type="email"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                         </div>
