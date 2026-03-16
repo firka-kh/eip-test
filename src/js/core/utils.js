@@ -220,9 +220,11 @@
         centerToastHost.style.inset = '0';
         centerToastHost.style.zIndex = '9998';
         centerToastHost.style.display = 'flex';
-        centerToastHost.style.alignItems = 'center';
+        centerToastHost.style.alignItems = 'flex-start';
         centerToastHost.style.justifyContent = 'center';
-        centerToastHost.style.padding = '16px';
+        centerToastHost.style.paddingTop = '72px';
+        centerToastHost.style.paddingLeft = '16px';
+        centerToastHost.style.paddingRight = '16px';
         centerToastHost.style.pointerEvents = 'none';
         document.body.appendChild(centerToastHost);
         notifyState.centerToastHost = centerToastHost;
@@ -359,10 +361,10 @@
 
         var tone = kind || 'info';
         var palette = {
-            success: { accent: '#60a5fa', bd: '#dbeafe' },
-            info: { accent: '#60a5fa', bd: '#dbeafe' },
-            warning: { accent: '#93c5fd', bd: '#dbeafe' },
-            error: { accent: '#93c5fd', bd: '#dbeafe' }
+            success: { dot: '#16a34a' },
+            info: { dot: '#2563eb' },
+            warning: { dot: '#d97706' },
+            error: { dot: '#dc2626' }
         };
         var ui = palette[tone] || palette.info;
 
@@ -391,11 +393,7 @@
                 : raw.slice(nextIndex + nextLabel.length)
             ).trim().replace(/[.\s]+$/, '');
 
-            return {
-                summary: summary,
-                route: routeValue,
-                next: nextValue
-            };
+            return { summary: summary, route: routeValue, next: nextValue };
         }
 
         var routeParts = isRouteMessage ? extractRouteParts(message) : null;
@@ -406,39 +404,37 @@
 
         var toast = document.createElement('div');
         toast.style.pointerEvents = 'auto';
-        toast.style.position = 'relative';
-        toast.style.overflow = 'hidden';
         toast.style.background = '#ffffff';
-        toast.style.color = '#1e3a8a';
-        toast.style.border = '1px solid #cfd8e3';
+        toast.style.border = '1px solid #e2e8f0';
         toast.style.borderRadius = '16px';
-        toast.style.padding = '20px 22px';
-        toast.style.width = 'min(760px, calc(100vw - 28px))';
-        toast.style.boxShadow = '0 28px 64px rgba(15,23,42,0.22)';
-        toast.style.transform = 'scale(0.98)';
+        toast.style.padding = '18px 18px 14px';
+        toast.style.width = 'min(560px, calc(100vw - 32px))';
+        toast.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.07), 0 20px 50px -8px rgba(15,23,42,0.16), 0 0 0 1px rgba(0,0,0,0.03)';
+        toast.style.transform = 'translateY(-18px) scale(0.97)';
         toast.style.opacity = '0';
-        toast.style.transition = 'opacity 180ms ease, transform 180ms ease';
+        toast.style.transition = 'opacity 220ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1)';
 
-        var accent = document.createElement('div');
-        accent.style.position = 'absolute';
-        accent.style.left = '0';
-        accent.style.top = '0';
-        accent.style.bottom = '0';
-        accent.style.width = '6px';
-        accent.style.background = ui.accent;
-
+        // Header: dot + title + close
         var topRow = document.createElement('div');
         topRow.style.display = 'flex';
-        topRow.style.justifyContent = 'space-between';
-        topRow.style.alignItems = 'flex-start';
-        topRow.style.gap = '12px';
-        topRow.style.paddingLeft = '10px';
+        topRow.style.alignItems = 'center';
+        topRow.style.gap = '8px';
+        topRow.style.marginBottom = '0';
+
+        var dot = document.createElement('span');
+        dot.style.display = 'inline-block';
+        dot.style.width = '8px';
+        dot.style.height = '8px';
+        dot.style.borderRadius = '50%';
+        dot.style.background = ui.dot;
+        dot.style.flexShrink = '0';
 
         var titleEl = document.createElement('div');
-        titleEl.style.fontSize = '22px';
+        titleEl.style.flex = '1';
+        titleEl.style.fontSize = '18px';
         titleEl.style.fontWeight = '700';
         titleEl.style.lineHeight = '1.2';
-        titleEl.style.letterSpacing = '-0.01em';
+        titleEl.style.color = '#0f172a';
         titleEl.textContent = title || '';
 
         var closeBtn = document.createElement('button');
@@ -446,62 +442,52 @@
         closeBtn.textContent = '×';
         closeBtn.style.border = 'none';
         closeBtn.style.background = 'transparent';
-        closeBtn.style.color = '#1e40af';
-        closeBtn.style.fontSize = '30px';
+        closeBtn.style.color = '#94a3b8';
+        closeBtn.style.fontSize = '22px';
         closeBtn.style.lineHeight = '1';
         closeBtn.style.cursor = 'pointer';
         closeBtn.style.padding = '0';
-        closeBtn.style.marginTop = '-2px';
+        closeBtn.style.flexShrink = '0';
+        topRow.appendChild(dot);
+        topRow.appendChild(titleEl);
+        topRow.appendChild(closeBtn);
 
-        var msgEl = document.createElement('div');
-        msgEl.style.marginTop = '12px';
-        msgEl.style.paddingLeft = '10px';
-        msgEl.style.fontSize = '17px';
-        msgEl.style.lineHeight = '1.35';
-        msgEl.style.color = '#475569';
+        var msgEl = document.createElement('p');
+        msgEl.style.margin = '8px 0 0 0';
+        msgEl.style.fontSize = '14px';
+        msgEl.style.lineHeight = '1.5';
+        msgEl.style.color = '#334155';
         msgEl.textContent = routeParts && routeParts.summary
             ? routeParts.summary
             : String(message || '').replace(/^Что произошло:\s*/i, '');
 
-        var routeLine = null;
-        var nextLine = null;
-        if (isRouteMessage && routeParts && routeParts.route) {
-            routeLine = document.createElement('div');
-            routeLine.style.marginTop = '12px';
-            routeLine.style.marginLeft = '10px';
-            routeLine.style.padding = '12px 14px';
-            routeLine.style.borderRadius = '12px';
-            routeLine.style.background = '#f1f5f9';
-            routeLine.style.border = '1px solid #d0d9e4';
-            routeLine.style.fontSize = '17px';
-            routeLine.style.lineHeight = '1.4';
-            routeLine.style.fontWeight = '500';
-            routeLine.style.color = '#475569';
-            routeLine.textContent = 'Маршрут: ' + routeParts.route;
-        }
-        if (isRouteMessage && routeParts && routeParts.next) {
-            nextLine = document.createElement('div');
-            nextLine.style.marginTop = '8px';
-            nextLine.style.marginLeft = '10px';
-            nextLine.style.fontSize = '16px';
-            nextLine.style.lineHeight = '1.4';
-            nextLine.style.fontWeight = '500';
-            nextLine.style.color = '#475569';
-            nextLine.textContent = 'Следующий статус: ' + routeParts.next;
+        // Route + next status box — same style as consequence in confirm modal
+        var routeBox = null;
+        if (isRouteMessage && routeParts && (routeParts.route || routeParts.next)) {
+            routeBox = document.createElement('p');
+            routeBox.style.margin = '10px 0 0 0';
+            routeBox.style.fontSize = '13px';
+            routeBox.style.color = '#475569';
+            routeBox.style.lineHeight = '1.5';
+            routeBox.style.background = '#f8fafc';
+            routeBox.style.border = '1px solid #e2e8f0';
+            routeBox.style.borderRadius = '10px';
+            routeBox.style.padding = '10px 12px';
+            routeBox.style.whiteSpace = 'pre-line';
+            var boxText = '';
+            if (routeParts.route) boxText += 'Маршрут: ' + routeParts.route;
+            if (routeParts.next) boxText += (boxText ? '\n' : '') + 'Следующий статус: ' + routeParts.next;
+            routeBox.textContent = boxText;
         }
 
-        toast.appendChild(accent);
-        topRow.appendChild(titleEl);
-        topRow.appendChild(closeBtn);
         toast.appendChild(topRow);
         if (message) toast.appendChild(msgEl);
-        if (routeLine) toast.appendChild(routeLine);
-        if (nextLine) toast.appendChild(nextLine);
+        if (routeBox) toast.appendChild(routeBox);
         host.appendChild(toast);
 
         requestAnimationFrame(function () {
             toast.style.opacity = '1';
-            toast.style.transform = 'scale(1)';
+            toast.style.transform = 'translateY(0) scale(1)';
         });
 
         var timeout = timeoutMs;
@@ -517,10 +503,10 @@
         function removeToast() {
             if (!toast.parentNode) return;
             toast.style.opacity = '0';
-            toast.style.transform = 'scale(0.98)';
+            toast.style.transform = 'translateY(-10px) scale(0.97)';
             setTimeout(function () {
                 if (toast.parentNode) toast.parentNode.removeChild(toast);
-            }, 170);
+            }, 180);
         }
     }
 
