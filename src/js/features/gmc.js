@@ -67,6 +67,7 @@
             el.checked = false;
             el.disabled = false;
         });
+        clearGmcValidationErrors();
         document.getElementById('gmc-comment').value = '';
         document.getElementById('gmc-comment').disabled = false;
         document.getElementById('gmc-decision-buttons').classList.remove('hidden');
@@ -151,6 +152,11 @@
         document.querySelectorAll('.gmc-score-input:checked').forEach(function (r) { total += parseInt(r.value, 10); });
         document.getElementById('total-score').textContent = total;
 
+        var requiredNames = getGmcRequiredFieldNames();
+        var isComplete = requiredNames.every(function (name) {
+            return !!document.querySelector('#gmc-evaluation-content input[name="' + name + '"]:checked');
+        });
+
         let hasNo = false;
         document.querySelectorAll('.elig-radio-no:checked').forEach(function () { hasNo = true; });
         const bOk = document.getElementById('btn-recommend');
@@ -159,6 +165,15 @@
         if (bOk) bOk.disabled = false;
         if (bRev) bRev.disabled = false;
         if (bRej) bRej.disabled = false;
+
+        // Hard gate: no decision can be selected until all required answers are provided.
+        if (!isComplete) {
+            if (bOk) bOk.disabled = true;
+            if (bRev) bRev.disabled = true;
+            if (bRej) bRej.disabled = true;
+            if (window.currentGmcChoice) setGmcDecision(null);
+            return;
+        }
 
         if (hasNo) {
             if (bOk) bOk.disabled = true;
@@ -177,6 +192,59 @@
         if (bOk && bOk.disabled && window.currentGmcChoice === 'ok') setGmcDecision(null);
         if (bRev && bRev.disabled && window.currentGmcChoice === 'rev') setGmcDecision(null);
         if (bRej && bRej.disabled && window.currentGmcChoice === 'rej') setGmcDecision(null);
+    }
+
+    function getGmcRequiredFieldNames() {
+        var names = ['el1', 'el2', 'el3'];
+        for (var i = 1; i <= 15; i++) names.push('q' + i);
+        return names;
+    }
+
+    function findGmcQuestionRowByName(name) {
+        var input = document.querySelector('#gmc-evaluation-content input[name="' + name + '"]');
+        if (!input) return null;
+        var row = input.closest('div.flex.justify-between.items-center.p-3');
+        return row || null;
+    }
+
+    function applyGmcRowError(row, hasError) {
+        if (!row) return;
+        if (hasError) {
+            row.setAttribute('data-gmc-error', '1');
+            row.style.background = '#fef2f2';
+            row.style.boxShadow = 'inset 4px 0 0 #dc2626';
+        } else {
+            row.removeAttribute('data-gmc-error');
+            row.style.background = '';
+            row.style.boxShadow = '';
+        }
+    }
+
+    function clearGmcValidationErrors() {
+        document.querySelectorAll('#gmc-evaluation-content [data-gmc-error="1"]').forEach(function (row) {
+            applyGmcRowError(row, false);
+        });
+    }
+
+    function validateGmcQuestionnaire() {
+        var missing = [];
+        var firstRow = null;
+        getGmcRequiredFieldNames().forEach(function (name) {
+            var checked = document.querySelector('#gmc-evaluation-content input[name="' + name + '"]:checked');
+            var row = findGmcQuestionRowByName(name);
+            var hasError = !checked;
+            applyGmcRowError(row, hasError);
+            if (hasError) {
+                missing.push(name);
+                if (!firstRow && row) firstRow = row;
+            }
+        });
+
+        return {
+            isValid: missing.length === 0,
+            missing: missing,
+            firstRow: firstRow
+        };
     }
 
     function setGmcDecision(val) {
@@ -225,6 +293,18 @@
     }
 
     function saveGmcDecision() {
+        var validation = validateGmcQuestionnaire();
+        if (!validation.isValid) {
+            if (validation.firstRow && typeof validation.firstRow.scrollIntoView === 'function') {
+                validation.firstRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            notifyMessage(
+                'error',
+                'Опросник заполнен не полностью. Отметьте все обязательные пункты: неуказанные строки подсвечены красным.'
+            );
+            return;
+        }
+
         if (!window.currentGmcChoice) {
             if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
                 window.AppNotify.errorByKey('validation.error');
@@ -489,6 +569,12 @@
 
     document.addEventListener('change', function (e) {
         if (e.target.classList.contains('gmc-score-input') || e.target.classList.contains('elig-radio') || e.target.classList.contains('elig-radio-no')) {
+            var name = e.target.getAttribute('name');
+            if (name) {
+                var row = findGmcQuestionRowByName(name);
+                var checked = document.querySelector('#gmc-evaluation-content input[name="' + name + '"]:checked');
+                if (row && checked) applyGmcRowError(row, false);
+            }
             updateGmcScoreAndButtons();
         }
     });
