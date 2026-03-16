@@ -2366,6 +2366,10 @@
         const closeModalBtn = document.getElementById('closeModalBtn');
         if (closeModalBtn) {
             closeModalBtn.addEventListener('click', function () {
+                if (window.currentApprovedOpenSource === 'committee-batch' && typeof window.returnToCommitteeBatchFromHistory === 'function') {
+                    window.returnToCommitteeBatchFromHistory();
+                    return;
+                }
                 document.getElementById('applicationModal').classList.add('hidden');
                 window.currentOpenedAppId = null;
                 window.currentApprovedOpenSource = null;
