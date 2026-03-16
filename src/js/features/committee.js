@@ -18,7 +18,21 @@
     }
 
     function getBatchApplicantCellHtml(app) {
-        return '<td class="py-3 px-4 border-b border-gray-100 align-middle"><button type="button" onclick="openApprovedFor(\'' + app.id + '\')" class="text-left group"><div class="font-bold text-gray-800 text-[13px] group-hover:text-indigo-700 group-hover:underline transition-colors">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></button></td>';
+        return '<td class="py-3 px-4 border-b border-gray-100 align-middle"><button type="button" onclick="openApprovedFromCommitteeBatch(\'' + app.id + '\')" class="text-left group"><div class="font-bold text-gray-800 text-[13px] group-hover:text-indigo-700 group-hover:underline transition-colors">' + app.name + '</div><div class="text-[11px] text-gray-400">#' + app.id + '</div></button></td>';
+    }
+
+    function openApprovedFromCommitteeBatch(id) {
+        if (!id) return;
+        window.lastOpenedCommitteeListId = window.currentViewedProtocolId || window.currentCommitteeRegistryId || null;
+        window.nextApprovedOpenSource = 'committee-batch';
+        if (typeof window.openApprovedFor === 'function') {
+            window.openApprovedFor(id);
+        }
+    }
+
+    function returnToCommitteeBatchFromHistory() {
+        window.currentApprovedOpenSource = null;
+        openCommitteeBatch(window.lastOpenedCommitteeListId || null);
     }
 
     function downloadCommitteeBusinessPlan(appId) {
@@ -116,6 +130,7 @@
         tbody.innerHTML = '';
 
         window.currentCommitteeRegistryId = null;
+        window.lastOpenedCommitteeListId = targetProtocolId || null;
 
         if (targetProtocolId) {
             const prot = (window.state.protocols || []).find(function (p) { return p.id === targetProtocolId; });
@@ -526,6 +541,8 @@
     window.AppFeatures.committee = {
         ready: true,
         openCommitteeBatch,
+        openApprovedFromCommitteeBatch,
+        returnToCommitteeBatchFromHistory,
         toggleBatchComment,
         downloadCommitteeBusinessPlan,
         downloadCommitteePdf,
@@ -540,6 +557,8 @@
 
     // Legacy compatibility while migrating code out of grant.html
     window.openCommitteeBatch = openCommitteeBatch;
+    window.openApprovedFromCommitteeBatch = openApprovedFromCommitteeBatch;
+    window.returnToCommitteeBatchFromHistory = returnToCommitteeBatchFromHistory;
     window.toggleBatchComment = toggleBatchComment;
     window.downloadCommitteeBusinessPlan = downloadCommitteeBusinessPlan;
     window.downloadCommitteePdf = downloadCommitteePdf;

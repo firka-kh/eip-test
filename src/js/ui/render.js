@@ -85,6 +85,10 @@
 
     function loadHistoryForm(id) {
         const app = window.getApp(id) || { auditLog: [] };
+        const backWrap = document.getElementById('committee-history-back-wrap');
+        if (backWrap) {
+            backWrap.classList.toggle('hidden', window.currentApprovedOpenSource !== 'committee-batch');
+        }
         const revisionsCount = app.revisionCount || 0;
         const committeeReturnsCount = app.committeeReturnsCount || 0;
         const resubmitsToPiuCount = app.resubmitsToPiuCount || 0;
@@ -1045,6 +1049,8 @@
 
     function openApprovedFor(id) {
         if (typeof window.canOpenInCurrentContext === 'function' && !window.canOpenInCurrentContext(id)) return;
+        window.currentApprovedOpenSource = window.nextApprovedOpenSource || null;
+        window.nextApprovedOpenSource = null;
         window.currentOpenedAppId = id;
         window.currentApprovedAppId = id;
         const app = window.getApp(id);
@@ -2362,6 +2368,8 @@
             closeModalBtn.addEventListener('click', function () {
                 document.getElementById('applicationModal').classList.add('hidden');
                 window.currentOpenedAppId = null;
+                window.currentApprovedOpenSource = null;
+                window.nextApprovedOpenSource = null;
             });
         }
 
