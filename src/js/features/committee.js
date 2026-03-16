@@ -286,7 +286,7 @@
         }
         window.currentCommitteeRegistryId = null;
 
-        notifyMessage('success', 'Рӯйхат бомуваффақият тасдиқ шуд! / Список успешно утвержден! Одобрено: ' + newProtocol.okCount + ', Отклонено: ' + newProtocol.rejCount);
+        notifyMessage('success', 'Что произошло: список Комитета утвержден. Одобрено: ' + newProtocol.okCount + ', отклонено: ' + newProtocol.rejCount + '. Маршрут: com_review -> approved или gmc_revision. Следующий статус: approved / gmc_revision по решению.');
         document.getElementById('applicationModal').classList.add('hidden');
         document.getElementById('modal-main-title').innerHTML = 'Дархост: Дастгирии грантии тиҷорат <span class="ru">/ Заявка: Грантовая поддержка бизнеса</span>';
 
@@ -495,6 +495,7 @@
             app.status = 'approved';
             window.addLog(app, 'Кумита / Комитет', 'Грант тасдиқ шуд', 'Грант утвержден', 'emerald', 'award');
             window.generateMonitoringFor(app.id, new Date().toISOString().split('T')[0]);
+            notifyMessage('success', 'Что произошло: грант утвержден. Маршрут: Комитет -> approved. Следующий статус: approved (мониторинг активирован).');
         } else {
             if (!normalizeDecisionComment(comment)) {
                 if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
@@ -505,6 +506,7 @@
                 return;
             }
             applyCommitteeRejection(app, app.protocolId || 'IND-' + app.id, app.date.split(',')[0], app.date.split(',')[1] || '', normalizeDecisionComment(comment));
+            notifyMessage('warning', 'Что произошло: заявка отклонена решением Комитета с возвратом на доработку. Маршрут: Комитет -> КУГ. Следующий статус: gmc_revision.');
         }
         document.getElementById('committee-evaluation-content').classList.add('hidden');
         window.renderAllCards();

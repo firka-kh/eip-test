@@ -184,7 +184,7 @@
         const finalComment = combinedComments.join(' | ');
 
         if (hasRev && window.AppNotify && typeof window.AppNotify.confirmByKey === 'function') {
-            var confirmed = await window.AppNotify.confirmByKey('returnForRevision.confirm');
+            var confirmed = await window.AppNotify.confirmByKey('piuReturnToGmc.confirm');
             if (!confirmed) return;
         }
 
@@ -192,11 +192,12 @@
             app.status = 'gmc_revision';
             window.addLog(app, 'ГТЛ / ГРП', 'Бо эродҳо ба ШИГ баргашт', 'Возвращено с комментариями в КУГ', 'amber', 'alert-triangle', finalComment);
             if (window.AppNotify && typeof window.AppNotify.successByKey === 'function') {
-                window.AppNotify.successByKey('returnForRevision.success');
+                window.AppNotify.successByKey('piuReturnToGmc.success');
             }
         } else {
             app.status = 'gmc_preparation';
             window.addLog(app, 'ГТЛ / ГРП', 'Баҳогузории иҷтимоӣ-экологӣ гузашт', 'Социально-экологическая оценка пройдена', 'emerald', 'check-circle');
+            notifyMessage('success', 'Что произошло: заявка передана из ГРП в КУГ на подготовку реестра. Маршрут: ГРП -> КУГ. Следующий статус: gmc_preparation.');
         }
         document.getElementById('piu-evaluation-content').classList.add('hidden');
         window.renderAllCards();

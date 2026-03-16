@@ -651,7 +651,7 @@
         if (window.AppNotify && typeof window.AppNotify.successByKey === 'function') {
             window.AppNotify.successByKey('unlock.success');
         } else {
-            notifyMessage('success', 'Блокировка снята. Заявка переведена в режим редактирования.');
+            notifyMessage('success', 'Что произошло: блокировка снята, заявка переведена в режим редактирования. Маршрут: postponed -> fac_revision (Фасилитатор). Следующий статус: fac_revision.');
         }
         if (typeof window.renderAllCards === 'function') window.renderAllCards();
     }
