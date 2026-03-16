@@ -13,6 +13,31 @@
     window.currentGmcAppId = null;
     window.currentGmcChoice = null;
 
+    function getGmcOperatorInputEl() {
+        return document.getElementById('gmc-operator-name');
+    }
+
+    function getGmcOperatorName(app) {
+        var input = getGmcOperatorInputEl();
+        var typed = input ? String(input.value || '').trim() : '';
+        if (typed) {
+            if (app) app.gmcOperatorName = typed;
+            return typed;
+        }
+        if (app && app.gmcOperatorName) return String(app.gmcOperatorName);
+        return 'ШИГ / КУГ';
+    }
+
+    function syncGmcOperatorNameInput(app, isEditable) {
+        var input = getGmcOperatorInputEl();
+        if (!input) return;
+        var savedName = app && app.gmcOperatorName ? String(app.gmcOperatorName) : '';
+        input.value = savedName;
+        input.disabled = !isEditable;
+        input.classList.toggle('bg-slate-100', !isEditable);
+        input.classList.toggle('cursor-not-allowed', !isEditable);
+    }
+
     function updateGmcWordVersionLabel(app) {
         var labelEl = document.getElementById('gmc-word-download-label');
         if (!labelEl) return;
@@ -62,6 +87,7 @@
         document.getElementById('gmc-hdr-activity').innerHTML = dbUser.course || '—';
         document.getElementById('gmc-hdr-location').innerHTML = dbUser.address || '—';
         updateGmcWordVersionLabel(app);
+        syncGmcOperatorNameInput(app, true);
 
         document.querySelectorAll('.gmc-score-input, .elig-radio, .elig-radio-no').forEach(function (el) {
             el.checked = false;
@@ -104,6 +130,7 @@
             prepContent.classList.remove('hidden');
             prepContent.innerHTML = '<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center shadow-sm flex items-center justify-center gap-3"><i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i><span class="text-[14px] font-bold text-emerald-900">Дархост дар реестр қарор дорад / Заявка в реестре</span></div>';
             evalContent.classList.remove('hidden');
+            syncGmcOperatorNameInput(app, false);
             makeReadonly();
         } else if (app.status === 'gmc_revision') {
             returnContent.classList.remove('hidden');
@@ -133,6 +160,7 @@
             }
         } else if (app.status === 'piu_review') {
             evalContent.classList.remove('hidden');
+            syncGmcOperatorNameInput(app, false);
             makeReadonly();
         } else {
             evalContent.classList.remove('hidden');
@@ -317,6 +345,7 @@
         const app = window.getApp(window.currentGmcAppId);
         if (!app) return;
         app.date = window.getCurrentDateTime();
+        var gmcActor = getGmcOperatorName(app);
         const comment = document.getElementById('gmc-comment').value || '';
 
         app.gmcEvaluation = { comment: comment };
@@ -331,7 +360,7 @@
 
         if (window.currentGmcChoice === 'ok') {
             app.status = 'piu_review';
-            window.addLog(app, 'ШИГ / КУГ', 'Тасдиқ шуд, ба ГТЛ равон шуд', 'Одобрено, направлено в ГРП', 'emerald', 'check');
+            window.addLog(app, gmcActor, 'Тасдиқ шуд, ба ГТЛ равон шуд', 'Одобрено, направлено в ГРП', 'emerald', 'check');
             notifyMessage('success', 'Что произошло: заявка одобрена и передана в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: Проверка в ГРП.');
         } else if (window.currentGmcChoice === 'rev') {
             app.revisionCount = (app.revisionCount || 0) + 1;
@@ -345,12 +374,12 @@
                 }
             } else {
                 app.status = 'fac_revision';
-                window.addLog(app, 'ШИГ / КУГ', 'Барои такмил ба Фасилитатор баргашт (' + app.revisionCount + '/3)', 'Возвращено на доработку Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left', comment);
+                window.addLog(app, gmcActor, 'Барои такмил ба Фасилитатор баргашт (' + app.revisionCount + '/3)', 'Возвращено на доработку Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left', comment);
                 notifyMessage('warning', 'Что произошло: заявка направлена на доработку Фасилитатору (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.');
             }
         } else {
             app.status = 'rejected';
-            window.addLog(app, 'ШИГ / КУГ', 'Дархост рад шуд', 'Заявка отклонена', 'red', 'x-circle', comment);
+            window.addLog(app, gmcActor, 'Дархост рад шуд', 'Заявка отклонена', 'red', 'x-circle', comment);
             notifyMessage('error', 'Что произошло: заявка отклонена. Маршрут: процесс остановлен. Следующий статус: Отклонена.');
         }
 
@@ -362,6 +391,7 @@
     function sendGmcBackToPiu() {
         const app = window.getApp(window.currentGmcAppId);
         if (!app) return;
+        var gmcActor = getGmcOperatorName(app);
 
         var wordFileName = getGmcRevisionUploadFileName();
         if (!wordFileName) {
@@ -378,7 +408,7 @@
             nextVersion = window.registerWordVersion(app, {
                 fileName: wordFileName,
                 uploadedByRole: 'ШИГ / КУГ',
-                uploadedByName: 'ШИГ / КУГ',
+                uploadedByName: gmcActor,
                 sourceStage: 'gmc_revision'
             });
         }
@@ -396,7 +426,7 @@
             : '';
         window.addLog(
             app,
-            'ШИГ / КУГ',
+            gmcActor,
             'Ислоҳот ворид шуд, Word V' + nextVersion + ' бор ва бозгашт ба ГТЛ' + committeeSuffix + ' (шумора: ' + app.resubmitsToPiuCount + ')',
             'Внесены исправления, загружен Word V' + nextVersion + ', возвращено в ГРП' + committeeSuffixRu + ' (счет: ' + app.resubmitsToPiuCount + ')',
             'blue',
@@ -410,6 +440,7 @@
     function sendGmcToFacilitator() {
         const app = window.getApp(window.currentGmcAppId);
         if (!app) return;
+        var gmcActor = getGmcOperatorName(app);
 
         const commentEl = document.getElementById('gmc-return-comment');
         const comment = commentEl ? commentEl.value.trim() : '';
@@ -438,7 +469,7 @@
         } else {
             app.status = 'fac_revision';
             var committeeCycle = fromCommittee && app.lastCommitteeReturn ? ' Комитет #' + app.lastCommitteeReturn.cycle : '';
-            window.addLog(app, 'ШИГ / КУГ', 'Аз ГТЛ баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)' + committeeCycle, 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)' + committeeCycle, 'amber', 'corner-down-left', comment);
+            window.addLog(app, gmcActor, 'Аз ГТЛ баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)' + committeeCycle, 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)' + committeeCycle, 'amber', 'corner-down-left', comment);
             notifyMessage('warning', 'Что произошло: заявка отправлена Фасилитатору на доработку (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.');
         }
         window.renderAllCards();
@@ -448,9 +479,10 @@
     function markReadyForRegistry() {
         const app = window.getApp(window.currentGmcAppId);
         if (!app) return;
+        var gmcActor = getGmcOperatorName(app);
         app.status = 'gmc_ready_for_registry';
         app.date = window.getCurrentDateTime();
-        window.addLog(app, 'ШИГ / КУГ', 'Барои реестри Комитет омода шуд', 'Заявка подготовлена для реестра Комитета', 'blue', 'list-checks');
+        window.addLog(app, gmcActor, 'Барои реестри Комитет омода шуд', 'Заявка подготовлена для реестра Комитета', 'blue', 'list-checks');
         notifyMessage('success', 'Что произошло: заявка добавлена в реестр для Комитета. Маршрут: КУГ (подготовка) -> КУГ (реестр). Следующий статус: Готова к отправке в Комитет.');
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
@@ -536,10 +568,11 @@
         sentIds.forEach(function (id) {
             const app = window.getApp(id);
             if (app) {
+                var gmcActor = getGmcOperatorName(app);
                 app.status = 'com_review';
                 app.registryListId = registryId;
                 app.date = window.getCurrentDateTime();
-                window.addLog(app, 'ШИГ / КУГ', 'Ба Комитет дар ҳайати реестр ' + registryId + ' фиристода шуд', 'Отправлено в Комитет в составе реестра ' + registryId, 'blue', 'arrow-right');
+                window.addLog(app, gmcActor, 'Ба Комитет дар ҳайати реестр ' + registryId + ' фиристода шуд', 'Отправлено в Комитет в составе реестра ' + registryId, 'blue', 'arrow-right');
                 totalAmount += parseInt(String(app.amount || '').replace(/\D/g, '') || 0, 10);
             }
         });
