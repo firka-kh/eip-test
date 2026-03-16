@@ -195,8 +195,8 @@
         toastHost.style.zIndex = '9998';
         toastHost.style.display = 'flex';
         toastHost.style.flexDirection = 'column';
-        toastHost.style.gap = '10px';
-        toastHost.style.maxWidth = '420px';
+        toastHost.style.gap = '12px';
+        toastHost.style.maxWidth = '560px';
         toastHost.style.pointerEvents = 'none';
         document.body.appendChild(toastHost);
         notifyState.toastHost = toastHost;
@@ -333,10 +333,10 @@
 
         var tone = kind || 'info';
         var palette = {
-            success: { bg: '#e8f7ef', fg: '#0f5132', bd: '#b7e4c7' },
-            info: { bg: '#eaf3ff', fg: '#0b3a75', bd: '#b6d4fe' },
-            warning: { bg: '#fff4e5', fg: '#7a4b00', bd: '#ffd8a8' },
-            error: { bg: '#fdecec', fg: '#7f1d1d', bd: '#f5b5b5' }
+            success: { accent: '#1d4ed8', bd: '#bfdbfe' },
+            info: { accent: '#2563eb', bd: '#bfdbfe' },
+            warning: { accent: '#1e40af', bd: '#c7d2fe' },
+            error: { accent: '#1e3a8a', bd: '#cbd5e1' }
         };
         var ui = palette[tone] || palette.info;
 
@@ -346,25 +346,38 @@
 
         var toast = document.createElement('div');
         toast.style.pointerEvents = 'auto';
-        toast.style.background = ui.bg;
-        toast.style.color = ui.fg;
+        toast.style.position = 'relative';
+        toast.style.overflow = 'hidden';
+        toast.style.background = '#ffffff';
+        toast.style.color = '#1e3a8a';
         toast.style.border = '1px solid ' + ui.bd;
-        toast.style.borderRadius = '14px';
-        toast.style.padding = '10px 12px';
-        toast.style.boxShadow = '0 10px 30px rgba(15,23,42,0.14)';
+        toast.style.borderRadius = '18px';
+        toast.style.padding = '14px 16px';
+        toast.style.width = 'min(520px, calc(100vw - 28px))';
+        toast.style.boxShadow = '0 16px 34px rgba(30,58,138,0.16)';
         toast.style.transform = 'translateY(8px)';
         toast.style.opacity = '0';
         toast.style.transition = 'opacity 180ms ease, transform 180ms ease';
 
+        var accent = document.createElement('div');
+        accent.style.position = 'absolute';
+        accent.style.left = '0';
+        accent.style.top = '0';
+        accent.style.bottom = '0';
+        accent.style.width = '6px';
+        accent.style.background = ui.accent;
+
         var topRow = document.createElement('div');
         topRow.style.display = 'flex';
         topRow.style.justifyContent = 'space-between';
-        topRow.style.alignItems = 'start';
+        topRow.style.alignItems = 'flex-start';
         topRow.style.gap = '10px';
+        topRow.style.paddingLeft = '6px';
 
         var titleEl = document.createElement('div');
-        titleEl.style.fontSize = '13px';
+        titleEl.style.fontSize = '16px';
         titleEl.style.fontWeight = '700';
+        titleEl.style.lineHeight = '1.25';
         titleEl.textContent = title || '';
 
         var closeBtn = document.createElement('button');
@@ -372,17 +385,22 @@
         closeBtn.textContent = '×';
         closeBtn.style.border = 'none';
         closeBtn.style.background = 'transparent';
-        closeBtn.style.color = ui.fg;
-        closeBtn.style.fontSize = '16px';
+        closeBtn.style.color = '#1e40af';
+        closeBtn.style.fontSize = '22px';
         closeBtn.style.lineHeight = '1';
         closeBtn.style.cursor = 'pointer';
+        closeBtn.style.padding = '0';
+        closeBtn.style.marginTop = '-2px';
 
         var msgEl = document.createElement('div');
-        msgEl.style.marginTop = '4px';
-        msgEl.style.fontSize = '12px';
-        msgEl.style.lineHeight = '1.4';
+        msgEl.style.marginTop = '8px';
+        msgEl.style.paddingLeft = '6px';
+        msgEl.style.fontSize = '14px';
+        msgEl.style.lineHeight = '1.55';
+        msgEl.style.color = '#1e40af';
         msgEl.textContent = message || '';
 
+        toast.appendChild(accent);
         topRow.appendChild(titleEl);
         topRow.appendChild(closeBtn);
         toast.appendChild(topRow);
