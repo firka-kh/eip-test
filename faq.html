@@ -313,6 +313,71 @@
             min-width: 0;
         }
 
+        .route-quick {
+            margin: .2rem auto 1rem;
+            border: 1px solid #cfe2ff;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+            padding: .85rem .9rem;
+        }
+
+        .route-quick-head {
+            display: flex;
+            justify-content: space-between;
+            gap: .7rem;
+            flex-wrap: wrap;
+            align-items: baseline;
+            margin-bottom: .55rem;
+        }
+
+        .route-quick-head h3 {
+            font-size: 1rem;
+            color: #1e3a8a;
+        }
+
+        .route-quick-head small {
+            color: #334155;
+            font-size: .9rem;
+        }
+
+        .route-track {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: .5rem;
+        }
+
+        .route-step {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: #fff;
+            padding: .5rem .55rem;
+        }
+
+        .route-step b {
+            display: block;
+            color: #1e40af;
+            font-size: .86rem;
+            margin-bottom: .15rem;
+        }
+
+        .route-step p {
+            margin: 0;
+            color: #334155;
+            font-size: .86rem;
+            line-height: 1.4;
+        }
+
+        .route-note {
+            margin-top: .55rem;
+            color: #334155;
+            font-size: .9rem;
+        }
+
+        .route-note strong {
+            color: #1e3a8a;
+        }
+
         .faq-layout {
             display: grid;
             grid-template-columns: minmax(0, 1fr) 260px;
@@ -672,6 +737,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .route-track {
+                grid-template-columns: 1fr 1fr;
+            }
+
             .faq-layout {
                 grid-template-columns: 1fr;
             }
@@ -697,6 +766,10 @@
             .btn {
                 padding: .6rem .76rem;
                 font-size: .9rem;
+            }
+
+            .route-track {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -793,6 +866,37 @@
                 <li>Утвердить список и выгрузить протокол.</li>
             </ol>
         </article>
+    </section>
+
+    <section class="wrap route-quick" id="statusRoutesQuick">
+        <div class="route-quick-head">
+            <h3>Маршруты статусов за 30 секунд</h3>
+            <small>Просто: что происходит с заявкой дальше</small>
+        </div>
+        <div class="route-track">
+            <div class="route-step">
+                <b>1. Создание</b>
+                <p>Вы создаете заявку и заполняете основные поля.</p>
+            </div>
+            <div class="route-step">
+                <b>2. Проверка документов</b>
+                <p>Система проверяет комплект и обязательные данные.</p>
+            </div>
+            <div class="route-step">
+                <b>3. Проверка специалистами</b>
+                <p>Заявку смотрят по этапам и дают решение.</p>
+            </div>
+            <div class="route-step">
+                <b>4. Решение комиссии</b>
+                <p>Заявка либо одобряется, либо возвращается на доработку.</p>
+            </div>
+            <div class="route-step">
+                <b>5. После одобрения</b>
+                <p>Договор, загрузка подписанного файла и мониторинг.</p>
+            </div>
+        </div>
+        <div class="route-note"><strong>Если есть замечания:</strong> заявка возвращается назад, вы исправляете и
+            отправляете снова.</div>
     </section>
 
     <nav class="wrap mobile-toc" aria-label="Быстрые переходы FAQ">
