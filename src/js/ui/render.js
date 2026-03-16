@@ -153,7 +153,7 @@
         if (canUpload) {
             hintEl.textContent = 'Фасилитатор метавонад скани шартномаи имзошударо бор кунад. / Фасилитатор может загрузить скан подписанного договора.';
         } else {
-            hintEl.textContent = 'Боркунӣ танҳо барои Фасилитатор ва танҳо дар статуси approved дастрас аст. / Загрузка доступна только Фасилитатору и только в статусе approved.';
+            hintEl.textContent = 'Боркунӣ танҳо барои Фасилитатор ва танҳо барои дархости тасдиқшуда дастрас аст. / Загрузка доступна только Фасилитатору и только для одобренной заявки.';
         }
 
         renderDocumentPackageSummary(app);
@@ -391,7 +391,7 @@
 
         if (!canEdit) {
             btn.textContent = 'Создание договора недоступно';
-            hint.textContent = 'Форма договора доступна только Фасилитатору в статусе approved.';
+            hint.textContent = 'Форма договора доступна только Фасилитатору для одобренной заявки.';
             hint.classList.remove('hidden');
             shell.classList.add('hidden');
             return;
@@ -414,7 +414,7 @@
         if (!app) return;
 
         if (!canEditGrantContract(app)) {
-            notifyMessage('warning', 'Форма договора доступна только Фасилитатору в статусе approved.');
+            notifyMessage('warning', 'Форма договора доступна только Фасилитатору для одобренной заявки.');
             return;
         }
 
@@ -759,7 +759,7 @@
         if (!app) return;
 
         if (!(app.status === 'approved' && getActiveRoleContext() === 'facilitator')) {
-            notifyMessage('warning', 'Сброс автополей доступен только Фасилитатору в approved.');
+            notifyMessage('warning', 'Сброс автополей доступен только Фасилитатору для одобренной заявки.');
             return;
         }
 
@@ -822,7 +822,7 @@
         var app = window.getApp(id);
         if (!app) return;
         if (!(app.status === 'approved' && getActiveRoleContext() === 'facilitator')) {
-            notifyMessage('warning', 'Сохранение доступно только Фасилитатору в approved.');
+            notifyMessage('warning', 'Сохранение доступно только Фасилитатору для одобренной заявки.');
             return;
         }
 

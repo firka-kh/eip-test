@@ -197,7 +197,7 @@
         } else {
             app.status = 'gmc_preparation';
             window.addLog(app, 'ГТЛ / ГРП', 'Баҳогузории иҷтимоӣ-экологӣ гузашт', 'Социально-экологическая оценка пройдена', 'emerald', 'check-circle');
-            notifyMessage('success', 'Что произошло: заявка передана из ГРП в КУГ на подготовку реестра. Маршрут: ГРП -> КУГ. Следующий статус: gmc_preparation.');
+            notifyMessage('success', 'Что произошло: заявка передана из ГРП в КУГ на подготовку реестра. Маршрут: ГРП -> КУГ. Следующий статус: Подготовка реестра в КУГ.');
         }
         document.getElementById('piu-evaluation-content').classList.add('hidden');
         window.renderAllCards();

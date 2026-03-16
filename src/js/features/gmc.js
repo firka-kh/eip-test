@@ -252,7 +252,7 @@
         if (window.currentGmcChoice === 'ok') {
             app.status = 'piu_review';
             window.addLog(app, 'ШИГ / КУГ', 'Тасдиқ шуд, ба ГТЛ равон шуд', 'Одобрено, направлено в ГРП', 'emerald', 'check');
-            notifyMessage('success', 'Что произошло: заявка одобрена и передана в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: piu_review.');
+            notifyMessage('success', 'Что произошло: заявка одобрена и передана в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: Проверка в ГРП.');
         } else if (window.currentGmcChoice === 'rev') {
             app.revisionCount = (app.revisionCount || 0) + 1;
             if (app.revisionCount >= 3) {
@@ -261,17 +261,17 @@
                 if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
                     window.AppNotify.warningByKey('deadline.unlockNotAvailableUntilDate', { date: untilRu });
                 } else {
-                    notifyMessage('warning', 'Что произошло: лимит доработок исчерпан, заявка заблокирована до ' + untilRu + '. Маршрут: без изменений. Следующий статус: postponed.');
+                    notifyMessage('warning', 'Что произошло: лимит доработок исчерпан, заявка заблокирована до ' + untilRu + '. Маршрут: без изменений. Следующий статус: Отложена.');
                 }
             } else {
                 app.status = 'fac_revision';
                 window.addLog(app, 'ШИГ / КУГ', 'Барои такмил ба Фасилитатор баргашт (' + app.revisionCount + '/3)', 'Возвращено на доработку Фасилитатору (' + app.revisionCount + '/3)', 'amber', 'corner-down-left', comment);
-                notifyMessage('warning', 'Что произошло: заявка направлена на доработку Фасилитатору (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: fac_revision.');
+                notifyMessage('warning', 'Что произошло: заявка направлена на доработку Фасилитатору (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.');
             }
         } else {
             app.status = 'rejected';
             window.addLog(app, 'ШИГ / КУГ', 'Дархост рад шуд', 'Заявка отклонена', 'red', 'x-circle', comment);
-            notifyMessage('error', 'Что произошло: заявка отклонена. Маршрут: процесс остановлен. Следующий статус: rejected.');
+            notifyMessage('error', 'Что произошло: заявка отклонена. Маршрут: процесс остановлен. Следующий статус: Отклонена.');
         }
 
         document.getElementById('gmc-evaluation-content').classList.add('hidden');
@@ -322,7 +322,7 @@
             'blue',
             'refresh-cw'
         );
-        notifyMessage('success', 'Что произошло: исправления сохранены, заявка возвращена в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: piu_review.');
+        notifyMessage('success', 'Что произошло: исправления сохранены, заявка возвращена в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: Проверка в ГРП.');
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
     }
@@ -353,13 +353,13 @@
             if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
                 window.AppNotify.warningByKey('deadline.unlockNotAvailableUntilDate', { date: untilRu });
             } else {
-                notifyMessage('warning', 'Что произошло: лимит доработок исчерпан, заявка заблокирована до ' + untilRu + '. Маршрут: без изменений. Следующий статус: postponed.');
+                notifyMessage('warning', 'Что произошло: лимит доработок исчерпан, заявка заблокирована до ' + untilRu + '. Маршрут: без изменений. Следующий статус: Отложена.');
             }
         } else {
             app.status = 'fac_revision';
             var committeeCycle = fromCommittee && app.lastCommitteeReturn ? ' Комитет #' + app.lastCommitteeReturn.cycle : '';
             window.addLog(app, 'ШИГ / КУГ', 'Аз ГТЛ баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)' + committeeCycle, 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)' + committeeCycle, 'amber', 'corner-down-left', comment);
-            notifyMessage('warning', 'Что произошло: заявка отправлена Фасилитатору на доработку (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: fac_revision.');
+            notifyMessage('warning', 'Что произошло: заявка отправлена Фасилитатору на доработку (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.');
         }
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
@@ -371,7 +371,7 @@
         app.status = 'gmc_ready_for_registry';
         app.date = window.getCurrentDateTime();
         window.addLog(app, 'ШИГ / КУГ', 'Барои реестри Комитет омода шуд', 'Заявка подготовлена для реестра Комитета', 'blue', 'list-checks');
-        notifyMessage('success', 'Что произошло: заявка добавлена в реестр для Комитета. Маршрут: КУГ (подготовка) -> КУГ (реестр). Следующий статус: gmc_ready_for_registry.');
+        notifyMessage('success', 'Что произошло: заявка добавлена в реестр для Комитета. Маршрут: КУГ (подготовка) -> КУГ (реестр). Следующий статус: Готова к отправке в Комитет.');
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
     }
@@ -474,7 +474,7 @@
             totalAmount: totalAmount
         });
 
-        notifyMessage('success', 'Что произошло: реестр отправлен в Комитет. Маршрут: gmc_ready_for_registry -> com_review. Следующий статус заявок: com_review.');
+        notifyMessage('success', 'Что произошло: реестр отправлен в Комитет. Маршрут: Реестр КУГ -> Комитет. Следующий статус заявок: На рассмотрении Комитета.');
 
         window.selectedForRegistry.clear();
         document.getElementById('reg-sel-count').textContent = '0';

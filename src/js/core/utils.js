@@ -89,11 +89,11 @@
                 },
                 success: {
                     title: 'Кушодашавӣ анҷом ёфт / Разблокировка выполнена',
-                    message: 'Что произошло: заявка возвращена в режим редактирования. Маршрут: postponed -> fac_revision (Фасилитатор). Следующий статус: fac_revision.'
+                    message: 'Что произошло: заявка возвращена в режим редактирования. Маршрут: Отложена -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.'
                 },
                 errorNotReady: {
                     title: 'Снятие блокировки пока недоступно',
-                    message: 'Что произошло: срок блокировки еще не истек. Маршрут: без изменений. Следующий статус: postponed.'
+                    message: 'Что произошло: срок блокировки еще не истек. Маршрут: без изменений. Следующий статус: Отложена.'
                 }
             },
             submitToGmc: {
@@ -105,7 +105,7 @@
                 },
                 success: {
                     title: 'Ба ШИГ фиристода шуд / Отправлено в КУГ',
-                    message: 'Что произошло: заявка передана в КУГ. Маршрут: Фасилитатор -> КУГ. Следующий статус: gmc_review.'
+                    message: 'Что произошло: заявка передана в КУГ. Маршрут: Фасилитатор -> КУГ. Следующий статус: На рассмотрении КУГ.'
                 },
                 error: {
                     title: 'Не удалось отправить',
@@ -121,7 +121,7 @@
                 },
                 success: {
                     title: 'Баргардонда шуд / Возвращено на доработку',
-                    message: 'Что произошло: заявка возвращена на доработку. Маршрут: проверяющая роль -> Фасилитатор. Следующий статус: fac_revision.'
+                    message: 'Что произошло: заявка возвращена на доработку. Маршрут: проверяющая роль -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.'
                 },
                 warningCommentRequired: {
                     title: 'Сабаб ҳатмист / Причина обязательна',
@@ -132,12 +132,12 @@
                 confirm: {
                     title: 'Вернуть заявку в КУГ?',
                     message: 'Ариза аз ГРП ба ШИГ барои ислоҳ бармегардад. / Заявка будет возвращена из ГРП в КУГ на доработку.',
-                    consequence: 'Что произойдет: возврат на доработку. Маршрут: ГРП -> КУГ. Следующий статус: gmc_revision.',
+                    consequence: 'Что произойдет: возврат на доработку. Маршрут: ГРП -> КУГ. Следующий статус: На доработке в КУГ.',
                     buttons: { cancel: 'Отмена', confirm: 'Да, вернуть в КУГ' }
                 },
                 success: {
                     title: 'Ба ШИГ баргардонда шуд / Возвращено в КУГ',
-                    message: 'Что произошло: заявка возвращена в КУГ. Маршрут: ГРП -> КУГ. Следующий статус: gmc_revision.'
+                    message: 'Что произошло: заявка возвращена в КУГ. Маршрут: ГРП -> КУГ. Следующий статус: На доработке в КУГ.'
                 }
             },
             validation: {
@@ -157,7 +157,7 @@
                 },
                 unlockNotAvailableUntilDate: {
                     title: 'Снятие блокировки пока недоступно',
-                    message: 'Что произошло: заявка остается отложенной до {date}. Маршрут: без изменений. Следующий статус: postponed.'
+                    message: 'Что произошло: заявка остается отложенной до {date}. Маршрут: без изменений. Следующий статус: Отложена.'
                 }
             }
         }
@@ -166,6 +166,7 @@
     var notifyState = {
         initialized: false,
         toastHost: null,
+        centerToastHost: null,
         modalHost: null,
         modalCard: null,
         modalTitle: null,
@@ -212,6 +213,19 @@
         toastHost.style.pointerEvents = 'none';
         document.body.appendChild(toastHost);
         notifyState.toastHost = toastHost;
+
+        var centerToastHost = document.createElement('div');
+        centerToastHost.id = 'app-toast-host-center';
+        centerToastHost.style.position = 'fixed';
+        centerToastHost.style.inset = '0';
+        centerToastHost.style.zIndex = '9998';
+        centerToastHost.style.display = 'flex';
+        centerToastHost.style.alignItems = 'center';
+        centerToastHost.style.justifyContent = 'center';
+        centerToastHost.style.padding = '16px';
+        centerToastHost.style.pointerEvents = 'none';
+        document.body.appendChild(centerToastHost);
+        notifyState.centerToastHost = centerToastHost;
 
         var overlay = document.createElement('div');
         overlay.id = 'app-confirm-overlay';
@@ -352,8 +366,11 @@
         };
         var ui = palette[tone] || palette.info;
 
-        while (notifyState.toastHost.children.length >= 3) {
-            notifyState.toastHost.removeChild(notifyState.toastHost.children[0]);
+        var isRouteMessage = String(message || '').indexOf('Маршрут:') !== -1;
+        var host = isRouteMessage ? notifyState.centerToastHost : notifyState.toastHost;
+
+        while (host.children.length >= (isRouteMessage ? 1 : 3)) {
+            host.removeChild(host.children[0]);
         }
 
         var toast = document.createElement('div');
@@ -367,7 +384,7 @@
         toast.style.padding = '18px 20px';
         toast.style.width = 'min(520px, calc(100vw - 28px))';
         toast.style.boxShadow = '0 18px 42px rgba(30,58,138,0.12)';
-        toast.style.transform = 'translateY(8px)';
+        toast.style.transform = isRouteMessage ? 'scale(0.98)' : 'translateY(8px)';
         toast.style.opacity = '0';
         toast.style.transition = 'opacity 180ms ease, transform 180ms ease';
 
@@ -417,11 +434,11 @@
         topRow.appendChild(closeBtn);
         toast.appendChild(topRow);
         if (message) toast.appendChild(msgEl);
-        notifyState.toastHost.appendChild(toast);
+        host.appendChild(toast);
 
         requestAnimationFrame(function () {
             toast.style.opacity = '1';
-            toast.style.transform = 'translateY(0)';
+            toast.style.transform = isRouteMessage ? 'scale(1)' : 'translateY(0)';
         });
 
         var timeout = timeoutMs;
@@ -437,7 +454,7 @@
         function removeToast() {
             if (!toast.parentNode) return;
             toast.style.opacity = '0';
-            toast.style.transform = 'translateY(8px)';
+            toast.style.transform = isRouteMessage ? 'scale(0.98)' : 'translateY(8px)';
             setTimeout(function () {
                 if (toast.parentNode) toast.parentNode.removeChild(toast);
             }, 170);
