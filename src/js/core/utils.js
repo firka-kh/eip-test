@@ -361,10 +361,10 @@
 
         var tone = kind || 'info';
         var palette = {
-            success: { dot: '#16a34a' },
-            info: { dot: '#2563eb' },
-            warning: { dot: '#d97706' },
-            error: { dot: '#dc2626' }
+            success: { dot: '#16a34a', bd: '#bbf7d0' },
+            info: { dot: '#2563eb', bd: '#bfdbfe' },
+            warning: { dot: '#d97706', bd: '#fde68a' },
+            error: { dot: '#dc2626', bd: '#fecaca' }
         };
         var ui = palette[tone] || palette.info;
 
@@ -398,14 +398,14 @@
 
         var routeParts = isRouteMessage ? extractRouteParts(message) : null;
 
-        while (host.children.length >= 1) {
+        while (host.children.length >= 10) {
             host.removeChild(host.children[0]);
         }
 
         var toast = document.createElement('div');
         toast.style.pointerEvents = 'auto';
         toast.style.background = '#ffffff';
-        toast.style.border = '1px solid #e2e8f0';
+        toast.style.border = '2px solid ' + ui.bd;
         toast.style.borderRadius = '16px';
         toast.style.padding = '18px 18px 14px';
         toast.style.width = 'min(560px, calc(100vw - 32px))';
@@ -423,8 +423,8 @@
 
         var dot = document.createElement('span');
         dot.style.display = 'inline-block';
-        dot.style.width = '8px';
-        dot.style.height = '8px';
+        dot.style.width = '12px';
+        dot.style.height = '12px';
         dot.style.borderRadius = '50%';
         dot.style.background = ui.dot;
         dot.style.flexShrink = '0';
