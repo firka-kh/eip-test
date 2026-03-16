@@ -283,21 +283,13 @@
         var isRevision = !!(app && app.status === 'fac_revision');
 
         if (isRevision) {
-            if (selectedWord.length === 0) {
-                notifyMessage('warning', 'Барои такмил фақат Word версияи навро бор кунед. / Для доработки загрузите новую Word версию бизнес-плана.');
-                return false;
-            }
+            // Word version is optional on revision; if provided, it will be versioned and logged.
             return true;
         }
 
-        var hasWord = existing.hasWord || selectedWord.length > 0;
         var hasPdf = existing.hasPdf || selectedPdf.length > 0;
         var photosCount = existing.photosCount > 0 ? existing.photosCount : selectedPhotos.length;
 
-        if (!hasWord) {
-            notifyMessage('warning', 'Лутфан Word-файли бизнес-планро замима кунед. / Пожалуйста, приложите Word-файл бизнес-плана.');
-            return false;
-        }
         if (!hasPdf) {
             notifyMessage('warning', 'Лутфан PDF-файли бизнес-планро замима кунед. / Пожалуйста, приложите PDF-файл бизнес-плана.');
             return false;

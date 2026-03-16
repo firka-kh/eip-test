@@ -880,7 +880,7 @@
                 hasAgreement: false,
                 isBasePackageComplete: false,
                 isFullPackageComplete: false,
-                missingItemsRu: ['Word', 'PDF', 'Фото (4)', 'Подписанный договор']
+                missingItemsRu: ['PDF', 'Фото (4)', 'Подписанный договор']
             };
         }
 
@@ -893,12 +893,11 @@
         var hasAgreement = !!(agreement && agreement.uploaded && agreement.fileName);
 
         var missingItemsRu = [];
-        if (!hasWord) missingItemsRu.push('Word');
         if (!hasPdf) missingItemsRu.push('PDF');
         if (!hasPhotos4) missingItemsRu.push('Фото (4)');
         if (!hasAgreement) missingItemsRu.push('Подписанный договор');
 
-        var isBasePackageComplete = hasWord && hasPdf && hasPhotos4;
+        var isBasePackageComplete = hasPdf && hasPhotos4;
         return {
             hasWord: hasWord,
             hasPdf: hasPdf,
