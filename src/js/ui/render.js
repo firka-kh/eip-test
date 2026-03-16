@@ -1682,8 +1682,6 @@
         const rejected = window.filterApps(['rejected']);
         const inReview = window.filterApps(['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review']);
         const totalApps = (window.state && Array.isArray(window.state.applications)) ? window.state.applications.length : 0;
-        const submitted = Math.max(totalApps - drafts.length, 0);
-
         const setB = function (id, count) {
             const el = document.getElementById(id);
             if (el) {
@@ -1722,13 +1720,6 @@
         setB('sub-stat-completed-badge', fullyCompleted.length);
         setB('sub-stat-postponed-badge', postponed.length);
         setB('sub-stat-rejected-badge', rejected.length);
-
-        const submittedEl = document.getElementById('menu-submitted-count');
-        const approvedEl = document.getElementById('menu-approved-count');
-        const rejectedEl = document.getElementById('menu-rejected-count');
-        if (submittedEl) submittedEl.textContent = String(submitted);
-        if (approvedEl) approvedEl.textContent = String(approved.length);
-        if (rejectedEl) rejectedEl.textContent = String(rejected.length);
 
         const unlockNotice = document.getElementById('facilitator-unlock-notice');
         const unlockNoticeCount = document.getElementById('facilitator-unlock-ready-count');
