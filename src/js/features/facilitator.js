@@ -211,6 +211,69 @@
         return false;
     }
 
+    function initPhotoPreview() {
+        var photoInput = document.getElementById('fac-photo-upload');
+        var previewContainer = document.getElementById('fac-photo-preview');
+        if (!photoInput || !previewContainer) return;
+
+        photoInput.addEventListener('change', function () {
+            previewContainer.innerHTML = '';
+            var files = photoInput.files || [];
+            var fileArray = Array.prototype.slice.call(files);
+
+            if (fileArray.length > 4) {
+                // Limit to 4 files
+                fileArray = fileArray.slice(0, 4);
+                if (window.AppNotify && typeof window.AppNotify.toast === 'function') {
+                    window.AppNotify.toast('warning', 'Внимание', 'Максимум 4 фото. Лишние будут отброшены.');
+                }
+            }
+
+            fileArray.forEach(function (file, index) {
+                if (!file.type.startsWith('image/')) return;
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var previewBox = document.createElement('div');
+                    previewBox.className = 'relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100 aspect-square';
+                    previewBox.style.position = 'relative';
+
+                    var img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+
+                    var removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
+                    removeBtn.textContent = '✕';
+                    removeBtn.addEventListener('click', function (evt) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        // Remove file from input
+                        var dt = new DataTransfer();
+                        var filesArray = Array.prototype.slice.call(photoInput.files);
+                        filesArray.forEach(function (f, i) {
+                            if (i !== index) dt.items.add(f);
+                        });
+                        photoInput.files = dt.files;
+                        // Trigger change event to refresh preview
+                        photoInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+
+                    previewBox.appendChild(img);
+                    previewBox.appendChild(removeBtn);
+                    previewContainer.appendChild(previewBox);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Update counter
+            updateUploadTextsFromInputs(window.currentFacilitatorAppId ? window.getApp(window.currentFacilitatorAppId) : null);
+        });
+    }
+
     function getSelectedFileNames(inputId) {
         var input = document.getElementById(inputId);
         if (!input || !input.files || !input.files.length) return [];
@@ -343,6 +406,7 @@
 
     function fillFacilitatorForm(id) {
         const app = window.getApp(id);
+        window.currentFacilitatorAppId = id;  // Store for photo preview handler
         const db = getSearchDatabase();
         const fallbackDb = window.mockDatabase || {};
         const beneficiaryId = app && app.beneficiaryId ? app.beneficiaryId : id;
@@ -376,6 +440,7 @@
         updateUploadTextsFromInputs(app);
         updateWordVersionBadge(app);
         applyRevisionDocumentMode(app);
+        initPhotoPreview();
 
         // Check data completeness and highlight missing fields
         applyCompletenessCheck(source);

@@ -830,11 +830,20 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] text-indigo-800 font-semibold mb-1">4 фото
-                                        объекта</label>
+                                    <label class="block text-[11px] text-indigo-800 font-semibold mb-2">4 фото
+                                        объекта <span class="ru">/ 4 фото объекта</span>
+                                    </label>
+                                    <div class="block text-[10px] text-slate-500 mb-2 leading-tight">
+                                        На мобильных/планшетах нажмите кнопку ниже и выберите: сфотографировать 📷 или
+                                        выбрать из галереи 🖼️
+                                        <span class="ru">/ На мобильных: фотография или галерея</span>
+                                    </div>
                                     <input type="file" id="fac-photo-upload" accept="image/*" multiple
-                                        class="w-full text-[11px] border border-indigo-200 rounded-lg bg-white p-2">
+                                        capture="environment"
+                                        class="w-full text-[11px] border border-indigo-200 rounded-lg bg-white p-2 cursor-pointer hover:bg-indigo-50 transition-colors">
                                     <div id="fac-photo-upload-text" class="text-[10px] text-slate-500 mt-1">0 / 4</div>
+                                    <div id="fac-photo-preview" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    </div>
                                 </div>
                             </div>
                         </div>
