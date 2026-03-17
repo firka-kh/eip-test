@@ -213,37 +213,30 @@
 
     function initPhotoPreview() {
         var photoInput = document.getElementById('fac-photo-upload');
+        var inputCamera = document.getElementById('fac-photo-upload-camera');
+        var inputGallery = document.getElementById('fac-photo-upload-gallery');
         var previewContainer = document.getElementById('fac-photo-preview');
-        if (!photoInput || !previewContainer) return;
+        var btnCamera = document.getElementById('btn-photo-camera');
+        var btnGallery = document.getElementById('btn-photo-gallery');
+        if (!inputCamera || !inputGallery || !previewContainer || !btnCamera || !btnGallery) return;
 
-        photoInput.addEventListener('change', function () {
+        // Хранилище выбранных файлов (до 4)
+        var selectedFiles = [];
+
+        function updatePreview() {
             previewContainer.innerHTML = '';
-            var files = photoInput.files || [];
-            var fileArray = Array.prototype.slice.call(files);
-
-            if (fileArray.length > 4) {
-                // Limit to 4 files
-                fileArray = fileArray.slice(0, 4);
-                if (window.AppNotify && typeof window.AppNotify.toast === 'function') {
-                    window.AppNotify.toast('warning', 'Внимание', 'Максимум 4 фото. Лишние будут отброшены.');
-                }
-            }
-
-            fileArray.forEach(function (file, index) {
+            selectedFiles.forEach(function (file, index) {
                 if (!file.type.startsWith('image/')) return;
-
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     var previewBox = document.createElement('div');
                     previewBox.className = 'relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100 aspect-square';
                     previewBox.style.position = 'relative';
-
                     var img = document.createElement('img');
                     img.src = e.target.result;
                     img.style.width = '100%';
                     img.style.height = '100%';
                     img.style.objectFit = 'cover';
-
                     var removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
@@ -251,27 +244,67 @@
                     removeBtn.addEventListener('click', function (evt) {
                         evt.preventDefault();
                         evt.stopPropagation();
-                        // Remove file from input
-                        var dt = new DataTransfer();
-                        var filesArray = Array.prototype.slice.call(photoInput.files);
-                        filesArray.forEach(function (f, i) {
-                            if (i !== index) dt.items.add(f);
-                        });
-                        photoInput.files = dt.files;
-                        // Trigger change event to refresh preview
-                        photoInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        selectedFiles.splice(index, 1);
+                        updatePreview();
+                        updateUploadTextsFromInputs(window.currentFacilitatorAppId ? window.getApp(window.currentFacilitatorAppId) : null);
                     });
-
                     previewBox.appendChild(img);
                     previewBox.appendChild(removeBtn);
                     previewContainer.appendChild(previewBox);
                 };
                 reader.readAsDataURL(file);
             });
-
-            // Update counter
             updateUploadTextsFromInputs(window.currentFacilitatorAppId ? window.getApp(window.currentFacilitatorAppId) : null);
+        }
+
+        function handleFiles(files) {
+            var arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+            selectedFiles = selectedFiles.concat(arr);
+            if (selectedFiles.length > 4) {
+                selectedFiles = selectedFiles.slice(0, 4);
+                if (window.AppNotify && typeof window.AppNotify.toast === 'function') {
+                    window.AppNotify.toast('warning', 'Внимание', 'Максимум 4 фото. Лишние будут отброшены.');
+                }
+            }
+            updatePreview();
+        }
+
+        btnCamera.addEventListener('click', function () {
+            inputCamera.value = '';
+            inputCamera.click();
         });
+        btnGallery.addEventListener('click', function () {
+            inputGallery.value = '';
+            inputGallery.click();
+        });
+        inputCamera.addEventListener('change', function () {
+            handleFiles(inputCamera.files);
+        });
+        inputGallery.addEventListener('change', function () {
+            handleFiles(inputGallery.files);
+        });
+
+        // Для совместимости: если есть старый input (невидимый), инициализируем его пустым
+        var legacyInput = document.getElementById('fac-photo-upload');
+        if (legacyInput) legacyInput.value = '';
+
+        // Для других функций: прокидываем выбранные файлы в старый input (если нужно)
+        // (например, если где-то валидация или отправка берет файлы из fac-photo-upload)
+        function syncLegacyInput() {
+            if (!legacyInput) return;
+            var dt = new DataTransfer();
+            selectedFiles.forEach(f => dt.items.add(f));
+            legacyInput.files = dt.files;
+        }
+        // Синхронизировать при каждом изменении
+        const origUpdatePreview = updatePreview;
+        updatePreview = function () {
+            origUpdatePreview();
+            syncLegacyInput();
+        };
+
+        // Инициализация
+        updatePreview();
     }
 
     function getSelectedFileNames(inputId) {
