@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"name": "1",
+			"uri": "vscode-vfs://github/fkhokimov-wq/1"
+		},
+		{
+			"name": "1",
+			"path": "1"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "1",
+		"chat.tools.terminal.autoApprove": {
+			"Set-Content": true,
+			"/^Set-Location 'd:\\\\DEV\\\\toco\\\\1\\\\1'; rg -n \"pane-piu\\|data-filter=\\\\\"piu\\\\\"\\|dash-piu-badge\\|openPiuFor\\|loadPiuForm\\|setPiuDecision\\|finalizePiu\\|activeMainFilter === 'piu'\\|\\\\bpiu_review\\\\b\" grant\\.html src/js$/": {
+				"approve": true,
+				"matchCommandLine": true
+			}
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ritwickdey.liveserver"
+		]
+	}
+}
