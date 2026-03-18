@@ -950,27 +950,27 @@
     <header class="wrap hero">
         <h1>Справка по системе EIP</h1>
         <p>
-            Страница для быстрого поиска ответов: как работать по ролям, как формировать договор,
-            как отправлять заявку по этапам и что делать при ошибках. Если вы не знаете, с чего начать,
-            используйте карточки ниже.
+            Страница для быстрого поиска ответов: как работать по ролям, как формировать договор, как отправлять заявку
+            по этапам и что делать при ошибках. FAQ полностью синхронизирован с последними обновлениями системы:
+            <b>единая система уведомлений</b>, <b>автоподсказки для ФИО оператора</b>, <b>оптимизация загрузки фото</b>,
+            <b>новые фильтры и статусные маршруты</b>, <b>правила для полностью завершённых заявок</b>.
         </p>
         <div class="updated">
-            <span class="chip">Последнее обновление: 16.03.2026</span>
-            <span class="chip">Версия справки: 2.1</span>
-            <span class="chip">Источник: инструкция пользователя</span>
+            <span class="chip">Последнее обновление: 18.03.2026</span>
+            <span class="chip">Версия справки: 2.2</span>
+            <span class="chip">Источник: актуальная документация и код</span>
         </div>
     </header>
 
     <section class="wrap controls-panel">
         <div class="meta">
             <div id="faqCount">Показано вопросов: 0</div>
-            <div>Роли: Фасилитатор, ШИГ / КУГ, ГТЛ / ГРП, Комитет</div>
+            <div>Роли: Фасилитатор, ШИГ / КУГ, Комитет, Мониторинг</div>
         </div>
         <div class="toolbar-row" id="roleFilters">
             <button class="pill active" type="button" data-role-filter="all">Все роли</button>
             <button class="pill" type="button" data-role-filter="facilitator">Фасилитатор</button>
             <button class="pill" type="button" data-role-filter="gmc">ШИГ / КУГ</button>
-            <button class="pill" type="button" data-role-filter="piu">ГТЛ / ГРП</button>
             <button class="pill" type="button" data-role-filter="committee">Комитет</button>
             <button class="pill" type="button" data-role-filter="monitoring">Мониторинг</button>
         </div>
@@ -986,7 +986,7 @@
                 <b>Фасилитатор</b>
                 <ul>
                     <li>Создать и заполнить заявку.</li>
-                    <li>Загрузить Word, PDF и 4 фото.</li>
+                    <li>Загрузить PDF и 4 фото (Word по необходимости).</li>
                     <li>Отправить, доработать, разблокировать.</li>
                 </ul>
             </a>
@@ -998,12 +998,12 @@
                     <li>Сформировать и отправить реестр.</li>
                 </ul>
             </a>
-            <a class="role-card" data-role-jump="piu" href="#piu">
-                <b>ГТЛ / ГРП</b>
+            <a class="role-card" data-role-jump="facilitator" href="#facilitator">
+                <b>Одобрено и Финансы</b>
                 <ul>
-                    <li>Провести проверку.</li>
-                    <li>Указать решение и комментарий.</li>
-                    <li>Завершить этап.</li>
+                    <li>Открыть одобренные заявки.</li>
+                    <li>Загрузить подписанный договор.</li>
+                    <li>Проверить полностью завершенные.</li>
                 </ul>
             </a>
             <a class="role-card" data-role-jump="committee" href="#committee">
@@ -1030,7 +1030,7 @@
             <h3>Быстрый старт: Фасилитатор</h3>
             <ol>
                 <li>Создать заявку и заполнить форму.</li>
-                <li>Приложить Word + PDF + 4 фото.</li>
+                <li>Приложить PDF + 4 фото (Word опционально).</li>
                 <li>Отправить в ШИГ / КУГ.</li>
             </ol>
             <a class="quick-role-link" data-role-jump="facilitator" href="#facilitator">Открыть инструкцию</a>
@@ -1045,13 +1045,13 @@
             <a class="quick-role-link" data-role-jump="gmc" href="#gmc">Открыть инструкцию</a>
         </article>
         <article class="qs-card">
-            <h3>Быстрый старт: ГТЛ / ГРП</h3>
+            <h3>Быстрый старт: Одобрено и Финансы</h3>
             <ol>
-                <li>Открыть заявку на проверке.</li>
-                <li>Выбрать решение и комментарий.</li>
-                <li>Завершить проверку.</li>
+                <li>Открыть одобренную заявку.</li>
+                <li>Сформировать/проверить договор.</li>
+                <li>Загрузить подписанный файл и проверить статус завершения.</li>
             </ol>
-            <a class="quick-role-link" data-role-jump="piu" href="#piu">Открыть инструкцию</a>
+            <a class="quick-role-link" data-role-jump="facilitator" href="#facilitator">Открыть инструкцию</a>
         </article>
         <article class="qs-card">
             <h3>Быстрый старт: Комитет</h3>
@@ -1098,12 +1098,12 @@
                 </ol>
             </article>
             <article class="manual-card">
-                <h4>ГТЛ / ГРП: проверка</h4>
+                <h4>Одобрено и Финансы</h4>
                 <ol>
-                    <li>Откройте заявку в проверке.</li>
-                    <li>Выберите решение по шагу.</li>
-                    <li>При возврате обязательно укажите причину.</li>
-                    <li>Завершите проверку.</li>
+                    <li>Откройте заявку в approved.</li>
+                    <li>Проверьте черновик договора и подписи.</li>
+                    <li>Загрузите подписанный договор.</li>
+                    <li>Проверьте, что заявка попала в полностью завершенные.</li>
                 </ol>
             </article>
             <article class="manual-card">
@@ -1148,15 +1148,15 @@
             </div>
             <div class="route-step">
                 <b>4. Решение комиссии</b>
-                <p>Заявка либо одобряется, либо возвращается на доработку.</p>
+                <p>Заявка либо одобряется, либо переводится в postponed с последующей ручной разблокировкой.</p>
             </div>
             <div class="route-step">
                 <b>5. После одобрения</b>
                 <p>Договор, загрузка подписанного файла и мониторинг.</p>
             </div>
         </div>
-        <div class="route-note"><strong>Если есть замечания:</strong> заявка возвращается назад, вы исправляете и
-            отправляете снова.</div>
+        <div class="route-note"><strong>Если есть замечания:</strong> после решения Комитета заявка уходит в
+            postponed, затем Фасилитатор вручную разблокирует ее и повторно отправляет по маршруту.</div>
     </section>
 
     <nav class="wrap mobile-toc" aria-label="Быстрые переходы FAQ">
@@ -1164,7 +1164,6 @@
         <a class="mobile-toc-link" href="#errors" data-toc-mobile="errors">Ошибки</a>
         <a class="mobile-toc-link" href="#facilitator" data-toc-mobile="facilitator">Фасилитатор</a>
         <a class="mobile-toc-link" href="#gmc" data-toc-mobile="gmc">ШИГ / КУГ</a>
-        <a class="mobile-toc-link" href="#piu" data-toc-mobile="piu">ГТЛ / ГРП</a>
         <a class="mobile-toc-link" href="#committee" data-toc-mobile="committee">Комитет</a>
         <a class="mobile-toc-link" href="#monitoring" data-toc-mobile="monitoring">Мониторинг</a>
     </nav>
@@ -1177,13 +1176,134 @@
                     <small>Базовые правила интерфейса</small>
                 </div>
                 <div class="items">
+                    <details class="faq-item" data-role="common"
+                        data-keywords="уведомления toast confirm визуальный стиль">
+                        <summary>Как выглядят системные уведомления? <span class="tag">UX</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Ориентируйтесь по типу и цвету уведомления и закрывайте его по правилам.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Уведомления появляются по центру экрана. Для Warning/Error закройте кнопку или
+                                        фон, Confirm подтверждается кнопкой действия.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Success и Info закрываются автоматически, Warning и Error требуют ручного
+                                        закрытия, Confirm закрывается Esc или кнопками.</p>
+                                </div>
+                            </div>
+                            <div class="callout">✓ зелёная — успех, ! янтарная/красная — предупреждение/ошибка, i
+                                синяя — информация, ? янтарная — подтверждение.</div>
+                        </div>
+                    </details>
+                    <details class="faq-item" data-role="common"
+                        data-keywords="автоподсказка autocomplete ФИО оператор">
+                        <summary>Что такое автоподсказки для ФИО оператора ШИГ/КУГ? <span class="tag">UX</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Выберите имя оператора из подсказки или введите вручную.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Поле ФИО оператора находится во вкладке ШИГ/КУГ при оценке заявки.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Имя фиксируется после первого подтвержденного действия и используется в
+                                        аудит-логе для этой заявки.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="faq-item" data-role="common"
+                        data-keywords="оптимизация фото мобильные камера галерея">
+                        <summary>Как работает загрузка фото на мобильных? <span class="tag">UX</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>При загрузке фото выберите источник: камера или галерея.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>В поле фото нажмите «Выбор файлов» на планшете или смартфоне.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Открывается системное меню устройства с вариантами «Фотографировать» или
+                                        «Выбрать из галереи».</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="faq-item" data-role="common"
+                        data-keywords="фильтры меню статус полностью завершенные">
+                        <summary>Что такое фильтр полностью завершённых заявок? <span class="tag">Фильтры</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Откройте фильтр «Полностью завершенные» для проверки закрытых заявок.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Используйте разделы «По статусам» или «Фасилитатор» и выберите одноименный
+                                        пункт.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Показываются только approved-заявки с загруженным подписанным договором и
+                                        доступной финансовой CSV-выгрузкой.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                    <details class="faq-item" data-role="common" data-keywords="маршруты статусов статусный путь">
+                        <summary>Как устроены новые статусные маршруты? <span class="tag">Статусы</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Следите за маршрутом через статусы заявки и действия роли-владельца.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Откройте карточку заявки и блок истории, чтобы увидеть текущий этап и маршрут.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>После 3-го неодобрения заявка переходит в postponed, затем вручную
+                                        разблокируется Фасилитатором в fac_revision.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                     <details class="faq-item" data-role="common" data-keywords="интерфейс язык журнал история audit">
                         <summary>На каком языке работает интерфейс? <span class="tag">Общее</span></summary>
                         <div class="answer">
-                            <p>Интерфейс двуязычный: таджикский + русский. Все ключевые действия и статусы показаны в
-                                обоих
-                                языках.</p>
-                            <div class="callout">Все действия фиксируются в истории заявки автоматически.</div>
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Используйте интерфейс в двуязычном режиме без переключения языка.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Работайте с любым экраном: все названия, статусы и кнопки уже даны на TJ/RU.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Все действия и этапы читаются на двух языках, а операции автоматически пишутся
+                                        в историю заявки.</p>
+                                </div>
+                            </div>
                         </div>
                     </details>
 
@@ -1192,9 +1312,21 @@
                                 class="tag">Доступ</span>
                         </summary>
                         <div class="answer">
-                            <p>Для статусов <strong>Одобрено</strong> и <strong>Отклонено</strong> доступ из любой роли
-                                только в режиме просмотра.</p>
-                            <p>Редактирование доступно только в статусах, закрепленных за вашей ролью.</p>
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Проверьте текущий статус заявки и роль, из которой вы ее открыли.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Смотрите статус в карточке и переключайтесь в соответствующий ролевой фильтр.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Для approved/rejected доступен только просмотр, редактирование есть только в
+                                        рабочих статусах роли.</p>
+                                </div>
+                            </div>
                         </div>
                     </details>
 
@@ -1210,7 +1342,7 @@
                                 </div>
                                 <div class="howto-block">
                                     <span class="howto-title">Где нажать</span>
-                                    <p>В верхних фильтрах переключитесь на нужную роль: Фасилитатор, ШИГ/КУГ, ГРП или
+                                    <p>В верхних фильтрах переключитесь на нужную роль: Фасилитатор, ШИГ/КУГ или
                                         Комитет.</p>
                                 </div>
                                 <div class="howto-block">
@@ -1222,30 +1354,51 @@
                     </details>
 
                     <details class="faq-item" data-role="common"
-                        data-keywords="статусы по роли draft fac_revision gmc_review piu_review com_review">
+                        data-keywords="статусы по роли draft fac_revision gmc_review com_review approved postponed">
                         <summary>Какие статусы рабочие для каждой роли? <span class="tag">Статусы</span></summary>
                         <div class="answer">
-                            <ul>
-                                <li><strong>Фасилитатор:</strong> draft, incomplete_data, fac_revision, postponed.</li>
-                                <li><strong>ШИГ / КУГ:</strong> gmc_review, gmc_revision, gmc_preparation,
-                                    gmc_ready_for_registry.</li>
-                                <li><strong>ГТЛ / ГРП:</strong> piu_review.</li>
-                                <li><strong>Комитет:</strong> com_review.</li>
-                            </ul>
-                            <div class="callout">Статусы approved/rejected открываются из любой роли как только
-                                просмотр.</div>
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Работайте только в статусах, которые закреплены за вашей ролью.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Используйте ролевые фильтры в шапке и открывайте заявку в соответствующем
+                                        разделе.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Фасилитатор: draft/incomplete_data/fac_revision/postponed; ШИГ/КУГ:
+                                        gmc_review/gmc_preparation/gmc_ready_for_registry; Комитет: com_review.</p>
+                                </div>
+                            </div>
+                            <div class="callout">approved/rejected доступны из любой роли только для просмотра.</div>
                         </div>
                     </details>
 
                     <details class="faq-item" data-role="common" data-keywords="не могу найти заявку поиск фильтр">
                         <summary>Не могу найти заявку в списке. Что проверить? <span class="tag">Поиск</span></summary>
                         <div class="answer">
-                            <ul>
-                                <li>Проверьте выбранный главный фильтр роли.</li>
-                                <li>Очистите строку поиска.</li>
-                                <li>Переключите вид Карточки/Список и проверьте снова.</li>
-                                <li>Для одобренных проверьте фильтры сектор/регион/пол.</li>
-                            </ul>
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Пошагово сбросьте фильтры и повторите поиск заявки.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Проверьте выбранный главный фильтр роли.</li>
+                                        <li>Очистите строку поиска.</li>
+                                        <li>Переключите вид Карточки/Список.</li>
+                                        <li>Для одобренных проверьте фильтры сектор/регион/пол.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Заявка отображается в корректном разделе и открывается для нужного действия.</p>
+                                </div>
+                            </div>
                         </div>
                     </details>
                 </div>
@@ -1300,7 +1453,8 @@
                                         <li>Во вкладке Фасилитатора заполните <strong>Сектор</strong> и
                                             <strong>Сумма</strong>.
                                         </li>
-                                        <li>Загрузите Word, PDF и ровно 4 фото.</li>
+                                        <li>Загрузите PDF и ровно 4 фото.</li>
+                                        <li>Word-документ загружайте по необходимости (опционально).</li>
                                         <li>Убедитесь, что профиль бенефициара полный и нет блокировки по дублям.</li>
                                         <li>Проверьте, что обязательные обучающие сессии пройдены.</li>
                                     </ul>
@@ -1317,10 +1471,22 @@
                         data-keywords="номер договора система авто Ш-000001">
                         <summary>Как формируется номер договора? <span class="tag">Договор</span></summary>
                         <div class="answer">
-                            <p>Номер полностью системный и генерируется автоматически. Пользователь его не вводит.</p>
-                            <p>Шаблон: <strong>Ш-000001-ДДММГГ</strong>, затем <strong>Ш-000002-ДДММГГ</strong> и далее
-                                по
-                                порядку.</p>
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Оставьте поле номера договора системным, без ручного ввода.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>В блоке договора используйте автозаполненный номер и переходите к остальным
+                                        полям.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Номер создается автоматически в формате Ш-000001-ДДММГГ, Ш-000002-ДДММГГ и
+                                        далее по сквозной серии.</p>
+                                </div>
+                            </div>
                             <div class="callout good">Серия сквозная и не зависит от ID заявки.</div>
                         </div>
                     </details>
@@ -1405,15 +1571,15 @@
                                 </div>
                                 <div class="howto-block">
                                     <span class="howto-title">Результат</span>
-                                    <p>Заявка переходит на следующий этап или возвращается на доработку по выбранному
-                                        решению.</p>
+                                    <p>Заявка переходит на следующий этап, либо в postponed/fac_revision по выбранному
+                                        решению и правилам маршрута.</p>
                                 </div>
                             </div>
                         </div>
                     </details>
 
                     <details class="faq-item" data-role="gmc"
-                        data-keywords="gmc_revision возврат грп комитет word версия">
+                        data-keywords="возврат комитет postponed фасилитатор разблокировка word версия">
                         <summary>Что делать в статусе на доработке? <span class="tag">Шаг</span></summary>
                         <div class="answer">
                             <div class="howto-grid">
@@ -1427,7 +1593,9 @@
                                         <li>Откройте заявку в статусе доработки.</li>
                                         <li>Изучите комментарий возврата.</li>
                                         <li>Загрузите новую версию документа Word.</li>
-                                        <li>Выберите маршрут: обратно в ГРП или к Фасилитатору.</li>
+                                        <li>Если заявку отклонил Комитет, она уходит в postponed к Фасилитатору.</li>
+                                        <li>После ручной разблокировки Фасилитатором заявка снова возвращается на
+                                            доработку.</li>
                                     </ul>
                                 </div>
                                 <div class="howto-block">
@@ -1457,40 +1625,6 @@
                                 <div class="howto-block">
                                     <span class="howto-title">Результат</span>
                                     <p>Заявки переходят на этап рассмотрения Комитетом.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-            </section>
-
-            <section class="section" id="piu">
-                <div class="section-head">
-                    <h2>ГТЛ / ГРП</h2>
-                    <small>Проверка и завершение этапа</small>
-                </div>
-                <div class="items">
-                    <details class="faq-item" data-role="piu" data-keywords="piu_review approve resubmit комментарий">
-                        <summary>Как завершить проверку ГРП? <span class="tag">Шаг</span></summary>
-                        <div class="answer">
-                            <div class="howto-grid">
-                                <div class="howto-block">
-                                    <span class="howto-title">Что делать</span>
-                                    <p>Провести проверку заявки и завершить этап ГРП.</p>
-                                </div>
-                                <div class="howto-block">
-                                    <span class="howto-title">Где нажать</span>
-                                    <ul>
-                                        <li>Откройте заявку в статусе <strong>piu_review</strong>.</li>
-                                        <li>Выберите решение по проверке и заполните комментарий.</li>
-                                        <li>Если возвращаете, обязательно укажите причину.</li>
-                                        <li>Нажмите завершение проверки.</li>
-                                    </ul>
-                                </div>
-                                <div class="howto-block">
-                                    <span class="howto-title">Результат</span>
-                                    <p>При заполнении шага 1/1 кнопка завершения активируется, заявка переходит в
-                                        следующий статус по решению.</p>
                                 </div>
                             </div>
                         </div>
@@ -1590,7 +1724,8 @@
                                     <span class="howto-title">Что проверить</span>
                                     <ul>
                                         <li>Заполнены сектор и сумма.</li>
-                                        <li>Есть полный пакет Word + PDF + 4 фото.</li>
+                                        <li>Есть обязательный пакет PDF + 4 фото.</li>
+                                        <li>Word-файл опционален: если загружен, его версия сохраняется.</li>
                                         <li>Нет неполного профиля и блокировки по дублю.</li>
                                     </ul>
                                 </div>
@@ -1779,7 +1914,6 @@
                 <a class="toc-link" href="#errors" data-toc="errors">Типовые ошибки</a>
                 <a class="toc-link" href="#facilitator" data-toc="facilitator">Фасилитатор</a>
                 <a class="toc-link" href="#gmc" data-toc="gmc">ШИГ / КУГ</a>
-                <a class="toc-link" href="#piu" data-toc="piu">ГТЛ / ГРП</a>
                 <a class="toc-link" href="#committee" data-toc="committee">Комитет</a>
                 <a class="toc-link" href="#monitoring" data-toc="monitoring">Мониторинг</a>
             </nav>
@@ -1807,7 +1941,7 @@
             var activeRoleFilter = "all";
 
             function reorderByBeginnerFlow() {
-                var flow = ["common", "errors", "facilitator", "gmc", "piu", "committee", "monitoring"];
+                var flow = ["common", "errors", "facilitator", "gmc", "committee", "monitoring"];
 
                 var main = document.querySelector(".faq-main");
                 if (main) {
