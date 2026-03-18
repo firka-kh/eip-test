@@ -1,0 +1,2181 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EIP - Справка по интерфейсу</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=PT+Sans:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7f5;
+            --surface: #ffffff;
+            --ink: #0f172a;
+            --muted: #475569;
+            --accent: #0f766e;
+            --accent-2: #0ea5a5;
+            --line: #dbe4dd;
+            --warn: #b45309;
+            --good: #166534;
+            --hero-a: #dff4f0;
+            --hero-b: #fff4df;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: "PT Sans", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% -10%, #ecfdf5 0%, rgba(236, 253, 245, 0) 45%),
+                radial-gradient(circle at 95% 0%, #fef3c7 0%, rgba(254, 243, 199, 0) 40%),
+                var(--bg);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 1120px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin: 0 auto;
+        }
+
+        .hero {
+            margin: 1.2rem auto 1rem;
+            border: 1px solid #d1e4db;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+            padding: 1.5rem;
+            box-shadow: 0 14px 40px rgba(14, 116, 110, 0.1);
+            animation: rise .45s ease-out;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: "Exo 2", sans-serif;
+            margin: 0;
+            letter-spacing: .2px;
+        }
+
+        h1 {
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+            margin-bottom: .55rem;
+        }
+
+        .hero p {
+            margin: 0;
+            color: #134e4a;
+            max-width: 74ch;
+        }
+
+        .topbar {
+            position: static;
+            border-bottom: 1px solid #e3ece6;
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .topbar-inner {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: .45rem;
+            padding: .75rem 0;
+        }
+
+        .search {
+            display: flex;
+            gap: .65rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search input {
+            flex: 1 1 350px;
+            min-width: 220px;
+            border: 1px solid #b8cfc4;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: .84rem .9rem;
+            font-size: 1rem;
+        }
+
+        .btn {
+            border: 1px solid #bfd6cb;
+            background: var(--surface);
+            color: #0f3d39;
+            border-radius: 10px;
+            padding: .68rem .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 44px;
+            font-size: .92rem;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-2);
+        }
+
+        .btn-accent {
+            background: #0f766e;
+            border-color: #0f766e;
+            color: #fff;
+        }
+
+        .btn-accent:hover {
+            background: #0e6962;
+            border-color: #0e6962;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            gap: .6rem;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: .98rem;
+        }
+
+        .search-help {
+            color: #1f2937;
+            font-size: .95rem;
+        }
+
+        .search-help strong {
+            color: #0f3d39;
+        }
+
+        .primary-actions {
+            display: inline-flex;
+            gap: .55rem;
+            flex-wrap: wrap;
+        }
+
+        .advanced-tools {
+            border: 1px dashed #bfd6cb;
+            border-radius: 12px;
+            padding: .45rem .55rem;
+            background: #fbfefd;
+        }
+
+        .advanced-tools summary {
+            cursor: pointer;
+            color: #0f3d39;
+            font-family: "PT Sans", sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            list-style: none;
+        }
+
+        .advanced-tools summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .advanced-tools-row {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-top: .5rem;
+        }
+
+        .assist-bar {
+            margin-top: .6rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .assist-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 12px;
+            min-height: 44px;
+            padding: .55rem .85rem;
+            font-size: .92rem;
+            font-weight: 700;
+        }
+
+        .assist-note {
+            color: #475569;
+            font-size: .9rem;
+        }
+
+        .toolbar-row {
+            display: flex;
+            gap: .55rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls-panel {
+            margin: .2rem auto .9rem;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            padding: .8rem .9rem;
+            display: grid;
+            gap: .65rem;
+        }
+
+        .role-hub {
+            margin: .35rem auto .95rem;
+            border: 1px solid #dbe7e0;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+            padding: .85rem .9rem;
+        }
+
+        .role-hub-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: .65rem;
+        }
+
+        .role-hub-head h3 {
+            font-size: 1rem;
+            color: #0f3d39;
+        }
+
+        .role-hub-head small {
+            color: #475569;
+            font-size: .9rem;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: .55rem;
+        }
+
+        .role-card {
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #dbe7e0;
+            border-radius: 12px;
+            background: #fcfefc;
+            padding: .55rem .6rem;
+            display: block;
+            min-height: 100%;
+        }
+
+        .role-card:hover {
+            border-color: #0ea5a5;
+            background: #f0fdfa;
+        }
+
+        .role-card b {
+            display: block;
+            color: #0f766e;
+            font-size: .9rem;
+            margin-bottom: .2rem;
+        }
+
+        .role-card ul {
+            margin: 0;
+            padding-left: 1rem;
+            color: #334155;
+            font-size: .84rem;
+            line-height: 1.4;
+        }
+
+        .pill {
+            border: 1px solid #bfd6cb;
+            background: #fff;
+            color: #0f3d39;
+            border-radius: 999px;
+            padding: .45rem .75rem;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            min-height: 40px;
+        }
+
+        .pill:hover {
+            border-color: var(--accent-2);
+            background: #f0fdfa;
+        }
+
+        .pill.active {
+            color: #fff;
+            background: linear-gradient(135deg, #0f766e, #0ea5a5);
+            border-color: transparent;
+        }
+
+        .updated {
+            margin-top: .85rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+            color: #14532d;
+            font-size: .87rem;
+        }
+
+        .updated .chip {
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+            border-radius: 999px;
+            padding: .2rem .55rem;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .quick {
+            margin: 1rem auto;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: .7rem;
+            min-width: 0;
+        }
+
+        .quick a {
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: .8rem;
+            background: var(--surface);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+            min-width: 0;
+        }
+
+        .quick strong {
+            display: block;
+            font-family: "Exo 2", sans-serif;
+            margin-bottom: .2rem;
+        }
+
+        .quick-start {
+            /* Keep horizontal centering when used with .wrap (prevent layout drift). */
+            margin: .35rem auto 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: .7rem;
+            min-width: 0;
+        }
+
+        .quick-role-link {
+            display: inline-flex;
+            margin-top: .55rem;
+            text-decoration: none;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 10px;
+            min-height: 40px;
+            padding: .35rem .6rem;
+            font-size: .82rem;
+            font-weight: 700;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-role-link:hover {
+            border-color: #60a5fa;
+            background: #dbeafe;
+        }
+
+        .role-manuals {
+            margin: .2rem auto 1rem;
+            border: 1px solid #dbe7e0;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+            padding: .9rem;
+        }
+
+        .role-manuals h3 {
+            font-size: 1.02rem;
+            color: #0f3d39;
+            margin-bottom: .2rem;
+        }
+
+        .role-manuals p {
+            margin: 0 0 .7rem;
+            color: #475569;
+            font-size: .92rem;
+        }
+
+        .manual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: .6rem;
+        }
+
+        .manual-card {
+            border: 1px solid #dbe7e0;
+            border-radius: 12px;
+            padding: .6rem .65rem;
+            background: #fcfefc;
+        }
+
+        .manual-card h4 {
+            margin: 0 0 .3rem;
+            font-size: .92rem;
+            color: #0f766e;
+            font-family: "Exo 2", sans-serif;
+        }
+
+        .manual-card ol {
+            margin: 0;
+            padding-left: 1rem;
+            color: #334155;
+            font-size: .86rem;
+            line-height: 1.42;
+        }
+
+        .route-quick {
+            margin: .2rem auto 1rem;
+            border: 1px solid #cfe2ff;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
+            padding: .85rem .9rem;
+        }
+
+        .route-quick-head {
+            display: flex;
+            justify-content: space-between;
+            gap: .7rem;
+            flex-wrap: wrap;
+            align-items: baseline;
+            margin-bottom: .55rem;
+        }
+
+        .route-quick-head h3 {
+            font-size: 1rem;
+            color: #1e3a8a;
+        }
+
+        .route-quick-head small {
+            color: #334155;
+            font-size: .9rem;
+        }
+
+        .route-track {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: .5rem;
+        }
+
+        .route-step {
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            background: #fff;
+            padding: .5rem .55rem;
+        }
+
+        .route-step b {
+            display: block;
+            color: #1e40af;
+            font-size: .86rem;
+            margin-bottom: .15rem;
+        }
+
+        .route-step p {
+            margin: 0;
+            color: #334155;
+            font-size: .86rem;
+            line-height: 1.4;
+        }
+
+        .route-note {
+            margin-top: .55rem;
+            color: #334155;
+            font-size: .9rem;
+        }
+
+        .route-note strong {
+            color: #1e3a8a;
+        }
+
+        .faq-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 260px;
+            gap: 1rem;
+            align-items: start;
+            min-width: 0;
+        }
+
+        .faq-main {
+            min-width: 0;
+        }
+
+        .toc {
+            position: sticky;
+            top: 92px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .toc-head {
+            padding: .8rem .9rem;
+            border-bottom: 1px dashed #d4ded7;
+            background: #fcfefc;
+        }
+
+        .toc-head h3 {
+            font-size: .98rem;
+        }
+
+        .toc-list {
+            padding: .4rem;
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+        }
+
+        .toc-link {
+            display: block;
+            text-decoration: none;
+            color: #0f3d39;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            padding: .45rem .55rem;
+            font-size: .86rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .toc-link:hover {
+            border-color: #bfe6da;
+            background: #f0fdfa;
+        }
+
+        .toc-link.active {
+            color: #fff;
+            border-color: transparent;
+            background: linear-gradient(135deg, #0f766e, #0ea5a5);
+        }
+
+        .mobile-toc {
+            display: none;
+            margin: .5rem auto 0;
+            padding: .4rem;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            overflow-x: auto;
+            gap: .45rem;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .mobile-toc-link {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #0f3d39;
+            border: 1px solid #c7d7ce;
+            border-radius: 999px;
+            padding: .3rem .6rem;
+            font-size: .78rem;
+            font-weight: 700;
+            background: #fff;
+        }
+
+        .mobile-toc-link.active {
+            color: #fff;
+            border-color: transparent;
+            background: linear-gradient(135deg, #0f766e, #0ea5a5);
+        }
+
+        .qs-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            padding: .9rem;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+        }
+
+        .qs-card h3 {
+            font-size: 1rem;
+            margin-bottom: .4rem;
+        }
+
+        .qs-card ol {
+            margin: .25rem 0 0;
+            padding-left: 1rem;
+            color: #334155;
+            font-size: .9rem;
+        }
+
+        main {
+            padding: .2rem 0 2rem;
+        }
+
+        .section {
+            margin: 1rem 0;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--surface);
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        }
+
+        .section-head {
+            padding: .9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .55rem;
+            flex-wrap: wrap;
+            border-bottom: 1px dashed #d4ded7;
+            background: #fcfefc;
+        }
+
+        .section small {
+            color: var(--muted);
+        }
+
+        .items {
+            padding: .35rem 0;
+        }
+
+        details {
+            border-bottom: 1px solid #edf2ee;
+            padding: .2rem 1rem;
+        }
+
+        details:last-child {
+            border-bottom: none;
+        }
+
+        summary {
+            list-style: none;
+            cursor: pointer;
+            font-family: "Exo 2", sans-serif;
+            font-weight: 700;
+            padding: .75rem 0;
+            display: flex;
+            justify-content: space-between;
+            gap: .9rem;
+            align-items: flex-start;
+            font-size: 1.04rem;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .tag {
+            font-size: .76rem;
+            font-weight: 700;
+            color: #0f766e;
+            background: #ebfffd;
+            border: 1px solid #a7f3d0;
+            padding: .15rem .45rem;
+            border-radius: 999px;
+            white-space: normal;
+            text-align: right;
+        }
+
+        .answer {
+            color: #1f2937;
+            padding: 0 0 .85rem;
+            font-size: 1rem;
+        }
+
+        .answer p {
+            margin: .3rem 0;
+        }
+
+        .answer ul {
+            margin: .35rem 0 .1rem;
+            padding-left: 1rem;
+        }
+
+        .answer li {
+            margin: .15rem 0;
+        }
+
+        .howto-grid {
+            display: grid;
+            gap: .5rem;
+            margin: .35rem 0;
+        }
+
+        .howto-block {
+            border: 1px solid #d9e6df;
+            border-radius: 12px;
+            background: #fbfefd;
+            padding: .5rem .65rem;
+        }
+
+        .howto-title {
+            display: block;
+            font-family: "Exo 2", sans-serif;
+            font-size: .9rem;
+            font-weight: 700;
+            color: #0f3d39;
+            margin-bottom: .15rem;
+        }
+
+        .howto-block p {
+            margin: 0;
+        }
+
+        .howto-block ul {
+            margin: .2rem 0 0;
+            padding-left: 1rem;
+        }
+
+        .hl {
+            background: #fff7cc;
+            color: #7c2d12;
+            border-radius: 4px;
+            padding: 0 .15rem;
+        }
+
+        .summary-tools {
+            display: inline-flex;
+            gap: .35rem;
+            margin-left: .5rem;
+            align-items: center;
+        }
+
+        .mini-link {
+            border: 1px solid #c9ddd3;
+            background: #fff;
+            color: #0f766e;
+            border-radius: 999px;
+            padding: 0 .4rem;
+            line-height: 1.4;
+            font-size: .7rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .mini-link:hover {
+            border-color: #0ea5a5;
+            background: #f0fdfa;
+        }
+
+        .feedback {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .45rem;
+            margin-top: .55rem;
+            padding-top: .5rem;
+            border-top: 1px dashed #dbe4dd;
+            font-size: .82rem;
+            color: #475569;
+        }
+
+        .fb-btn {
+            border: 1px solid #c7d7ce;
+            background: #fff;
+            color: #134e4a;
+            border-radius: 999px;
+            padding: .15rem .55rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .78rem;
+        }
+
+        .fb-btn:hover {
+            border-color: #0ea5a5;
+            background: #f0fdfa;
+        }
+
+        .feedback-note {
+            color: #166534;
+            font-weight: 700;
+        }
+
+        .callout {
+            margin-top: .5rem;
+            border-left: 4px solid #0ea5a5;
+            background: #f0fdfa;
+            padding: .5rem .7rem;
+            border-radius: 0 10px 10px 0;
+            color: #0f3d39;
+        }
+
+        .warn {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+            color: #7c2d12;
+        }
+
+        .good {
+            border-left-color: #16a34a;
+            background: #f0fdf4;
+            color: #14532d;
+        }
+
+        .hidden-by-search {
+            display: none;
+        }
+
+        .hidden-by-role {
+            display: none;
+        }
+
+        .hidden-section {
+            display: none;
+        }
+
+        footer {
+            color: var(--muted);
+            font-size: .9rem;
+            text-align: center;
+            padding: 1rem 0 2rem;
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 960px) {
+            .quick {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .quick-start {
+                grid-template-columns: 1fr;
+            }
+
+            .route-track {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .role-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .faq-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .toc {
+                display: none;
+            }
+
+            .mobile-toc {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .quick {
+                grid-template-columns: 1fr;
+            }
+
+            .search input {
+                min-width: 100%;
+            }
+
+            .btn {
+                padding: .6rem .76rem;
+                font-size: .9rem;
+            }
+
+            .route-track {
+                grid-template-columns: 1fr;
+            }
+
+            .role-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="wrap topbar-inner">
+            <div class="search">
+                <input id="faqSearch" type="search"
+                    placeholder="Поиск по вопросам: договор, отправка, мониторинг, комитет..."
+                    aria-label="Поиск по справке">
+                <div class="primary-actions">
+                    <button class="btn" id="resetFiltersBtn" type="button">Очистить поиск</button>
+                    <a class="btn btn-accent" href="grant.html">Вернуться в систему</a>
+                </div>
+                <details class="advanced-tools" id="advancedFaqTools">
+                    <summary>Дополнительно</summary>
+                    <div class="advanced-tools-row">
+                        <button class="btn" id="openAllBtn" type="button">Открыть все ответы</button>
+                        <button class="btn" id="closeAllBtn" type="button">Скрыть все ответы</button>
+                        <button class="btn" id="shareStateBtn" type="button">Поделиться</button>
+                    </div>
+                </details>
+            </div>
+            <div class="search-help"><strong>Совет:</strong> введите одно слово, например: договор, отправка, ошибка.
+            </div>
+            <div class="assist-bar">
+                <a class="assist-btn" data-role-jump="all" href="#errors">Я не понимаю, что делать</a>
+                <span class="assist-note">Откроется раздел с типовыми проблемами и быстрыми действиями.</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="wrap hero">
+        <h1>Справка по системе EIP</h1>
+        <p>
+            Страница для быстрого поиска ответов: как работать по ролям, как формировать договор,
+            как отправлять заявку по этапам и что делать при ошибках. Если вы не знаете, с чего начать,
+            используйте карточки ниже.
+        </p>
+        <div class="updated">
+            <span class="chip">Последнее обновление: 16.03.2026</span>
+            <span class="chip">Версия справки: 2.1</span>
+            <span class="chip">Источник: инструкция пользователя</span>
+        </div>
+    </header>
+
+    <section class="wrap controls-panel">
+        <div class="meta">
+            <div id="faqCount">Показано вопросов: 0</div>
+            <div>Роли: Фасилитатор, ШИГ / КУГ, ГТЛ / ГРП, Комитет</div>
+        </div>
+        <div class="toolbar-row" id="roleFilters">
+            <button class="pill active" type="button" data-role-filter="all">Все роли</button>
+            <button class="pill" type="button" data-role-filter="facilitator">Фасилитатор</button>
+            <button class="pill" type="button" data-role-filter="gmc">ШИГ / КУГ</button>
+            <button class="pill" type="button" data-role-filter="piu">ГТЛ / ГРП</button>
+            <button class="pill" type="button" data-role-filter="committee">Комитет</button>
+            <button class="pill" type="button" data-role-filter="monitoring">Мониторинг</button>
+        </div>
+    </section>
+
+    <section class="wrap role-hub" id="roleHub">
+        <div class="role-hub-head">
+            <h3>Выберите свою роль: что делать с заявкой</h3>
+            <small>Нажмите карточку роли и получите пошаговую инструкцию</small>
+        </div>
+        <div class="role-grid">
+            <a class="role-card" data-role-jump="facilitator" href="#facilitator">
+                <b>Фасилитатор</b>
+                <ul>
+                    <li>Создать и заполнить заявку.</li>
+                    <li>Загрузить Word, PDF и 4 фото.</li>
+                    <li>Отправить, доработать, разблокировать.</li>
+                </ul>
+            </a>
+            <a class="role-card" data-role-jump="gmc" href="#gmc">
+                <b>ШИГ / КУГ</b>
+                <ul>
+                    <li>Оценить заявку.</li>
+                    <li>Выбрать решение.</li>
+                    <li>Сформировать и отправить реестр.</li>
+                </ul>
+            </a>
+            <a class="role-card" data-role-jump="piu" href="#piu">
+                <b>ГТЛ / ГРП</b>
+                <ul>
+                    <li>Провести проверку.</li>
+                    <li>Указать решение и комментарий.</li>
+                    <li>Завершить этап.</li>
+                </ul>
+            </a>
+            <a class="role-card" data-role-jump="committee" href="#committee">
+                <b>Комитет</b>
+                <ul>
+                    <li>Открыть входящий реестр.</li>
+                    <li>Принять решения по заявкам.</li>
+                    <li>Утвердить список и выгрузить протокол.</li>
+                </ul>
+            </a>
+            <a class="role-card" data-role-jump="monitoring" href="#monitoring">
+                <b>Мониторинг</b>
+                <ul>
+                    <li>Открыть активный визит.</li>
+                    <li>Заполнить обязательные поля.</li>
+                    <li>Сохранить и перейти к следующему визиту.</li>
+                </ul>
+            </a>
+        </div>
+    </section>
+
+    <section class="wrap quick-start" id="quickStart">
+        <article class="qs-card">
+            <h3>Быстрый старт: Фасилитатор</h3>
+            <ol>
+                <li>Создать заявку и заполнить форму.</li>
+                <li>Приложить Word + PDF + 4 фото.</li>
+                <li>Отправить в ШИГ / КУГ.</li>
+            </ol>
+            <a class="quick-role-link" data-role-jump="facilitator" href="#facilitator">Открыть инструкцию</a>
+        </article>
+        <article class="qs-card">
+            <h3>Быстрый старт: ШИГ / КУГ</h3>
+            <ol>
+                <li>Заполнить 3 + 15 критериев.</li>
+                <li>Принять решение по заявке.</li>
+                <li>При необходимости вернуть на доработку.</li>
+            </ol>
+            <a class="quick-role-link" data-role-jump="gmc" href="#gmc">Открыть инструкцию</a>
+        </article>
+        <article class="qs-card">
+            <h3>Быстрый старт: ГТЛ / ГРП</h3>
+            <ol>
+                <li>Открыть заявку на проверке.</li>
+                <li>Выбрать решение и комментарий.</li>
+                <li>Завершить проверку.</li>
+            </ol>
+            <a class="quick-role-link" data-role-jump="piu" href="#piu">Открыть инструкцию</a>
+        </article>
+        <article class="qs-card">
+            <h3>Быстрый старт: Комитет</h3>
+            <ol>
+                <li>Открыть входящий реестр.</li>
+                <li>Выставить решения по заявкам.</li>
+                <li>Утвердить список и выгрузить протокол.</li>
+            </ol>
+            <a class="quick-role-link" data-role-jump="committee" href="#committee">Открыть инструкцию</a>
+        </article>
+        <article class="qs-card">
+            <h3>Быстрый старт: Мониторинг</h3>
+            <ol>
+                <li>Открыть активный визит.</li>
+                <li>Заполнить обязательные поля.</li>
+                <li>Сохранить визит.</li>
+            </ol>
+            <a class="quick-role-link" data-role-jump="monitoring" href="#monitoring">Открыть инструкцию</a>
+        </article>
+    </section>
+
+    <section class="wrap role-manuals" id="roleManuals">
+        <h3>Расширенные инструкции для пользователей</h3>
+        <p>Для каждой роли ниже даны конкретные шаги работы с заявкой. Нажмите «Открыть инструкцию» в карточке роли
+            выше, чтобы перейти к подробному разделу.</p>
+        <div class="manual-grid">
+            <article class="manual-card">
+                <h4>Фасилитатор: полный цикл</h4>
+                <ol>
+                    <li>Создайте заявку и заполните поля.</li>
+                    <li>Проверьте сектор, сумму, комплект документов.</li>
+                    <li>Отправьте в ШИГ / КУГ.</li>
+                    <li>Если вернули: исправьте и отправьте снова.</li>
+                    <li>После одобрения: договор + мониторинг.</li>
+                </ol>
+            </article>
+            <article class="manual-card">
+                <h4>ШИГ / КУГ: оценка и реестр</h4>
+                <ol>
+                    <li>Откройте заявку на оценке.</li>
+                    <li>Заполните критерии и комментарий.</li>
+                    <li>Примите решение: дальше / на доработку / отказ.</li>
+                    <li>Для реестра: отметьте заявки и отправьте в Комитет.</li>
+                </ol>
+            </article>
+            <article class="manual-card">
+                <h4>ГТЛ / ГРП: проверка</h4>
+                <ol>
+                    <li>Откройте заявку в проверке.</li>
+                    <li>Выберите решение по шагу.</li>
+                    <li>При возврате обязательно укажите причину.</li>
+                    <li>Завершите проверку.</li>
+                </ol>
+            </article>
+            <article class="manual-card">
+                <h4>Комитет: решение по списку</h4>
+                <ol>
+                    <li>Выберите входящий реестр.</li>
+                    <li>Заполните дату протокола.</li>
+                    <li>Укажите решение по каждой заявке.</li>
+                    <li>Для отказа укажите причину.</li>
+                    <li>Утвердите список и выгрузите протокол.</li>
+                </ol>
+            </article>
+            <article class="manual-card">
+                <h4>Мониторинг: визиты</h4>
+                <ol>
+                    <li>Откройте активный визит.</li>
+                    <li>Заполните оборудование, бизнес, доход, эко-проверку.</li>
+                    <li>Сохраните визит.</li>
+                    <li>Проверьте, что следующий визит стал активным.</li>
+                </ol>
+            </article>
+        </div>
+    </section>
+
+    <section class="wrap route-quick" id="statusRoutesQuick">
+        <div class="route-quick-head">
+            <h3>Маршруты статусов за 30 секунд</h3>
+            <small>Просто: что происходит с заявкой дальше</small>
+        </div>
+        <div class="route-track">
+            <div class="route-step">
+                <b>1. Создание</b>
+                <p>Вы создаете заявку и заполняете основные поля.</p>
+            </div>
+            <div class="route-step">
+                <b>2. Проверка документов</b>
+                <p>Система проверяет комплект и обязательные данные.</p>
+            </div>
+            <div class="route-step">
+                <b>3. Проверка специалистами</b>
+                <p>Заявку смотрят по этапам и дают решение.</p>
+            </div>
+            <div class="route-step">
+                <b>4. Решение комиссии</b>
+                <p>Заявка либо одобряется, либо возвращается на доработку.</p>
+            </div>
+            <div class="route-step">
+                <b>5. После одобрения</b>
+                <p>Договор, загрузка подписанного файла и мониторинг.</p>
+            </div>
+        </div>
+        <div class="route-note"><strong>Если есть замечания:</strong> заявка возвращается назад, вы исправляете и
+            отправляете снова.</div>
+    </section>
+
+    <nav class="wrap mobile-toc" aria-label="Быстрые переходы FAQ">
+        <a class="mobile-toc-link" href="#common" data-toc-mobile="common">Общие</a>
+        <a class="mobile-toc-link" href="#errors" data-toc-mobile="errors">Ошибки</a>
+        <a class="mobile-toc-link" href="#facilitator" data-toc-mobile="facilitator">Фасилитатор</a>
+        <a class="mobile-toc-link" href="#gmc" data-toc-mobile="gmc">ШИГ / КУГ</a>
+        <a class="mobile-toc-link" href="#piu" data-toc-mobile="piu">ГТЛ / ГРП</a>
+        <a class="mobile-toc-link" href="#committee" data-toc-mobile="committee">Комитет</a>
+        <a class="mobile-toc-link" href="#monitoring" data-toc-mobile="monitoring">Мониторинг</a>
+    </nav>
+
+    <div class="wrap faq-layout">
+        <main class="faq-main">
+            <section class="section" id="common">
+                <div class="section-head">
+                    <h2>Общие вопросы</h2>
+                    <small>Базовые правила интерфейса</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="common" data-keywords="интерфейс язык журнал история audit">
+                        <summary>На каком языке работает интерфейс? <span class="tag">Общее</span></summary>
+                        <div class="answer">
+                            <p>Интерфейс двуязычный: таджикский + русский. Все ключевые действия и статусы показаны в
+                                обоих
+                                языках.</p>
+                            <div class="callout">Все действия фиксируются в истории заявки автоматически.</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="common" data-keywords="read only approved rejected открыть">
+                        <summary>Почему некоторые заявки открываются только для просмотра? <span
+                                class="tag">Доступ</span>
+                        </summary>
+                        <div class="answer">
+                            <p>Для статусов <strong>Одобрено</strong> и <strong>Отклонено</strong> доступ из любой роли
+                                только в режиме просмотра.</p>
+                            <p>Редактирование доступно только в статусах, закрепленных за вашей ролью.</p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="common"
+                        data-keywords="это не зона работы роли ин мархила кори роли нет доступа">
+                        <summary>Почему вижу сообщение «Это не зона работы роли»? <span class="tag">Доступ</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Открыть заявку через фильтр той роли, которой принадлежит текущий статус.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>В верхних фильтрах переключитесь на нужную роль: Фасилитатор, ШИГ/КУГ, ГРП или
+                                        Комитет.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Откроется рабочая форма вместо режима просмотра или предупреждения.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="common"
+                        data-keywords="статусы по роли draft fac_revision gmc_review piu_review com_review">
+                        <summary>Какие статусы рабочие для каждой роли? <span class="tag">Статусы</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li><strong>Фасилитатор:</strong> draft, incomplete_data, fac_revision, postponed.</li>
+                                <li><strong>ШИГ / КУГ:</strong> gmc_review, gmc_revision, gmc_preparation,
+                                    gmc_ready_for_registry.</li>
+                                <li><strong>ГТЛ / ГРП:</strong> piu_review.</li>
+                                <li><strong>Комитет:</strong> com_review.</li>
+                            </ul>
+                            <div class="callout">Статусы approved/rejected открываются из любой роли как только
+                                просмотр.</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="common" data-keywords="не могу найти заявку поиск фильтр">
+                        <summary>Не могу найти заявку в списке. Что проверить? <span class="tag">Поиск</span></summary>
+                        <div class="answer">
+                            <ul>
+                                <li>Проверьте выбранный главный фильтр роли.</li>
+                                <li>Очистите строку поиска.</li>
+                                <li>Переключите вид Карточки/Список и проверьте снова.</li>
+                                <li>Для одобренных проверьте фильтры сектор/регион/пол.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="facilitator">
+                <div class="section-head">
+                    <h2>Фасилитатор</h2>
+                    <small>Создание, документы, договор, мониторинг</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="новая заявка создать beneficiary certified">
+                        <summary>Как правильно создать новую заявку? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Создать новую заявку и заполнить базовые поля Фасилитатора.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Нажмите <strong>Новая заявка</strong>.</li>
+                                        <li>Найдите бенефициара по ФИО/ИНН/телефону.</li>
+                                        <li>Выберите запись и нажмите <strong>Создать</strong>.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Открыта заявка для заполнения полей и дальнейшей отправки.</p>
+                                </div>
+                            </div>
+                            <div class="callout warn">Если не создается: проверьте статус сертификации и предупреждение
+                                о дубле.
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="отправка шиг word pdf 4 фото комплект">
+                        <summary>Что обязательно перед отправкой в ШИГ / КУГ? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Проверить обязательные условия перед отправкой заявки.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Во вкладке Фасилитатора заполните <strong>Сектор</strong> и
+                                            <strong>Сумма</strong>.
+                                        </li>
+                                        <li>Загрузите Word, PDF и ровно 4 фото.</li>
+                                        <li>Убедитесь, что профиль бенефициара полный и нет блокировки по дублям.</li>
+                                        <li>Проверьте, что обязательные обучающие сессии пройдены.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Кнопка отправки активна, заявку можно отправить в ШИГ / КУГ.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="номер договора система авто Ш-000001">
+                        <summary>Как формируется номер договора? <span class="tag">Договор</span></summary>
+                        <div class="answer">
+                            <p>Номер полностью системный и генерируется автоматически. Пользователь его не вводит.</p>
+                            <p>Шаблон: <strong>Ш-000001-ДДММГГ</strong>, затем <strong>Ш-000002-ДДММГГ</strong> и далее
+                                по
+                                порядку.</p>
+                            <div class="callout good">Серия сквозная и не зависит от ID заявки.</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="договор создать редактировать approved preview print pdf">
+                        <summary>Как сформировать договор в системе? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Создать черновик договора и проверить его перед печатью.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Откройте заявку в статусе <strong>Одобрено</strong>.</li>
+                                        <li>Раскройте блок <strong>Создание договора</strong>.</li>
+                                        <li>Заполните разделы и нажмите <strong>Сохранить черновик</strong>.</li>
+                                        <li>Используйте <strong>Предпросмотр</strong>, затем печать/экспорт PDF.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Сформирован корректный договор, готовый к печати или выгрузке.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="facilitator"
+                        data-keywords="подписанный договор загрузить pdf jpg png 10mb">
+                        <summary>Как загрузить подписанный договор? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Загрузить подписанный договор в одобренную заявку.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>В заявке со статусом <strong>Одобрено</strong> откройте блок
+                                            <strong>Подписанный договор</strong>.
+                                        </li>
+                                        <li>Выберите файл PDF/JPG/JPEG/PNG до 10MB.</li>
+                                        <li>Нажмите <strong>Загрузить</strong>.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Файл сохранен, в карточке отображаются метаданные и доступно скачивание.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="gmc">
+                <div class="section-head">
+                    <h2>ШИГ / КУГ</h2>
+                    <small>Оценка и маршруты возврата</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="gmc"
+                        data-keywords="скоринг 15 критериев решение approve revision reject">
+                        <summary>Как провести первичную оценку? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Провести первичную оценку и выбрать итоговое решение по заявке.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Откройте заявку в разделе ШИГ / КУГ.</li>
+                                        <li>Заполните 3 критерия соответствия и 15 критериев скоринга.</li>
+                                        <li>Добавьте комментарий и выберите решение.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Заявка переходит на следующий этап или возвращается на доработку по выбранному
+                                        решению.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="gmc"
+                        data-keywords="gmc_revision возврат грп комитет word версия">
+                        <summary>Что делать в статусе на доработке? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Обработать возврат и отправить заявку по правильному маршруту.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Откройте заявку в статусе доработки.</li>
+                                        <li>Изучите комментарий возврата.</li>
+                                        <li>Загрузите новую версию документа Word.</li>
+                                        <li>Выберите маршрут: обратно в ГРП или к Фасилитатору.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Заявка возвращается в рабочий поток с сохраненной новой версией документа.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="gmc" data-keywords="реестр gmc_ready_for_registry комитет">
+                        <summary>Как отправить заявки в Комитет? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Сформировать реестр и отправить выбранные заявки в Комитет.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Переведите заявки в статус <strong>готово к реестру</strong>.</li>
+                                        <li>Отметьте нужные заявки чекбоксами.</li>
+                                        <li>Создайте реестр и отправьте его в Комитет.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Заявки переходят на этап рассмотрения Комитетом.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="piu">
+                <div class="section-head">
+                    <h2>ГТЛ / ГРП</h2>
+                    <small>Проверка и завершение этапа</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="piu" data-keywords="piu_review approve resubmit комментарий">
+                        <summary>Как завершить проверку ГРП? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Провести проверку заявки и завершить этап ГРП.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Откройте заявку в статусе <strong>piu_review</strong>.</li>
+                                        <li>Выберите решение по проверке и заполните комментарий.</li>
+                                        <li>Если возвращаете, обязательно укажите причину.</li>
+                                        <li>Нажмите завершение проверки.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>При заполнении шага 1/1 кнопка завершения активируется, заявка переходит в
+                                        следующий статус по решению.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="committee">
+                <div class="section-head">
+                    <h2>Комитет</h2>
+                    <small>Решение по реестру и протокол</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="committee"
+                        data-keywords="комитет реестр протокол дата отклонить причина">
+                        <summary>Как правильно утвердить список? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Рассмотреть входящий реестр и утвердить итоговый список.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Если входящих реестров несколько, сначала выберите нужный в блоке
+                                            Комитета.</li>
+                                        <li>Откройте входящий реестр Комитета.</li>
+                                        <li>Заполните дату протокола.</li>
+                                        <li>Для каждой заявки выберите решение.</li>
+                                        <li>Для отклонения укажите причину.</li>
+                                        <li>Нажмите утверждение списка.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Список утвержден, заявки получают финальные статусы, протокол доступен для
+                                        выгрузки.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="monitoring">
+                <div class="section-head">
+                    <h2>Мониторинг</h2>
+                    <small>Пост-грантовые визиты</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-role="monitoring"
+                        data-keywords="визит monitoring active pending completed">
+                        <summary>Как заполнить активный визит? <span class="tag">Шаг</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Заполнить активный визит мониторинга по одобренной заявке.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <ul>
+                                        <li>Откройте вкладку мониторинга в одобренной заявке.</li>
+                                        <li>Выберите активный визит и нажмите <strong>Оформить</strong>.</li>
+                                        <li>Заполните оборудование, бизнес, доход и эко-проверку.</li>
+                                        <li>Нажмите сохранение визита.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Текущий визит закрыт как выполненный, следующий визит становится активным.</p>
+                                </div>
+                            </div>
+                            <div class="callout warn">Если выбрать «Оборудование продано», система отправляет
+                                уведомление администратору.</div>
+                            <div class="callout">После сохранения текущий визит становится завершенным, следующий -
+                                активным.
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section" id="errors">
+                <div class="section-head">
+                    <h2>Типовые ошибки</h2>
+                    <small>Быстрая диагностика</small>
+                </div>
+                <div class="items">
+                    <details class="faq-item" data-keywords="не отправляется заявка сектор сумма комплект">
+                        <summary>Заявка не отправляется из Фасилитатора. Почему? <span class="tag">Ошибка</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что проверить</span>
+                                    <ul>
+                                        <li>Заполнены сектор и сумма.</li>
+                                        <li>Есть полный пакет Word + PDF + 4 фото.</li>
+                                        <li>Нет неполного профиля и блокировки по дублю.</li>
+                                    </ul>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Откройте вкладку Фасилитатора и проверьте все поля перед кнопкой отправки.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>После исправления кнопка отправки становится активной.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-keywords="отложено разблокировка разблокировать">
+                        <summary>Почему заявка остается в отложенном статусе после 3 месяцев? <span
+                                class="tag">Ошибка</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Выполнить ручную разблокировку заявки Фасилитатором.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Откройте карточку отложенной заявки и нажмите <strong>Разблокировать</strong>.
+                                    </p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Заявка переходит в режим доработки и снова доступна для работы.</p>
+                                </div>
+                            </div>
+                            <div class="callout">Автоматической разблокировки нет: действие выполняется вручную после
+                                даты разблокировки.</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-keywords="снятие блокировки пока недоступно срок до даты postponed">
+                        <summary>Сообщение: «Снятие блокировки пока недоступно. Срок до даты…» <span
+                                class="tag">Сообщение</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Дождаться даты разблокировки и повторить действие.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Проверьте дату в уведомлении, затем вернитесь в отложенную заявку и нажмите
+                                        <strong>Разблокировать</strong> повторно.
+                                    </p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>После наступления срока заявка переводится в fac_revision.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item"
+                        data-keywords="это не зона работы роли танҳо дидан только просмотр чужой статус">
+                        <summary>Сообщение: «Это не зона работы роли» <span class="tag">Сообщение</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Открывать заявку в фильтре роли-владельца ее текущего статуса.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Переключите главный фильтр на нужную роль и откройте заявку снова.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Для рабочего статуса откроется редактирование, для approved/rejected — только
+                                        просмотр.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors"
+                        data-keywords="alert Бахш ва маблағро пур кунед сектор сумма">
+                        <summary>Системное сообщение: "Заполните сектор и сумму" <span class="tag">Сообщение</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Заполнить обязательные поля сектора и суммы.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Во вкладке Фасилитатора заполните поля Сектор и Сумма.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Повторная отправка в ШИГ / КУГ проходит успешно.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors"
+                        data-keywords="alert Маълумоти бенефициар нопурра аст неполные данные">
+                        <summary>Системное сообщение: "Данные бенефициара неполные" <span class="tag">Сообщение</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Заполнить недостающие данные профиля бенефициара.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Откройте профиль бенефициара в базе и добавьте пустые поля.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>После обновления профиля заявку можно сохранить и отправить без ошибки.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors" data-keywords="alert номер договора Ш-******-ДДММГГ">
+                        <summary>Системное сообщение: "Номер договора должен быть в формате Ш-******-ДДММГГ" <span
+                                class="tag">Сообщение</span></summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Не вводите номер вручную, используйте системное значение.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>Откройте блок договора и оставьте поле номера без ручного редактирования.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Номер формируется автоматически в правильном формате.</p>
+                                </div>
+                            </div>
+                            <div class="callout good">Система генерирует сквозную серию: Ш-000001-..., Ш-000002-...,
+                                Ш-000003-...</div>
+                        </div>
+                    </details>
+
+                    <details class="faq-item" data-role="errors"
+                        data-keywords="alert Лутфан ҳамаи майдонҳои ҳатмиро пур кунед мониторинг">
+                        <summary>Системное сообщение: "Заполните все обязательные поля" <span
+                                class="tag">Сообщение</span>
+                        </summary>
+                        <div class="answer">
+                            <div class="howto-grid">
+                                <div class="howto-block">
+                                    <span class="howto-title">Что делать</span>
+                                    <p>Заполнить все 4 обязательных поля мониторинга.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Где нажать</span>
+                                    <p>В форме визита укажите: оборудование, бизнес, доход, эко-проверку.</p>
+                                </div>
+                                <div class="howto-block">
+                                    <span class="howto-title">Результат</span>
+                                    <p>Сохранение визита выполняется без предупреждения.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+        </main>
+
+        <aside class="toc" aria-label="Оглавление FAQ">
+            <div class="toc-head">
+                <h3>Разделы FAQ</h3>
+            </div>
+            <nav class="toc-list">
+                <a class="toc-link" href="#common" data-toc="common">Общие вопросы</a>
+                <a class="toc-link" href="#errors" data-toc="errors">Типовые ошибки</a>
+                <a class="toc-link" href="#facilitator" data-toc="facilitator">Фасилитатор</a>
+                <a class="toc-link" href="#gmc" data-toc="gmc">ШИГ / КУГ</a>
+                <a class="toc-link" href="#piu" data-toc="piu">ГТЛ / ГРП</a>
+                <a class="toc-link" href="#committee" data-toc="committee">Комитет</a>
+                <a class="toc-link" href="#monitoring" data-toc="monitoring">Мониторинг</a>
+            </nav>
+        </aside>
+    </div>
+
+    <footer class="wrap">
+        Справка обновляется вместе с изменениями интерфейса.
+    </footer>
+
+    <script>
+        (function initFaqPage() {
+            var searchInput = document.getElementById("faqSearch");
+            var faqItems = Array.prototype.slice.call(document.querySelectorAll(".faq-item"));
+            var faqCount = document.getElementById("faqCount");
+            var openAllBtn = document.getElementById("openAllBtn");
+            var closeAllBtn = document.getElementById("closeAllBtn");
+            var roleFilterButtons = Array.prototype.slice.call(document.querySelectorAll("#roleFilters [data-role-filter]"));
+            var sectionBlocks = Array.prototype.slice.call(document.querySelectorAll("main .section"));
+            var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc-link"));
+            var mobileTocLinks = Array.prototype.slice.call(document.querySelectorAll(".mobile-toc-link"));
+            var roleJumpLinks = Array.prototype.slice.call(document.querySelectorAll("[data-role-jump]"));
+            var resetFiltersBtn = document.getElementById("resetFiltersBtn");
+            var shareStateBtn = document.getElementById("shareStateBtn");
+            var activeRoleFilter = "all";
+
+            function reorderByBeginnerFlow() {
+                var flow = ["common", "errors", "facilitator", "gmc", "piu", "committee", "monitoring"];
+
+                var main = document.querySelector(".faq-main");
+                if (main) {
+                    flow.forEach(function (id) {
+                        var section = main.querySelector("#" + id);
+                        if (section) main.appendChild(section);
+                    });
+                    sectionBlocks = Array.prototype.slice.call(main.querySelectorAll(".section"));
+                }
+
+                var desktopToc = document.querySelector(".toc .toc-list");
+                if (desktopToc) {
+                    flow.forEach(function (id) {
+                        var link = desktopToc.querySelector('[data-toc="' + id + '"]');
+                        if (link) desktopToc.appendChild(link);
+                    });
+                }
+
+                var mobileToc = document.querySelector(".mobile-toc");
+                if (mobileToc) {
+                    flow.forEach(function (id) {
+                        var mLink = mobileToc.querySelector('[data-toc-mobile="' + id + '"]');
+                        if (mLink) mobileToc.appendChild(mLink);
+                    });
+                }
+            }
+
+            function escapeRegExp(value) {
+                return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            }
+
+            function clearHighlights(root) {
+                (root || document).querySelectorAll("mark.hl").forEach(function (mark) {
+                    var parent = mark.parentNode;
+                    if (!parent) return;
+                    parent.replaceChild(document.createTextNode(mark.textContent), mark);
+                    parent.normalize();
+                });
+            }
+
+            function highlightText(root, query) {
+                var q = String(query || "").trim();
+                if (!q) return;
+                var regex = new RegExp("(" + escapeRegExp(q) + ")", "ig");
+                var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+                var targets = [];
+                while (walker.nextNode()) {
+                    var node = walker.currentNode;
+                    if (!node.nodeValue || !regex.test(node.nodeValue)) continue;
+                    regex.lastIndex = 0;
+                    targets.push(node);
+                }
+
+                targets.forEach(function (textNode) {
+                    var frag = document.createDocumentFragment();
+                    var content = textNode.nodeValue;
+                    var lastIdx = 0;
+                    content.replace(regex, function (match, grp, idx) {
+                        if (idx > lastIdx) frag.appendChild(document.createTextNode(content.slice(lastIdx, idx)));
+                        var m = document.createElement("mark");
+                        m.className = "hl";
+                        m.textContent = match;
+                        frag.appendChild(m);
+                        lastIdx = idx + match.length;
+                        return match;
+                    });
+                    if (lastIdx < content.length) frag.appendChild(document.createTextNode(content.slice(lastIdx)));
+                    textNode.parentNode.replaceChild(frag, textNode);
+                });
+            }
+
+            function applySearchHighlights(q) {
+                clearHighlights(document);
+                if (!q) return;
+                faqItems.forEach(function (item) {
+                    if (item.classList.contains("hidden-by-search") || item.classList.contains("hidden-by-role")) return;
+                    var summary = item.querySelector("summary");
+                    var answer = item.querySelector(".answer");
+                    if (summary) highlightText(summary, q);
+                    if (answer) highlightText(answer, q);
+                });
+            }
+
+            function updateUrlState() {
+                var params = new URLSearchParams(window.location.search);
+                var q = String(searchInput.value || "").trim();
+                if (q) params.set("q", q);
+                else params.delete("q");
+
+                if (activeRoleFilter && activeRoleFilter !== "all") params.set("role", activeRoleFilter);
+                else params.delete("role");
+
+                var hash = window.location.hash || "";
+                var next = window.location.pathname + (params.toString() ? ("?" + params.toString()) : "") + hash;
+                window.history.replaceState({}, "", next);
+            }
+
+            function applyStateFromUrl() {
+                var params = new URLSearchParams(window.location.search);
+                var role = String(params.get("role") || "all").toLowerCase();
+                var q = String(params.get("q") || "");
+
+                if (q) searchInput.value = q;
+                if (role) {
+                    activeRoleFilter = role;
+                    roleFilterButtons.forEach(function (b) {
+                        b.classList.toggle("active", String(b.getAttribute("data-role-filter") || "all").toLowerCase() === role);
+                    });
+                }
+            }
+
+            function ensureQuestionIdsAndTools() {
+                faqItems.forEach(function (item, idx) {
+                    if (!item.id) item.id = "faq-q-" + (idx + 1);
+                    var summary = item.querySelector("summary");
+                    if (!summary || summary.querySelector(".summary-tools")) return;
+                    var tools = document.createElement("span");
+                    tools.className = "summary-tools";
+                    var linkBtn = document.createElement("button");
+                    linkBtn.type = "button";
+                    linkBtn.className = "mini-link";
+                    linkBtn.textContent = "ссылка";
+                    linkBtn.title = "Скопировать ссылку на этот вопрос";
+                    linkBtn.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var params = new URLSearchParams(window.location.search);
+                        var role = activeRoleFilter;
+                        var q = String(searchInput.value || "").trim();
+                        if (role && role !== "all") params.set("role", role); else params.delete("role");
+                        if (q) params.set("q", q); else params.delete("q");
+                        var shareUrl = window.location.origin + window.location.pathname + (params.toString() ? ("?" + params.toString()) : "") + "#" + item.id;
+                        navigator.clipboard.writeText(shareUrl).then(function () {
+                            linkBtn.textContent = "скопировано";
+                            setTimeout(function () { linkBtn.textContent = "ссылка"; }, 900);
+                        });
+                    });
+                    tools.appendChild(linkBtn);
+                    summary.appendChild(tools);
+                });
+            }
+
+            function attachFeedback() {
+                faqItems.forEach(function (item) {
+                    var answer = item.querySelector(".answer");
+                    if (!answer || answer.querySelector(".feedback")) return;
+                    var box = document.createElement("div");
+                    box.className = "feedback";
+                    box.innerHTML = '<span>Этот ответ помог?</span><button type="button" class="fb-btn" data-v="yes">Да</button><button type="button" class="fb-btn" data-v="no">Нет</button><span class="feedback-note" hidden>Спасибо, отметка сохранена.</span>';
+                    box.addEventListener("click", function (e) {
+                        var btn = e.target.closest(".fb-btn");
+                        if (!btn) return;
+                        var vote = btn.getAttribute("data-v");
+                        var key = "faq-feedback-" + item.id;
+                        try { localStorage.setItem(key, vote); } catch (err) { }
+                        var note = box.querySelector(".feedback-note");
+                        if (note) {
+                            note.hidden = false;
+                            setTimeout(function () { note.hidden = true; }, 1400);
+                        }
+                    });
+                    answer.appendChild(box);
+                });
+            }
+
+            function openHashQuestionIfAny() {
+                var hash = String(window.location.hash || "").replace(/^#/, "");
+                if (!hash) return;
+                var target = document.getElementById(hash);
+                if (!target || !target.classList.contains("faq-item")) return;
+                target.setAttribute("open", "open");
+                setTimeout(function () {
+                    target.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 80);
+            }
+
+            function normalize(text) {
+                return String(text || "").toLowerCase().trim();
+            }
+
+            function updateCounter() {
+                var visible = faqItems.filter(function (item) {
+                    return !item.classList.contains("hidden-by-search") && !item.classList.contains("hidden-by-role");
+                }).length;
+                faqCount.textContent = "Показано вопросов: " + visible;
+            }
+
+            function updateSectionVisibility() {
+                sectionBlocks.forEach(function (section) {
+                    var visibleInSection = Array.prototype.slice.call(section.querySelectorAll(".faq-item")).some(function (item) {
+                        return !item.classList.contains("hidden-by-search") && !item.classList.contains("hidden-by-role");
+                    });
+                    section.classList.toggle("hidden-section", !visibleInSection);
+                });
+            }
+
+            function setActiveTocBySection(sectionId) {
+                if (!sectionId) return;
+                tocLinks.forEach(function (link) {
+                    link.classList.toggle("active", String(link.getAttribute("data-toc") || "") === sectionId);
+                });
+                mobileTocLinks.forEach(function (link) {
+                    link.classList.toggle("active", String(link.getAttribute("data-toc-mobile") || "") === sectionId);
+                });
+            }
+
+            function getFirstVisibleSectionId() {
+                var visibleSection = sectionBlocks.find(function (section) {
+                    return !section.classList.contains("hidden-section");
+                });
+                return visibleSection ? visibleSection.id : "";
+            }
+
+            function observeSectionsForToc() {
+                if (!("IntersectionObserver" in window)) {
+                    setActiveTocBySection(getFirstVisibleSectionId());
+                    return;
+                }
+
+                var io = new IntersectionObserver(function (entries) {
+                    var best = null;
+                    entries.forEach(function (entry) {
+                        if (!entry.isIntersecting) return;
+                        if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+                    });
+                    if (best && best.target && best.target.id) setActiveTocBySection(best.target.id);
+                }, {
+                    rootMargin: "-35% 0px -55% 0px",
+                    threshold: [0.05, 0.2, 0.4, 0.7]
+                });
+
+                sectionBlocks.forEach(function (section) { io.observe(section); });
+            }
+
+            function applyRoleFilter() {
+                faqItems.forEach(function (item) {
+                    var role = String(item.getAttribute("data-role") || "").toLowerCase();
+                    var isCommon = role === "common";
+                    var showByRole = activeRoleFilter === "all" || isCommon || role === activeRoleFilter || (activeRoleFilter === "monitoring" && role === "errors");
+                    item.classList.toggle("hidden-by-role", !showByRole);
+                    if (!showByRole) item.removeAttribute("open");
+                });
+            }
+
+            function setRoleFilter(nextRole) {
+                activeRoleFilter = String(nextRole || "all").toLowerCase();
+                roleFilterButtons.forEach(function (b) {
+                    var role = String(b.getAttribute("data-role-filter") || "all").toLowerCase();
+                    b.classList.toggle("active", role === activeRoleFilter);
+                });
+                runSearch();
+            }
+
+            function handleRoleJump(link) {
+                if (!link) return;
+                var targetRole = String(link.getAttribute("data-role-jump") || "all").toLowerCase();
+                var href = String(link.getAttribute("href") || "");
+                if (!href || href.charAt(0) !== "#") {
+                    setRoleFilter(targetRole || "all");
+                    return;
+                }
+                var targetId = href.slice(1);
+                setRoleFilter(targetRole || "all");
+                var target = document.getElementById(targetId);
+                if (!target) return;
+                setTimeout(function () {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    if (target.classList.contains("section")) setActiveTocBySection(target.id);
+                }, 80);
+            }
+
+            function runSearch() {
+                var q = normalize(searchInput.value);
+                applyRoleFilter();
+                faqItems.forEach(function (item) {
+                    var text = normalize(item.textContent);
+                    var keywords = normalize(item.getAttribute("data-keywords"));
+                    var hit = !q || text.indexOf(q) >= 0 || keywords.indexOf(q) >= 0;
+                    item.classList.toggle("hidden-by-search", !hit);
+                    if (!hit) item.removeAttribute("open");
+                });
+                updateCounter();
+                updateSectionVisibility();
+                applySearchHighlights(q);
+                updateUrlState();
+
+                var firstVisible = getFirstVisibleSectionId();
+                if (firstVisible) setActiveTocBySection(firstVisible);
+            }
+
+            openAllBtn.addEventListener("click", function () {
+                faqItems.forEach(function (item) {
+                    if (!item.classList.contains("hidden-by-search")) item.setAttribute("open", "open");
+                });
+            });
+
+            closeAllBtn.addEventListener("click", function () {
+                faqItems.forEach(function (item) { item.removeAttribute("open"); });
+            });
+
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener("click", function () {
+                    activeRoleFilter = "all";
+                    searchInput.value = "";
+                    roleFilterButtons.forEach(function (b) {
+                        b.classList.toggle("active", String(b.getAttribute("data-role-filter") || "").toLowerCase() === "all");
+                    });
+                    runSearch();
+                });
+            }
+
+            if (shareStateBtn) {
+                shareStateBtn.addEventListener("click", function () {
+                    updateUrlState();
+                    var shareUrl = window.location.href;
+                    navigator.clipboard.writeText(shareUrl).then(function () {
+                        shareStateBtn.textContent = "Ссылка скопирована";
+                        setTimeout(function () { shareStateBtn.textContent = "Поделиться"; }, 1200);
+                    });
+                });
+            }
+
+            tocLinks.forEach(function (link) {
+                link.addEventListener("click", function () {
+                    var targetId = String(link.getAttribute("data-toc") || "");
+                    setRoleFilter("all");
+                    setActiveTocBySection(targetId);
+                });
+            });
+
+            mobileTocLinks.forEach(function (link) {
+                link.addEventListener("click", function () {
+                    var targetId = String(link.getAttribute("data-toc-mobile") || "");
+                    setRoleFilter("all");
+                    setActiveTocBySection(targetId);
+                });
+            });
+
+            roleFilterButtons.forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var role = String(btn.getAttribute("data-role-filter") || "all").toLowerCase();
+                    setRoleFilter(role);
+                });
+            });
+
+            roleJumpLinks.forEach(function (link) {
+                link.addEventListener("click", function (e) {
+                    if (String(link.getAttribute("href") || "").charAt(0) === "#") e.preventDefault();
+                    handleRoleJump(link);
+                });
+            });
+
+            ensureQuestionIdsAndTools();
+            attachFeedback();
+            reorderByBeginnerFlow();
+            applyStateFromUrl();
+            searchInput.addEventListener("input", runSearch);
+            faqItems.forEach(function (item) {
+                item.addEventListener("toggle", function () {
+                    if (!item.open) return;
+                    window.history.replaceState({}, "", window.location.pathname + window.location.search + "#" + item.id);
+                });
+            });
+            runSearch();
+            observeSectionsForToc();
+            openHashQuestionIfAny();
+        })();
+    </script>
+</body>
+
+</html>
