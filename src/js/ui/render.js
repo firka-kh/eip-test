@@ -130,7 +130,7 @@
                 timelineContainer.innerHTML = '<p class="text-[13px] text-gray-400 py-4 font-medium">Таърих холӣ аст / История пуста</p>';
                 return;
             }
-            let html = '<div class="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="text-[11px] text-slate-700 font-medium">Доработки Фасилитатора: <b>' + revisionsCount + '/3</b> • Возвраты Комитета: <b>' + committeeReturnsCount + '</b> • Повторные отправки в ГТЛ/ГРП: <b>' + resubmitsToPiuCount + '</b></div></div>';
+            let html = '<div class="mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl"><div class="text-[11px] text-slate-700 font-medium">Доработки Фасилитатора: <b>' + revisionsCount + '/3</b> • Возвраты Комитета: <b>' + committeeReturnsCount + '</b> • Повторные циклы доработки: <b>' + resubmitsToPiuCount + '</b></div></div>';
             app.auditLog.forEach(function (log, index) {
                 const isLast = index === app.auditLog.length - 1;
                 const esc = window.sanitizeText || function (v) { return String(v == null ? '' : v); };
@@ -1065,22 +1065,24 @@
 
     window.activeMainFilter = window.activeMainFilter || 'facilitator';
     window.activeComFilter = window.activeComFilter || 'protocols';
-    window.activeFacFilter = window.activeFacFilter || 'all_fac';
+    window.activeFacFilter = window.activeFacFilter || 'draft';
+    if (window.activeFacFilter === 'all_fac') window.activeFacFilter = 'draft';
+    if (window.activeFacFilter === 'sent') window.activeFacFilter = 'draft';
     window.activeStatFilter = window.activeStatFilter || 'all_stat';
-    window.activeGmcFilter = window.activeGmcFilter || 'all_gmc';
+    window.activeGmcFilter = window.activeGmcFilter || 'new';
+    if (window.activeGmcFilter === 'all_gmc') window.activeGmcFilter = 'new';
+    window.facilitatorCompletedViewMode = window.facilitatorCompletedViewMode || 'both';
+    window.approvedRegistrySourceRole = window.approvedRegistrySourceRole || null;
+    window.nextApprovedRegistrySourceRole = window.nextApprovedRegistrySourceRole || null;
 
     const roleRules = {
         facilitator: {
             label: 'Фасилитатор',
-            ownedStatuses: ['draft', 'fac_revision', 'postponed', 'incomplete_data']
+            ownedStatuses: ['draft', 'fac_revision', 'postponed', 'incomplete_data', 'approved']
         },
         gmc: {
             label: 'ШИГ / КУГ',
-            ownedStatuses: ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry']
-        },
-        piu: {
-            label: 'ГТЛ / ГРП',
-            ownedStatuses: ['piu_review']
+            ownedStatuses: ['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry']
         },
         committee: {
             label: 'Кумита / Комитет',
@@ -1096,8 +1098,8 @@
         const roleByMainFilter = {
             facilitator: 'facilitator',
             gmc: 'gmc',
-            piu: 'piu',
-            committee: 'committee'
+            committee: 'committee',
+            approved_registry: window.approvedRegistrySourceRole || null
         };
         return roleByMainFilter[window.activeMainFilter] || null;
     }
@@ -1109,7 +1111,7 @@
     }
 
     function isReadOnlyOpenAllowed(status) {
-        return ['approved', 'rejected'].includes(status);
+        return ['approved', 'rejected', 'postponed'].includes(status);
     }
 
     function canOpenInCurrentContext(appOrId) {
@@ -1200,7 +1202,7 @@
     }
 
     function setAvailableTabs(tabsToShow) {
-        const allTabs = ['pane-facilitator', 'pane-gmc', 'pane-piu', 'pane-committee', 'pane-gmc-registry-preview', 'pane-committee-batch', 'pane-approved', 'pane-monitoring'];
+        const allTabs = ['pane-facilitator', 'pane-gmc', 'pane-committee', 'pane-gmc-registry-preview', 'pane-committee-batch', 'pane-approved', 'pane-monitoring'];
         allTabs.forEach(function (target) {
             const btn = document.querySelector('.tab-btn[data-target="' + target + '"]');
             if (btn) {
@@ -1237,11 +1239,21 @@
         renderAllCards();
     }
 
+    function isApprovedRegistryApplicantView() {
+        return window.activeMainFilter === 'approved_registry'
+            && ['facilitator', 'gmc'].includes(window.approvedRegistrySourceRole);
+    }
+
     function renderAllCards() {
         document.getElementById('mainDashboardGrid').innerHTML = '';
         document.getElementById('list-tbody').innerHTML = '';
+        const isFacilitatorCompletedMode = window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'completed';
+        const isGmcApprovedCommitteeMode = window.activeMainFilter === 'gmc' && window.activeGmcFilter === 'approved_committee';
 
-        if (window.activeMainFilter === 'approved_registry') {
+        if (isFacilitatorCompletedMode || isGmcApprovedCommitteeMode) {
+            (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+            window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
+        } else if (window.activeMainFilter === 'approved_registry') {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
             window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'finance_registry') {
@@ -1437,6 +1449,9 @@
         const protocolBadge = app.protocolId
             ? '<span class="bg-teal-100 text-teal-800 border border-teal-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="layers" class="w-3 h-3 inline mr-0.5"></i>' + app.protocolId + '</span>'
             : '';
+        const protocolOpenAction = app.protocolId
+            ? '<button onclick="event.stopPropagation(); openCommitteeBatch(\'' + app.protocolId + '\')" class="bg-white text-teal-700 border border-teal-300 text-[11px] font-bold px-2.5 py-1 rounded-lg hover:bg-teal-50 transition-colors">Рӯйхат <span class="ru font-normal">/ Список</span></button>'
+            : '';
         const docs = (typeof window.ensureDocumentBundle === 'function') ? window.ensureDocumentBundle(app) : null;
         const currentWordVersion = docs && docs.currentWordVersion ? docs.currentWordVersion : 0;
         const wordVersionBadge = '<span class="bg-indigo-100 text-indigo-800 border border-indigo-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap" title="Current Word Version: V' + currentWordVersion + '"><i data-lucide="file-text" class="w-3 h-3 inline mr-0.5"></i>Word V' + currentWordVersion + '</span>';
@@ -1465,7 +1480,7 @@
         card.className = isFullyCompleted
             ? 'bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-5 shadow-md shadow-emerald-100/70 transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-500'
             : 'bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-400';
-        card.innerHTML = '<div class="flex justify-between items-start mb-1 gap-3"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700') + ' px-2 py-1 rounded-md text-[10px] font-bold">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-2 text-[11px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '<div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span></div>';
+        card.innerHTML = '<div class="flex justify-between items-start mb-1 gap-3"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700') + ' px-2 py-1 rounded-md text-[10px] font-bold">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-2 text-[11px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '<div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><div class="flex items-center gap-2">' + protocolOpenAction + '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="event.stopPropagation(); openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span></div></div>';
         card.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1481,7 +1496,7 @@
         row.setAttribute('data-gender-values', genderValue);
         row.setAttribute('data-search', searchHaystack);
         row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in ' + (isFullyCompleted ? 'bg-emerald-50/70' : 'bg-emerald-50/40');
-        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1">' + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></td>';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1">' + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + '<button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></div></td>';
         row.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1490,6 +1505,15 @@
     }
 
     function appendCardAndRow(id, status, app) {
+        // Backward compatibility: old data with PIU stage is mapped to GMC preparation.
+        if (status === 'piu_review') {
+            status = 'gmc_preparation';
+        }
+        // Legacy GMC revision path is removed; route old records to facilitator revision.
+        if (status === 'gmc_revision') {
+            status = 'fac_revision';
+        }
+
         let bHtml = '';
         let aHtml = '';
         let bClass = '';
@@ -1537,7 +1561,7 @@
         let checkboxHtmlCard = '';
         let checkboxHtmlRow = '';
 
-        if (['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry'].includes(status)) {
+        if (['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry'].includes(status)) {
             if (status === 'gmc_ready_for_registry') {
                 bClass = 'bg-indigo-50 border-indigo-300';
                 bHtml = '<div class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="list-checks" class="w-3 h-3 inline"></i> Дар реестр / В реестре</div>';
@@ -1551,24 +1575,12 @@
                 bHtml = '<div class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="clipboard-check" class="w-3 h-3 inline"></i> Барои омодасозӣ <span class="ru font-normal">/ На подготовке</span></div>';
                 badgeHtmlList = bHtml;
                 aHtml = '<button onclick="openGmcFor(\'' + id + '\')" class="bg-white text-[#5B4AF0] border border-[#C6D4FF] text-[12px] font-bold px-3 py-1.5 rounded-lg">Омода кардан <span class="ru font-normal">/ Подготовить</span></button>';
-            } else if (status === 'gmc_revision') {
-                bClass = 'bg-amber-50 border-amber-300';
-                bHtml = committeeMeta
-                    ? '<div class="bg-rose-100 text-rose-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="undo-2" class="w-3 h-3 inline"></i> Аз Кумита баргашт <span class="ru font-normal">/ Возврат из Комитета</span></div>'
-                    : '<div class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Аз ГТЛ баргашт <span class="ru font-normal">/ Возврат из ГРП</span></div>';
-                badgeHtmlList = bHtml;
-                aHtml = '<button onclick="openGmcFor(\'' + id + '\')" class="bg-white text-amber-700 border border-amber-300 text-[12px] font-bold px-3 py-1.5 rounded-lg">Баррасӣ <span class="ru font-normal">/ Проверить</span></button>';
             } else {
                 bClass = 'bg-[#F4F7FF] border-[#C6D4FF]';
                 bHtml = '<div class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-[10px] font-bold">Ба ШИГ пешниҳод шуд <span class="ru font-normal">/ В КУГ</span></div>';
                 badgeHtmlList = bHtml;
                 aHtml = '<button onclick="openGmcFor(\'' + id + '\')" class="bg-white text-[#5B4AF0] border border-[#C6D4FF] text-[12px] font-bold px-3 py-1.5 rounded-lg">Баҳогузорӣ <span class="ru font-normal">/ Оценить</span></button>';
             }
-        } else if (status === 'piu_review') {
-            bClass = 'bg-indigo-50 border-indigo-200';
-            bHtml = '<div class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md text-[10px] font-bold">Барои баррасӣ ба ГТЛ <span class="ru font-normal">/ В ГРП</span></div>';
-            badgeHtmlList = bHtml;
-            aHtml = '<span class="text-indigo-600 text-[12px] font-bold cursor-pointer" onclick="openPiuFor(\'' + id + '\')">Санҷиши ГТЛ <span class="ru font-normal">/ Проверка ГРП</span></span>';
         } else if (status === 'com_review') {
             bClass = 'bg-teal-50 border-teal-200';
             bHtml = '<div class="bg-teal-100 text-teal-700 px-2 py-1 rounded-md text-[10px] font-bold">Қарори Кумита <span class="ru font-normal">/ Решение Комитета</span></div>';
@@ -1594,10 +1606,16 @@
         } else if (status === 'postponed') {
             const untilText = getPostponedUntilText(app);
             const isReadyForUnlock = isPostponedUnlockReadyApp(app);
+            const sourceBadge = app.lastReturnSource === 'committee'
+                ? '<div class="mt-1 bg-rose-100 text-rose-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="corner-down-left" class="w-3 h-3 inline"></i> Аз Кумита баргашт <span class="ru font-normal">/ Вернул Комитет</span></div>'
+                : (app.lastReturnSource === 'gmc'
+                    ? '<div class="mt-1 bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="corner-down-left" class="w-3 h-3 inline"></i> Аз ШИГ / КУГ баргашт <span class="ru font-normal">/ Вернул КУГ</span></div>'
+                    : '');
             bClass = isReadyForUnlock ? 'bg-emerald-50 border-emerald-300' : 'bg-slate-100 border-slate-300 opacity-80';
             bHtml = isReadyForUnlock
                 ? '<div class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="bell-ring" class="w-3 h-3 inline"></i> Омода барои кушодан / Готова к разблокировке</div>'
                 : '<div class="bg-slate-200 text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold"><i data-lucide="clock" class="w-3 h-3 inline"></i> Мавқуф то ' + untilText + ' <span class="ru font-normal">/ Отложено до ' + untilText + '</span></div>';
+            bHtml += sourceBadge;
             badgeHtmlList = bHtml;
             if (getActiveRoleContext() === 'facilitator' && isReadyForUnlock) {
                 aHtml = '<button onclick="unlockPostponedApp(\'' + id + '\')" class="bg-white text-emerald-700 border border-emerald-300 text-[12px] font-bold px-3 py-1.5 rounded-lg">Кушодан <span class="ru font-normal">/ Разблокировать</span></button>';
@@ -1671,16 +1689,15 @@
         const postponedReady = postponed.filter(function (app) { return isPostponedUnlockReadyApp(app); });
         const unlockNotifications = getUnlockNotifications();
         const gmcNew = window.filterApps(['gmc_review']);
-        const gmcReturned = window.filterApps(['gmc_revision']);
+        const gmcPostponedView = window.filterApps(['postponed']);
         const gmcPrep = window.filterApps(['gmc_preparation']);
         const gmcReg = window.filterApps(['gmc_ready_for_registry']);
-        const pius = window.filterApps(['piu_review']);
         const coms = window.filterApps(['com_review']);
         const approved = window.filterApps(['approved']);
         const fullyCompleted = getFullyCompletedApps();
         const approvedActive = approved.filter(function (app) { return !isFullyCompletedApp(app); });
         const rejected = window.filterApps(['rejected']);
-        const inReview = window.filterApps(['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review']);
+        const inReview = window.filterApps(['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry', 'com_review']);
         const totalApps = (window.state && Array.isArray(window.state.applications)) ? window.state.applications.length : 0;
         const setB = function (id, count) {
             const el = document.getElementById(id);
@@ -1698,19 +1715,17 @@
         setB('sub-draft-badge', drafts.length);
         setB('sub-incomplete-badge', incomplete.length);
         setB('sub-rev-badge', facRevs.length);
-        setB('sub-fac-sent-badge', inReview.length);
-        setB('sub-fac-completed-badge', fullyCompleted.length);
+        setB('sub-fac-completed-badge', approved.length);
         setB('sub-pos-badge', postponed.length);
         setB('sub-pos-ready-badge', postponedReady.length);
-        setB('dash-gmc-badge', window.filterApps(['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry']).length);
-        setB('dash-piu-badge', pius.length);
+        setB('dash-gmc-badge', window.filterApps(['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry']).length);
         setB('dash-com-badge', coms.length);
 
-        setB('sub-gmc-all-badge', gmcNew.length + gmcReturned.length + gmcPrep.length + gmcReg.length);
         setB('sub-gmc-new-badge', gmcNew.length);
-        setB('sub-gmc-returned-badge', gmcReturned.length);
+        setB('sub-gmc-returned-badge', gmcPostponedView.length);
         setB('sub-gmc-prep-badge', gmcPrep.length);
         setB('sub-gmc-reg-badge', gmcReg.length);
+        setB('sub-gmc-approved-badge', approved.length);
 
         setB('sub-stat-all-badge', totalApps);
         setB('sub-stat-draft-badge', drafts.length);
@@ -1724,8 +1739,8 @@
         const unlockNotice = document.getElementById('facilitator-unlock-notice');
         const unlockNoticeCount = document.getElementById('facilitator-unlock-ready-count');
         const unlockNoticeCountRu = document.getElementById('facilitator-unlock-ready-count-ru');
-        if (unlockNotice && unlockNoticeCount) {
-            unlockNoticeCount.textContent = String(postponedReady.length);
+        if (unlockNotice) {
+            if (unlockNoticeCount) unlockNoticeCount.textContent = String(postponedReady.length);
             if (unlockNoticeCountRu) unlockNoticeCountRu.textContent = String(postponedReady.length);
             if (postponedReady.length > 0 && window.activeMainFilter === 'facilitator') unlockNotice.classList.remove('hidden');
             else unlockNotice.classList.add('hidden');
@@ -1910,20 +1925,17 @@
         const mainLabels = {
             facilitator: 'Фасилитатор',
             gmc: 'ШИГ / КУГ',
-            piu: 'ГТЛ / ГРП',
             committee: 'Кумита / Комитет',
-            approved_registry: 'Тасдиқшуда / Одобренные',
+            approved_registry: 'Аз Кумита тасдиқшуда / Одобрено Комитетом',
             finance_registry: 'Молия / Финансы',
             statuses: 'Аз рӯи статус / По статусам'
         };
 
         const facLabels = {
-            all_fac: 'Ҳама / Все',
             draft: 'Сиёҳнавис / Черновики',
             incomplete_data: 'Нопурра / Неполные данные',
             fac_revision: 'Дар ҳоли такмил / На доработке',
-            sent: 'Дар баррасӣ / На рассмотрении',
-            completed: 'Пурра анҷом ёфт / Полностью завершенные',
+            completed: 'Аз Кумита тасдиқшуда / Одобрено Комитетом',
             postponed: 'Мавқуф / Отложенные'
         };
 
@@ -1939,26 +1951,30 @@
         };
 
         const gmcLabels = {
-            all_gmc: 'Ҳама / Все',
             new: 'Аз Фасилитатор / От Фасилитатора',
-            returned: 'Бозрасии такрорӣ / Повторное рассмотрение',
+            returned: 'Мавқуф / Отложенные',
             preparation: 'Барои омодасозӣ / На подготовку',
-            ready_registry: 'Омода барои реестр / Готовы для реестра'
+            ready_registry: 'Омода барои реестр / Готовы для реестра',
+            approved_committee: 'Аз Кумита тасдиқшуда / Одобрено Комитетом'
         };
 
         const mainFilter = window.activeMainFilter || 'statuses';
         let subLabel = '';
-        if (mainFilter === 'facilitator') subLabel = facLabels[window.activeFacFilter] || facLabels.all_fac;
+        if (mainFilter === 'facilitator') subLabel = facLabels[window.activeFacFilter] || facLabels.draft;
         if (mainFilter === 'statuses') subLabel = statLabels[window.activeStatFilter] || statLabels.all_stat;
-        if (mainFilter === 'gmc') subLabel = gmcLabels[window.activeGmcFilter] || gmcLabels.all_gmc;
+        if (mainFilter === 'gmc') subLabel = gmcLabels[window.activeGmcFilter] || gmcLabels.new;
         if (mainFilter === 'committee') subLabel = 'Рӯйхат / Список';
         if (mainFilter === 'finance_registry') subLabel = 'Пурра анҷом ёфт / Полностью завершенные';
 
         const mainLabel = mainLabels[mainFilter] || mainLabels.statuses;
         titleEl.textContent = 'Режим / Режим: ' + mainLabel + (subLabel ? ' • ' + subLabel : '');
-        descEl.textContent = mainFilter === 'finance_registry'
-            ? 'Режим бухгалтерии: список идентичен одобренным Комитетом, но включает только заявки с прикрепленным подписанным договором.'
-            : 'Дархостҳо мувофиқи филтри интихобшуда намоиш дода мешаванд / Показываются заявки согласно выбранному фильтру.';
+        if (mainFilter === 'finance_registry') {
+            descEl.textContent = 'Режим бухгалтерии: список идентичен одобренным Комитетом, но включает только заявки с прикрепленным подписанным договором.';
+        } else if (mainFilter === 'gmc' && window.activeGmcFilter === 'returned') {
+            descEl.textContent = 'Здесь ШИГ/КУГ видит отложенные заявки так же, как Фасилитатор, но только для просмотра. Действия по разблокировке и дальнейшему маршруту выполняет только Фасилитатор.';
+        } else {
+            descEl.textContent = 'Дархостҳо мувофиқи филтри интихобшуда намоиш дода мешаванд / Показываются заявки согласно выбранному фильтру.';
+        }
 
         updateCompletedSummaryBar();
     }
@@ -1994,7 +2010,12 @@
             return;
         }
 
-        if (window.activeMainFilter === 'approved_registry' || window.activeMainFilter === 'finance_registry') {
+        if (
+            window.activeMainFilter === 'approved_registry'
+            || window.activeMainFilter === 'finance_registry'
+            || (window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'completed')
+            || (window.activeMainFilter === 'gmc' && window.activeGmcFilter === 'approved_committee')
+        ) {
             const searchInput = document.getElementById('filter-search-issued');
             const searchFilter = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const sectorFilter = (document.getElementById('filter-sector') || {}).value || '';
@@ -2004,6 +2025,9 @@
             const listEls = document.querySelectorAll('#mainDashboardGrid > div[data-status="approved_list"], #list-tbody > tr[data-status="approved_list"]');
             const itemEls = document.querySelectorAll('#mainDashboardGrid > div[data-status="approved_item"], #list-tbody > tr[data-status="approved_item"]');
             const isFinanceMode = window.activeMainFilter === 'finance_registry';
+            const isFacilitatorCompletedMode = window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'completed';
+            const isGmcApprovedCommitteeMode = window.activeMainFilter === 'gmc' && window.activeGmcFilter === 'approved_committee';
+            const facCompletedViewMode = window.facilitatorCompletedViewMode || 'both';
 
             const passesCommonFilters = function (el) {
                 const sectors = String(el.getAttribute('data-sector-values') || '');
@@ -2024,11 +2048,29 @@
                 if (passesCommonFilters(el)) applicantMatches++;
             });
 
-            const showApplicantCards = isFinanceMode ? true : (!!searchFilter && applicantMatches > 0);
+            let showApplicantCards;
+            let showApprovalLists;
+
+            if (isFinanceMode) {
+                showApplicantCards = true;
+                showApprovalLists = false;
+            } else if (isFacilitatorCompletedMode) {
+                showApplicantCards = facCompletedViewMode !== 'lists';
+                showApprovalLists = facCompletedViewMode !== 'apps';
+            } else if (isGmcApprovedCommitteeMode) {
+                showApplicantCards = true;
+                showApprovalLists = true;
+            } else if (isApprovedRegistryApplicantView()) {
+                showApplicantCards = true;
+                showApprovalLists = true;
+            } else {
+                showApplicantCards = !!searchFilter && applicantMatches > 0;
+                showApprovalLists = !showApplicantCards;
+            }
             let visibleCount = 0;
 
             listEls.forEach(function (el) {
-                const show = !isFinanceMode && !showApplicantCards && passesCommonFilters(el);
+                const show = showApprovalLists && passesCommonFilters(el);
                 if (show) {
                     if (el.tagName === 'TR') el.style.display = 'table-row';
                     else el.style.display = 'flex';
@@ -2077,32 +2119,28 @@
             let show = false;
 
             if (window.activeMainFilter === 'facilitator') {
-                if (window.activeFacFilter === 'all_fac') show = true;
-                else if (window.activeFacFilter === 'draft' && status === 'draft') show = true;
+                if (window.activeFacFilter === 'draft' && status === 'draft') show = true;
                 else if (window.activeFacFilter === 'incomplete_data' && status === 'incomplete_data') show = true;
                 else if (window.activeFacFilter === 'fac_revision' && status === 'fac_revision') show = true;
                 else if (window.activeFacFilter === 'postponed' && status === 'postponed') show = true;
-                else if (window.activeFacFilter === 'sent' && ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review'].includes(status)) show = true;
-                else if (window.activeFacFilter === 'completed' && isFullyCompletedApp(appObj)) show = true;
+                else if (window.activeFacFilter === 'completed' && status === 'approved') show = true;
             } else if (window.activeMainFilter === 'statuses') {
                 if (window.activeStatFilter === 'all_stat') show = true;
                 else if (window.activeStatFilter === 'draft' && status === 'draft') show = true;
                 else if (window.activeStatFilter === 'revision' && status === 'fac_revision') show = true;
-                else if (window.activeStatFilter === 'review' && ['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry', 'piu_review', 'com_review'].includes(status)) show = true;
+                else if (window.activeStatFilter === 'review' && ['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry', 'com_review'].includes(status)) show = true;
                 else if (window.activeStatFilter === 'approved' && status === 'approved' && !isFullyCompletedApp(appObj)) show = true;
                 else if (window.activeStatFilter === 'completed' && isFullyCompletedApp(appObj)) show = true;
                 else if (window.activeStatFilter === 'rejected' && status === 'rejected') show = true;
                 else if (window.activeStatFilter === 'postponed' && status === 'postponed') show = true;
             } else if (window.activeMainFilter === 'gmc') {
-                if (['gmc_review', 'gmc_revision', 'gmc_preparation', 'gmc_ready_for_registry'].includes(status)) {
-                    if (window.activeGmcFilter === 'all_gmc') show = true;
-                    else if (window.activeGmcFilter === 'new' && status === 'gmc_review') show = true;
-                    else if (window.activeGmcFilter === 'returned' && status === 'gmc_revision') show = true;
+                if (['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry'].includes(status)) {
+                    if (window.activeGmcFilter === 'new' && status === 'gmc_review') show = true;
                     else if (window.activeGmcFilter === 'preparation' && status === 'gmc_preparation') show = true;
                     else if (window.activeGmcFilter === 'ready_registry' && status === 'gmc_ready_for_registry') show = true;
                 }
-            } else if (window.activeMainFilter === 'piu' && status === 'piu_review') show = true;
-            else if (window.activeMainFilter === 'committee' && status === 'com_review') show = true;
+                if (window.activeGmcFilter === 'returned' && status === 'postponed') show = true;
+            } else if (window.activeMainFilter === 'committee' && status === 'com_review') show = true;
             else if (window.activeMainFilter === 'approved_registry' && ['approved'].includes(status)) show = true;
             else if (window.activeMainFilter === 'finance_registry' && isFullyCompletedApp(appObj)) show = true;
 
@@ -2131,6 +2169,46 @@
         updateCompletedSummaryBar();
     }
 
+    function applyMainFilter(filterValue) {
+        if (!filterValue) return;
+
+        const activeBtn = document.querySelector('.filter-btn[data-filter="' + filterValue + '"]');
+        if (!activeBtn) return;
+
+        document.querySelectorAll('.filter-btn').forEach(function (b) {
+            b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'shadow-sm');
+            b.classList.add('text-slate-600', 'hover:bg-slate-200');
+        });
+        activeBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+        activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-200');
+
+        window.activeMainFilter = filterValue;
+        if (window.activeMainFilter === 'approved_registry') {
+            window.approvedRegistrySourceRole = window.nextApprovedRegistrySourceRole || window.approvedRegistrySourceRole || null;
+            window.nextApprovedRegistrySourceRole = null;
+        } else {
+            window.nextApprovedRegistrySourceRole = null;
+        }
+
+        const t = function (id, show) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (show) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        };
+        t('approved-filters-bar', window.activeMainFilter === 'approved_registry' || window.activeMainFilter === 'finance_registry');
+        t('facilitator-filters-bar', window.activeMainFilter === 'facilitator');
+        t('statuses-filters-bar', window.activeMainFilter === 'statuses');
+        t('gmc-filters-bar', window.activeMainFilter === 'gmc');
+        t('com-filters-bar', window.activeMainFilter === 'committee');
+        updateCompletedSummaryBar();
+
+        // Actions on cards depend on the active main filter.
+        // Rebuild cards each time to avoid stale "view-only" actions from previous mode.
+        renderAllCards();
+        updateActiveModeIndicator();
+    }
+
     function setupSubFilters(cls) {
         document.querySelectorAll(cls).forEach(function (btn) {
             btn.addEventListener('click', function () {
@@ -2148,6 +2226,13 @@
                 if (cls === '.com-filter-btn') {
                     window.activeComFilter = btn.getAttribute('data-com-filter');
                     renderAllCards();
+                } else if (cls === '.fac-filter-btn') {
+                    // Facilitator "completed" uses a different card dataset (approved lists + approved items),
+                    // so always rebuild cards when switching facilitator subfilters.
+                    renderAllCards();
+                } else if (cls === '.gmc-filter-btn') {
+                    // GMC "approved_committee" uses approved lists + approved items dataset.
+                    renderAllCards();
                 } else {
                     updateDashboardFilter();
                     updateAllBadges();
@@ -2161,31 +2246,7 @@
     function initializeDashboardFilters() {
         document.querySelectorAll('.filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                document.querySelectorAll('.filter-btn').forEach(function (b) {
-                    b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'shadow-sm');
-                    b.classList.add('text-slate-600', 'hover:bg-slate-200');
-                });
-                btn.classList.add('bg-primary', 'text-white', 'shadow-sm');
-                btn.classList.remove('text-slate-600', 'hover:bg-slate-200');
-                window.activeMainFilter = btn.getAttribute('data-filter');
-
-                const t = function (id, show) {
-                    const el = document.getElementById(id);
-                    if (!el) return;
-                    if (show) el.classList.remove('hidden');
-                    else el.classList.add('hidden');
-                };
-                t('approved-filters-bar', window.activeMainFilter === 'approved_registry' || window.activeMainFilter === 'finance_registry');
-                t('facilitator-filters-bar', window.activeMainFilter === 'facilitator');
-                t('statuses-filters-bar', window.activeMainFilter === 'statuses');
-                t('gmc-filters-bar', window.activeMainFilter === 'gmc');
-                t('com-filters-bar', window.activeMainFilter === 'committee');
-                updateCompletedSummaryBar();
-
-                // Actions on cards depend on the active main filter.
-                // Rebuild cards each time to avoid stale "view-only" actions from previous mode.
-                renderAllCards();
-                updateActiveModeIndicator();
+                applyMainFilter(btn.getAttribute('data-filter'));
             });
         });
 
@@ -2219,12 +2280,24 @@
             approvedMonth.addEventListener('change', updateApprovedInsights);
         }
 
-        const unlockNoticeBtn = document.getElementById('btn-open-unlock-ready');
-        if (unlockNoticeBtn) {
-            unlockNoticeBtn.addEventListener('click', function () {
+        const openApprovedListsBtn = document.getElementById('btn-open-approved-lists-mode');
+        if (openApprovedListsBtn) {
+            openApprovedListsBtn.addEventListener('click', function () {
+                window.facilitatorCompletedViewMode = 'lists';
                 const mainBtn = document.querySelector('.filter-btn[data-filter="facilitator"]');
                 if (mainBtn) mainBtn.click();
-                const subBtn = document.querySelector('.fac-filter-btn[data-fac-filter="postponed"]');
+                const subBtn = document.querySelector('.fac-filter-btn[data-fac-filter="completed"]');
+                if (subBtn) subBtn.click();
+            });
+        }
+
+        const openApprovedAppsBtn = document.getElementById('btn-open-approved-apps-mode');
+        if (openApprovedAppsBtn) {
+            openApprovedAppsBtn.addEventListener('click', function () {
+                window.facilitatorCompletedViewMode = 'apps';
+                const mainBtn = document.querySelector('.filter-btn[data-filter="facilitator"]');
+                if (mainBtn) mainBtn.click();
+                const subBtn = document.querySelector('.fac-filter-btn[data-fac-filter="completed"]');
                 if (subBtn) subBtn.click();
             });
         }
@@ -2336,8 +2409,6 @@
                         }
                     } else if (targetId === 'pane-gmc') {
                         window.loadGmcForm(id);
-                    } else if (targetId === 'pane-piu') {
-                        window.loadPiuForm(id);
                     } else if (targetId === 'pane-committee') {
                         window.loadComForm(id);
                     } else if (targetId === 'pane-approved') {

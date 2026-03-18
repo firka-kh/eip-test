@@ -42,4 +42,39 @@
 
     if (typeof window.currentOpenedAppId === 'undefined') window.currentOpenedAppId = null;
     if (typeof window.currentApprovedAppId === 'undefined') window.currentApprovedAppId = null;
+
+    // One-way migration: PIU stage removed, route legacy items to GMC preparation.
+    (window.state.applications || []).forEach(function (app) {
+        if (!app) return;
+        if (app && app.status === 'piu_review') {
+            app.status = 'gmc_preparation';
+        }
+        if (app && app.status === 'gmc_revision') {
+            app.status = 'fac_revision';
+            app.lastReturnSource = app.lastReturnSource || 'gmc';
+        }
+
+        // Drop removed PIU legacy fields from persisted records.
+        if (Object.prototype.hasOwnProperty.call(app, 'piuStatus')) {
+            delete app.piuStatus;
+        }
+        if (Object.prototype.hasOwnProperty.call(app, 'piuDecisions')) {
+            delete app.piuDecisions;
+        }
+    });
+    if (window.activeMainFilter === 'piu') {
+        window.activeMainFilter = 'gmc';
+    }
+
+    if (!Array.isArray(window.seedGmcOperators) || window.seedGmcOperators.length === 0) {
+        // Test operators for GMC questionnaire processing suggestions.
+        window.seedGmcOperators = [
+            'Алишер Каримов',
+            'Мадина Рахимова',
+            'Дилшод Норбоев',
+            'Шахноза Юлдашева',
+            'Азизбек Турсунов',
+            'Феруза Ибрагимова'
+        ];
+    }
 })();

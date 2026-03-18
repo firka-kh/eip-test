@@ -79,8 +79,16 @@
     function applyCommitteeRejection(app, protocolNum, formattedProtocolDate, exactTime, comment) {
         var cycle = (app.committeeReturnsCount || 0) + 1;
         var protocolTag = protocolNum || '—';
+        var now = new Date();
+        var until = typeof window.addMonths === 'function' ? window.addMonths(now, 3) : new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+        var toIso = typeof window.toIsoDate === 'function'
+            ? window.toIsoDate
+            : function (dt) { return new Date(dt).toISOString().slice(0, 10); };
+        var untilIso = toIso(until);
+        var untilRu = typeof window.formatIsoDateRu === 'function' ? window.formatIsoDateRu(untilIso) : untilIso;
 
         app.committeeReturnsCount = cycle;
+        app.revisionCount = 3;
         app.lastReturnSource = 'committee';
         app.lastCommitteeReturn = {
             cycle: cycle,
@@ -91,15 +99,18 @@
             returnedBy: 'Кумита / Комитет',
             comment: comment
         };
-        app.status = 'gmc_revision';
+        app.status = 'postponed';
+        app.postponedAtISO = toIso(now);
+        app.postponedUntilISO = untilIso;
+        delete app.unlockNoticeProcessedAtISO;
 
         window.addLog(
             app,
             'Кумита / Комитет',
-            'Аз Кумита барои бозрасӣ ба ШИГ баргашт (давр ' + cycle + ')',
-            'Возвращено из Комитета в КУГ на доработку (цикл ' + cycle + ')',
-            'amber',
-            'undo-2',
+            'Комитет рад кард: дархост 3 моҳ мавқуф шуд (то ' + untilRu + ')',
+            'Комитет отклонил: заявка отложена на 3 месяца (до ' + untilRu + ')',
+            'red',
+            'clock',
             'Протокол: ' + protocolTag + '. ' + comment
         );
     }
@@ -118,7 +129,7 @@
         window.setAvailableTabs(['pane-committee-batch', 'pane-approved']);
         document.getElementById('applicationModal').classList.remove('hidden');
 
-        const allTabs = ['pane-facilitator', 'pane-gmc', 'pane-piu', 'pane-committee', 'pane-approved', 'pane-monitoring', 'pane-committee-batch', 'pane-gmc-registry-preview'];
+        const allTabs = ['pane-facilitator', 'pane-gmc', 'pane-committee', 'pane-approved', 'pane-monitoring', 'pane-committee-batch', 'pane-gmc-registry-preview'];
         allTabs.forEach(function (t) {
             const pane = document.getElementById(t);
             if (pane) pane.classList.add('hidden');
@@ -305,10 +316,12 @@
         }
         window.currentCommitteeRegistryId = null;
 
-        notifyMessage('success', 'Что произошло: список Комитета утвержден. Одобрено: ' + newProtocol.okCount + ', отклонено: ' + newProtocol.rejCount + '. Маршрут: Комитет -> одобрение или возврат в КУГ. Следующий статус: Одобрена / На доработке в КУГ по решению.');
+        notifyMessage('success', 'Что произошло: список Комитета утвержден. Одобрено: ' + newProtocol.okCount + ', отклонено: ' + newProtocol.rejCount + '. Маршрут: Комитет -> одобрение или отложение на 3 месяца. Следующий статус: Одобрена / Отложена по решению Комитета.');
         document.getElementById('applicationModal').classList.add('hidden');
         document.getElementById('modal-main-title').innerHTML = 'Дархост: Дастгирии грантии тиҷорат <span class="ru">/ Заявка: Грантовая поддержка бизнеса</span>';
 
+        window.nextApprovedRegistrySourceRole = null;
+        window.approvedRegistrySourceRole = null;
         const approvedMainBtn = document.querySelector('.filter-btn[data-filter="approved_registry"]');
         if (approvedMainBtn) approvedMainBtn.click();
     }
@@ -525,7 +538,7 @@
                 return;
             }
             applyCommitteeRejection(app, app.protocolId || 'IND-' + app.id, app.date.split(',')[0], app.date.split(',')[1] || '', normalizeDecisionComment(comment));
-            notifyMessage('warning', 'Что произошло: заявка отклонена решением Комитета с возвратом на доработку. Маршрут: Комитет -> КУГ. Следующий статус: На доработке в КУГ.');
+            notifyMessage('warning', 'Что произошло: заявка отклонена решением Комитета и отложена на 3 месяца. Маршрут: Комитет -> Фасилитатор (отложенные). Следующий статус: Отложена.');
         }
         document.getElementById('committee-evaluation-content').classList.add('hidden');
         window.renderAllCards();

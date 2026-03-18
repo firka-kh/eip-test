@@ -17,12 +17,59 @@
         return document.getElementById('gmc-operator-name');
     }
 
+    function getGmcOperatorDatalistEl() {
+        return document.getElementById('gmc-operator-list');
+    }
+
+    function getSeedGmcOperators() {
+        var list = Array.isArray(window.seedGmcOperators) ? window.seedGmcOperators : [];
+        return list
+            .map(function (v) { return String(v || '').trim(); })
+            .filter(function (v) { return !!v; });
+    }
+
+    function populateGmcOperatorSuggestions() {
+        var datalist = getGmcOperatorDatalistEl();
+        if (!datalist) return;
+        var operators = getSeedGmcOperators();
+        if (!operators.length) {
+            datalist.innerHTML = '';
+            return;
+        }
+
+        var seen = Object.create(null);
+        var html = '';
+        operators.forEach(function (name) {
+            var key = name.toLowerCase();
+            if (seen[key]) return;
+            seen[key] = true;
+            html += '<option value="' + name.replace(/"/g, '&quot;') + '"></option>';
+        });
+        datalist.innerHTML = html;
+    }
+
+    function isGmcOperatorLocked(app) {
+        return !!(app && String(app.gmcOperatorName || '').trim());
+    }
+
     function getNormalizedGmcOperatorName(app) {
+        if (isGmcOperatorLocked(app)) return String(app.gmcOperatorName || '').trim();
         var input = getGmcOperatorInputEl();
         var typed = input ? String(input.value || '').trim() : '';
         if (typed) return typed;
         if (app && app.gmcOperatorName) return String(app.gmcOperatorName).trim();
         return '';
+    }
+
+    function lockGmcOperatorForApp(app) {
+        if (!app) return '';
+        if (isGmcOperatorLocked(app)) return String(app.gmcOperatorName).trim();
+        var input = getGmcOperatorInputEl();
+        var typed = input ? String(input.value || '').trim() : '';
+        if (!typed) return '';
+        app.gmcOperatorName = typed;
+        syncGmcOperatorNameInput(app, true);
+        return typed;
     }
 
     function setGmcOperatorInputErrorState(hasError) {
@@ -37,6 +84,11 @@
 
     function validateGmcOperatorRequired(app, showMessage) {
         var input = getGmcOperatorInputEl();
+        if (isGmcOperatorLocked(app)) {
+            if (input) input.value = String(app.gmcOperatorName || '').trim();
+            setGmcOperatorInputErrorState(false);
+            return true;
+        }
         if (input && input.disabled) {
             setGmcOperatorInputErrorState(false);
             return true;
@@ -51,12 +103,11 @@
             if (input && typeof input.focus === 'function') input.focus();
         }
 
-        if (isValid && app) app.gmcOperatorName = name;
         return isValid;
     }
 
     function getGmcOperatorName(app) {
-        var name = getNormalizedGmcOperatorName(app);
+        var name = lockGmcOperatorForApp(app) || getNormalizedGmcOperatorName(app);
         if (name) {
             if (app) app.gmcOperatorName = name;
             return name;
@@ -68,10 +119,11 @@
         var input = getGmcOperatorInputEl();
         if (!input) return;
         var savedName = app && app.gmcOperatorName ? String(app.gmcOperatorName) : '';
+        var isLocked = !!String(savedName || '').trim();
         input.value = savedName;
-        input.disabled = !isEditable;
-        input.classList.toggle('bg-slate-100', !isEditable);
-        input.classList.toggle('cursor-not-allowed', !isEditable);
+        input.disabled = !isEditable || isLocked;
+        input.classList.toggle('bg-slate-100', !isEditable || isLocked);
+        input.classList.toggle('cursor-not-allowed', !isEditable || isLocked);
         setGmcOperatorInputErrorState(false);
     }
 
@@ -86,21 +138,14 @@
         labelEl.textContent = 'Боргирии Word (V' + version + ')';
     }
 
-    function getGmcRevisionUploadFileName() {
-        var input = document.getElementById('gmc-revision-upload');
-        if (!input || !input.files || !input.files.length) return '';
-        return input.files[0].name || '';
-    }
-
-    function isCommitteeReturn(app) {
-        if (!app) return false;
-        if (app.lastReturnSource === 'committee') return true;
-        return !!(app.lastCommitteeReturn && app.status === 'gmc_revision');
-    }
-
     function loadGmcForm(id) {
         const app = window.getApp(id);
         if (!app) return;
+        if (app.status === 'gmc_revision') {
+            app.status = 'fac_revision';
+            app.lastReturnSource = app.lastReturnSource || 'gmc';
+        }
+        populateGmcOperatorSuggestions();
 
         window.currentGmcAppId = id;
         const beneficiaryId = app.beneficiaryId || id;
@@ -111,10 +156,8 @@
 
         const evalContent = document.getElementById('gmc-evaluation-content');
         const prepContent = document.getElementById('gmc-preparation-content');
-        const returnContent = document.getElementById('gmc-analyze-piu-return-content');
 
         evalContent.classList.add('hidden');
-        returnContent.classList.add('hidden');
         prepContent.classList.add('hidden');
 
         document.getElementById('gmc-hdr-id').textContent = app.id;
@@ -160,42 +203,12 @@
 
         if (app.status === 'gmc_preparation') {
             prepContent.classList.remove('hidden');
-            prepContent.innerHTML = '<div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 text-center shadow-sm"><div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="clipboard-check" class="w-8 h-8"></i></div><h3 class="text-[16px] font-bold text-indigo-900 mb-2">Санҷиши ГТЛ гузашт <span class="ru-block mt-1">Верификация ГРП пройдена</span></h3><p class="text-[13px] text-indigo-700 mb-6">Лутфан дархостро бори дигар аз назар гузаронед ва онро ба реестр барои Кумита илова кунед.<span class="ru-block mt-1">Пожалуйста, проверьте заявку еще раз и добавьте её в реестр для отправки в Комитет.</span></p><button onclick="markReadyForRegistry()" class="w-full sm:w-auto mx-auto bg-indigo-600 text-white px-8 py-3 rounded-xl text-[14px] font-bold hover:bg-indigo-700 transition-colors shadow-sm flex flex-col items-center leading-tight"><span>Ба реестр илова кардан</span><span class="ru">Добавить в реестр</span></button></div>';
+            prepContent.innerHTML = '<div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 text-center shadow-sm"><div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="clipboard-check" class="w-8 h-8"></i></div><h3 class="text-[16px] font-bold text-indigo-900 mb-2">Баҳогузории ШИГ анҷом ёфт <span class="ru-block mt-1">Оценка КУГ завершена</span></h3><p class="text-[13px] text-indigo-700 mb-6">Лутфан дархостро бори дигар аз назар гузаронед ва онро ба реестр барои Кумита илова кунед.<span class="ru-block mt-1">Пожалуйста, проверьте заявку еще раз и добавьте её в реестр для отправки в Комитет.</span></p><button onclick="markReadyForRegistry()" class="w-full sm:w-auto mx-auto bg-indigo-600 text-white px-8 py-3 rounded-xl text-[14px] font-bold hover:bg-indigo-700 transition-colors shadow-sm flex flex-col items-center leading-tight"><span>Ба реестр илова кардан</span><span class="ru">Добавить в реестр</span></button></div>';
             evalContent.classList.remove('hidden');
             makeReadonly();
         } else if (['gmc_ready_for_registry', 'com_review', 'approved'].includes(app.status)) {
             prepContent.classList.remove('hidden');
             prepContent.innerHTML = '<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center shadow-sm flex items-center justify-center gap-3"><i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i><span class="text-[14px] font-bold text-emerald-900">Дархост дар реестр қарор дорад / Заявка в реестре</span></div>';
-            evalContent.classList.remove('hidden');
-            syncGmcOperatorNameInput(app, false);
-            makeReadonly();
-        } else if (app.status === 'gmc_revision') {
-            returnContent.classList.remove('hidden');
-            var revisionUploadInput = document.getElementById('gmc-revision-upload');
-            if (revisionUploadInput) revisionUploadInput.value = '';
-            const lastLog = app.auditLog.slice().reverse().find(function (l) { return l.comment; });
-            const commentEl = document.getElementById('gmc-dynamic-comment');
-            const isFromCommittee = isCommitteeReturn(app);
-            if (commentEl) {
-                if (isFromCommittee && app.lastCommitteeReturn) {
-                    var meta = app.lastCommitteeReturn;
-                    var metaLine = 'Комитет: ' + (meta.protocolId || '—') + ', ' + (meta.protocolDate || '—') + ' ' + (meta.protocolTime || '');
-                    var cycleLine = 'Цикл возврата: ' + (meta.cycle || app.committeeReturnsCount || 1);
-                    var reason = meta.comment || (lastLog && lastLog.comment ? lastLog.comment : 'Бе эзоҳ / Без комментариев');
-                    commentEl.textContent = metaLine + ' | ' + cycleLine + ' | ' + reason;
-                } else {
-                    commentEl.textContent = lastLog && lastLog.comment ? lastLog.comment : 'Бе эзоҳ / Без комментариев';
-                }
-            }
-            const newCommentEl = document.getElementById('gmc-return-comment');
-            if (newCommentEl) newCommentEl.value = '';
-            const returnTitle = document.getElementById('gmc-return-title');
-            if (isFromCommittee) {
-                returnTitle.innerHTML = 'Аз Кумита барои бозрасӣ баргардонида шуд <span class="ru-block mt-1">Возвращено из Комитета на доработку</span>';
-            } else {
-                returnTitle.innerHTML = 'Аз ГТЛ барои бозрасӣ баргардонида шуд <span class="ru-block mt-1">Возвращено из ГРП на доработку</span>';
-            }
-        } else if (app.status === 'piu_review') {
             evalContent.classList.remove('hidden');
             syncGmcOperatorNameInput(app, false);
             makeReadonly();
@@ -329,6 +342,7 @@
         if (!bOk) return;
         var app = window.getApp(window.currentGmcAppId);
         if (val && !validateGmcOperatorRequired(app, true)) return;
+        if (val) getGmcOperatorName(app);
         if (val === 'ok' && bOk.disabled) return;
         if (val === 'rev' && bRev.disabled) return;
         if (val === 'rej' && bRej.disabled) return;
@@ -353,6 +367,7 @@
             : function (dt) { return new Date(dt).toISOString().slice(0, 10); };
 
         app.status = 'postponed';
+        if (!app.lastReturnSource) app.lastReturnSource = 'gmc';
         app.postponedAtISO = toIso(now);
         app.postponedUntilISO = toIso(until);
         delete app.unlockNoticeProcessedAtISO;
@@ -410,9 +425,9 @@
         }
 
         if (window.currentGmcChoice === 'ok') {
-            app.status = 'piu_review';
-            window.addLog(app, gmcActor, 'Тасдиқ шуд, ба ГТЛ равон шуд', 'Одобрено, направлено в ГРП', 'emerald', 'check');
-            notifyMessage('success', 'Что произошло: заявка одобрена и передана в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: Проверка в ГРП.');
+            app.status = 'gmc_preparation';
+            window.addLog(app, gmcActor, 'Тасдиқ шуд, барои омодасозии реестр гузашт', 'Одобрено, передано на подготовку реестра', 'emerald', 'check');
+            notifyMessage('success', 'Что произошло: заявка одобрена в КУГ и передана на подготовку реестра. Маршрут: КУГ (оценка) -> КУГ (подготовка). Следующий статус: На подготовке реестра.');
         } else if (window.currentGmcChoice === 'rev') {
             app.revisionCount = (app.revisionCount || 0) + 1;
             if (app.revisionCount >= 3) {
@@ -435,96 +450,6 @@
         }
 
         document.getElementById('gmc-evaluation-content').classList.add('hidden');
-        window.renderAllCards();
-        document.getElementById('applicationModal').classList.add('hidden');
-    }
-
-    function sendGmcBackToPiu() {
-        const app = window.getApp(window.currentGmcAppId);
-        if (!app) return;
-        if (!validateGmcOperatorRequired(app, true)) return;
-        var gmcActor = getGmcOperatorName(app);
-
-        var wordFileName = getGmcRevisionUploadFileName();
-        if (!wordFileName) {
-            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') {
-                window.AppNotify.errorByKey('validation.errorDetailed');
-            } else {
-                notifyMessage('error', 'Лутфан версияи нави Word-ҳуҷҷатро бор кунед. / Пожалуйста, загрузите новую версию Word-документа.');
-            }
-            return;
-        }
-
-        var nextVersion = 0;
-        if (typeof window.registerWordVersion === 'function') {
-            nextVersion = window.registerWordVersion(app, {
-                fileName: wordFileName,
-                uploadedByRole: 'ШИГ / КУГ',
-                uploadedByName: gmcActor,
-                sourceStage: 'gmc_revision'
-            });
-        }
-
-        var fromCommittee = isCommitteeReturn(app);
-        app.resubmitsToPiuCount = (app.resubmitsToPiuCount || 0) + 1;
-        app.status = 'piu_review';
-        app.lastReturnSource = 'gmc';
-        app.date = window.getCurrentDateTime();
-        var committeeSuffix = fromCommittee
-            ? ' пас аз бозгашти Кумита'
-            : '';
-        var committeeSuffixRu = fromCommittee
-            ? ' после возврата Комитета'
-            : '';
-        window.addLog(
-            app,
-            gmcActor,
-            'Ислоҳот ворид шуд, Word V' + nextVersion + ' бор ва бозгашт ба ГТЛ' + committeeSuffix + ' (шумора: ' + app.resubmitsToPiuCount + ')',
-            'Внесены исправления, загружен Word V' + nextVersion + ', возвращено в ГРП' + committeeSuffixRu + ' (счет: ' + app.resubmitsToPiuCount + ')',
-            'blue',
-            'refresh-cw'
-        );
-        notifyMessage('success', 'Что произошло: исправления сохранены, заявка возвращена в ГРП. Маршрут: КУГ -> ГРП. Следующий статус: Проверка в ГРП.');
-        window.renderAllCards();
-        document.getElementById('applicationModal').classList.add('hidden');
-    }
-
-    function sendGmcToFacilitator() {
-        const app = window.getApp(window.currentGmcAppId);
-        if (!app) return;
-        if (!validateGmcOperatorRequired(app, true)) return;
-        var gmcActor = getGmcOperatorName(app);
-
-        const commentEl = document.getElementById('gmc-return-comment');
-        const comment = commentEl ? commentEl.value.trim() : '';
-        if (!comment) {
-            if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
-                window.AppNotify.warningByKey('returnForRevision.warningCommentRequired');
-            } else {
-                notifyMessage('warning', 'Сабаби бозгардониданро нишон диҳед! / Укажите причину возврата!');
-            }
-            return;
-        }
-
-        var fromCommittee = isCommitteeReturn(app);
-        app.revisionCount = (app.revisionCount || 0) + 1;
-        app.lastReturnSource = 'gmc';
-        app.date = window.getCurrentDateTime();
-
-        if (app.revisionCount >= 3) {
-            lockApplicationForThreeMonths(app, comment);
-            const untilRu = typeof window.formatIsoDateRu === 'function' ? window.formatIsoDateRu(app.postponedUntilISO) : app.postponedUntilISO;
-            if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
-                window.AppNotify.warningByKey('deadline.unlockNotAvailableUntilDate', { date: untilRu });
-            } else {
-                notifyMessage('warning', 'Что произошло: лимит доработок исчерпан, заявка заблокирована до ' + untilRu + '. Маршрут: без изменений. Следующий статус: Отложена.');
-            }
-        } else {
-            app.status = 'fac_revision';
-            var committeeCycle = fromCommittee && app.lastCommitteeReturn ? ' Комитет #' + app.lastCommitteeReturn.cycle : '';
-            window.addLog(app, gmcActor, 'Аз ГТЛ баргашт -> Ба Фасилитатор равон шуд (' + app.revisionCount + '/3)' + committeeCycle, 'Возврат из ГРП -> Направлено Фасилитатору (' + app.revisionCount + '/3)' + committeeCycle, 'amber', 'corner-down-left', comment);
-            notifyMessage('warning', 'Что произошло: заявка отправлена Фасилитатору на доработку (попытка ' + app.revisionCount + ' из 3). Маршрут: КУГ -> Фасилитатор. Следующий статус: На доработке у Фасилитатора.');
-        }
         window.renderAllCards();
         document.getElementById('applicationModal').classList.add('hidden');
     }
@@ -584,7 +509,7 @@
         window.setAvailableTabs(['pane-gmc-registry-preview']);
         document.getElementById('applicationModal').classList.remove('hidden');
 
-        const allTabs = ['pane-facilitator', 'pane-gmc', 'pane-piu', 'pane-committee', 'pane-approved', 'pane-monitoring', 'pane-committee-batch', 'pane-gmc-registry-preview'];
+        const allTabs = ['pane-facilitator', 'pane-gmc', 'pane-committee', 'pane-approved', 'pane-monitoring', 'pane-committee-batch', 'pane-gmc-registry-preview'];
         allTabs.forEach(function (t) {
             const pane = document.getElementById(t);
             if (pane) pane.classList.add('hidden');
@@ -681,8 +606,6 @@
         updateGmcScoreAndButtons,
         setGmcDecision,
         saveGmcDecision,
-        sendGmcBackToPiu,
-        sendGmcToFacilitator,
         markReadyForRegistry,
         toggleRegistrySelection,
         toggleSelectAllReadyForRegistry,
@@ -690,14 +613,14 @@
         confirmAndSendRegistry
     };
 
+    populateGmcOperatorSuggestions();
+
     // Legacy compatibility while migrating code out of grant.html
     window.loadGmcForm = loadGmcForm;
     window.openGmcFor = openGmcFor;
     window.updateGmcScoreAndButtons = updateGmcScoreAndButtons;
     window.setGmcDecision = setGmcDecision;
     window.saveGmcDecision = saveGmcDecision;
-    window.sendGmcBackToPiu = sendGmcBackToPiu;
-    window.sendGmcToFacilitator = sendGmcToFacilitator;
     window.markReadyForRegistry = markReadyForRegistry;
     window.toggleRegistrySelection = toggleRegistrySelection;
     window.toggleSelectAllReadyForRegistry = toggleSelectAllReadyForRegistry;

@@ -18,7 +18,6 @@ erDiagram
 
     APPLICATION ||--o{ AUDIT_LOG : has
     APPLICATION ||--o| GMC_EVALUATION : has
-    APPLICATION ||--o| PIU_DECISIONS : has
 
     PROTOCOL ||--o{ PROTOCOL_APP : contains
 
@@ -90,14 +89,11 @@ interface Application {
   // === Протокол Комитета ===
   protocolId?: string;           // ID протокола ("СП-9001")
   committeeReturnsCount?: number; // Сколько раз Комитет возвращал заявку на доработку
-  lastReturnSource?: string;      // Последний источник возврата: committee | piu | gmc
+  lastReturnSource?: string;      // Последний источник возврата: committee | gmc
   lastCommitteeReturn?: CommitteeReturnMeta | null; // Последний возврат из Комитета
 
   // === Оценки ===
   gmcEvaluation?: GmcEvaluation; // Результат скоринга ШИГ / КУГ
-  piuDecisions?: { [step: number]: string | null };  // Решения ГРП
-  piuStatus?: { [step: number]: string };             // Статус шагов ГРП
-  piuComment?: string;           // Комментарий ГРП при возврате
 
   // === Документы бизнес-плана ===
   documents?: DocumentBundle;    // Word-версии + фиксированные PDF/фото
@@ -127,7 +123,7 @@ interface WordVersionEntry {
   uploadedAt: string;        // Дата/время загрузки
   uploadedByRole: string;    // Роль: Фасилитатор, ШИГ / КУГ
   uploadedByName: string;    // Отображаемое имя автора
-  sourceStage: string;       // facilitator | gmc_revision | ...
+  sourceStage: string;       // facilitator | fac_revision | ...
 }
 
 interface BasePdfEntry {
@@ -210,7 +206,7 @@ interface GrantContractFields {
 
 Инварианты документного пакета:
 - При первичной подаче Фасилитатор обязан приложить `Word + PDF + ровно 4 фото`.
-- `wordVersions` пополняется при первичной подаче и при корректировках ШИГ / КУГ после возврата ГРП.
+- `wordVersions` пополняется при первичной подаче и при корректировках ШИГ / КУГ после возврата Комитета.
 - `basePdf` и `basePhotos` не перезаписываются на последующих этапах.
 - UI-индикатор `Current Word Version: Vn` берется из `documents.currentWordVersion`.
 
@@ -237,8 +233,6 @@ type ApplicationStatus =
   | 'gmc_review'              // На рассмотрении в ШИГ / КУГ
   | 'fac_revision'            // На доработке у Фасилитатора
   | 'postponed'               // Отложена (3 мес.)
-  | 'piu_review'              // На проверке в ГРП
-  | 'gmc_revision'            // Возвращена из ГРП в ШИГ / КУГ
   | 'gmc_preparation'         // Подготовка к реестру (ШИГ / КУГ)
   | 'gmc_ready_for_registry'  // Готова для реестра
   | 'com_review'              // На решении Комитета
@@ -290,7 +284,7 @@ interface CompletenessResult {
 ```typescript
 interface AuditLogEntry {
   date: string;       // "12.03.2026, 09:15"
-  actor: string;      // "Фасилитатор", "ШИГ / КУГ", "ГТЛ / ГРП", "Кумита / Комитет", "Система"
+  actor: string;      // "Фасилитатор", "ШИГ / КУГ", "Кумита / Комитет", "Система"
   action: string;     // Действие на таджикском (sanitized)
   actionRu: string;   // Действие на русском (sanitized)
   color: string;      // Tailwind цвет: "blue", "emerald", "amber", "red", "slate", "purple"

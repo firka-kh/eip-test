@@ -69,19 +69,17 @@ graph LR
     ALL["📋 Барча<br/>Все заявки"]
     FAC["🧑‍💼 Фасилитатор"]
     GMC["📊 ШИГ / КУГ"]
-    PIU["🔍 ГТЛ / ГРП"]
     COM["🏛 Комитет"]
     STS["📈 Статусы"]
     
-    ALL --- FAC --- GMC --- PIU --- COM --- STS
+    ALL --- FAC --- GMC --- COM --- STS
 ```
 
 | data-filter | Показывает | Подфильтры |
 |-------------|-----------|------------|
 | `all` | Все заявки | Нет |
 | `facilitator` | draft, fac_revision, postponed, incomplete_data | draft / incomplete_data / fac_revision / postponed |
-| `gmc` | gmc_review, gmc_revision, gmc_preparation, gmc_ready_for_registry | review / revision / preparation / ready |
-| `piu` | piu_review | Нет (только 1 статус) |
+| `gmc` | gmc_review, gmc_preparation, gmc_ready_for_registry, postponed(только чтение) | review / preparation / ready / returned |
 | `committee` | com_review + протоколы + реестры | incoming / protocols |
 | `statuses` | все статусы | all / draft / revision / review / approved / postponed / rejected |
 
@@ -108,7 +106,7 @@ graph LR
 
 #### ШИГ / КУГ (`#gmc-filters-bar`)
 ```
-[На рассмотрении] [На исправлении] [Подготовка реестра] [К реестру]
+[На рассмотрении] [Подготовка реестра] [К реестру] [Мавқуф / Отложенные]
 ```
 
 #### Комитет (`#com-filters-bar`)
@@ -191,7 +189,6 @@ graph TD
 
     TABS --> T1["Фасилитатор"]
     TABS --> T2["ШИГ / КУГ (GMC)"]
-    TABS --> T3["ГТЛ / ГРП"]
     TABS --> T4["Комитет"]
     TABS --> T5["Реестр"]
     TABS --> T6["Пакет Комитета"]
@@ -205,7 +202,6 @@ graph TD
 |-----|----------|-----------|-----------------|
 | Фасилитатор | `facilitator` | Форма бенефициара: ИНН, имя, район, пол, сектор, инвалидность, сумма | ✏️ Заполняет Фасилитатор |
 | ШИГ / КУГ | `gmc` | 15 критериев скоринга (1–4 балла каждый), 3 критерия соответствия (yes/no), комментарий, решение | ✏️ Заполняет ШИГ / КУГ |
-| ГТЛ / ГРП | `piu` | Чек-лист верификации (1 шаг), комментарий | ✏️ Заполняет ГТЛ / ГРП |
 | Комитет | `committee` | Решение по каждой заявке в пакете | ✏️ Заполняет Комитет |
 | Реестр | `registry` | Превью реестра перед отправкой в Комитет | 👁 Только просмотр |
 | Пакет | `batch` | Пакет заявок на рассмотрение Комитета | ✏️ Комитет |
@@ -264,7 +260,7 @@ flowchart LR
     B -->|draft| D["Показать: facilitator, history"]
     B -->|incomplete_data| D2["Показать: facilitator, history"]
     B -->|gmc_review| E["Показать: facilitator, gmc, history"]
-    B -->|piu_review| F["Показать: facilitator, gmc, piu, history"]
+    B -->|gmc_preparation| F["Показать: facilitator, gmc, history"]
     B -->|approved| G["Показать: все + monitoring"]
 ```
 
@@ -441,10 +437,8 @@ flowchart TD
 | incomplete_data | Оранжевый | `bg-orange-100 text-orange-800` |
 | fac_revision | Жёлтый | `bg-yellow-100 text-yellow-800` |
 | gmc_review | Синий | `bg-blue-100 text-blue-800` |
-| gmc_revision | Оранжевый | `bg-orange-100 text-orange-800` |
 | gmc_preparation | Индиго | `bg-indigo-100 text-indigo-800` |
 | gmc_ready_for_registry | Фиолетовый | `bg-purple-100 text-purple-800` |
-| piu_review | Бирюзовый | `bg-teal-100 text-teal-800` |
 | com_review | Розовый | `bg-pink-100 text-pink-800` |
 | approved | Зелёный | `bg-green-100 text-green-800` |
 | rejected | Красный | `bg-red-100 text-red-800` |

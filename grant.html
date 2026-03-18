@@ -9,8 +9,127 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="src/js/config/tailwind.config.js"></script>
     <link rel="stylesheet" href="src/styles/main.css">
+    <style>
+        .role-shell {
+            padding: 8px 0;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .role-nav-track {
+            display: flex;
+            gap: 5px;
+            padding: 5px;
+            background: #f0effe;
+            border-radius: 18px;
+            border: 1px solid #ddd9f9;
+            overflow-x: auto;
+        }
+
+        .role-tab {
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 11px 14px 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: background 0.16s, border-color 0.16s, box-shadow 0.16s;
+            text-align: left;
+        }
+
+        .role-tab:hover:not(.role-tab--active) {
+            background: #ffffff;
+            border-color: #ddd9f9;
+            box-shadow: 0 1px 6px rgba(83, 74, 183, 0.08);
+        }
+
+        .role-tab--active {
+            background: #534AB7;
+            border-color: #3C3489;
+            box-shadow: 0 4px 16px rgba(83, 74, 183, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        }
+
+        .role-tab__head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .role-tab__name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3C3489;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        .role-tab--active .role-tab__name {
+            color: #ffffff;
+        }
+
+        .role-tab__badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 19px;
+            padding: 0 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #ffffff;
+            color: #534AB7;
+            border: 1px solid #ddd9f9;
+        }
+
+        .role-tab--active .role-tab__badge {
+            background: #3C3489;
+            color: #CECBF6;
+            border-color: #26215C;
+        }
+
+        .role-tab__sub {
+            font-size: 10.5px;
+            font-weight: 500;
+            color: #9993c8;
+            white-space: nowrap;
+        }
+
+        .role-tab--active .role-tab__sub {
+            color: #AFA9EC;
+        }
+
+        .role-tab__bar-wrap {
+            height: 2px;
+            border-radius: 2px;
+            background: #ddd9f9;
+            overflow: hidden;
+            margin-top: 3px;
+        }
+
+        .role-tab__bar {
+            height: 100%;
+            border-radius: 2px;
+            background: #534AB7;
+            transition: width 0.25s ease;
+            width: 0;
+        }
+
+        .role-tab--active .role-tab__bar-wrap {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .role-tab--active .role-tab__bar {
+            background: #ffffff;
+        }
+    </style>
 </head>
 
 <body class="p-4 md:p-8 text-slate-800 antialiased relative">
@@ -24,31 +143,215 @@
     <div class="max-w-7xl mx-auto space-y-6 animate-fade-in">
 
         <!-- Шапка страницы -->
-        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">Дархостҳои грантӣ <span class="ru">/ Грантовые
-                        заявки</span></h1>
-                <p class="text-sm text-slate-500 mt-1">Идоракунии раванди грантӣ <span class="ru">/ Управление грантовым
-                        процессом</span></p>
+        <header class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Дархостҳои грантӣ <span class="ru">/ Грантовые
+                            заявки</span></h1>
+                    <p class="text-sm text-slate-500 mt-1">Идоракунии раванди грантӣ <span class="ru">/ Управление
+                            грантовым
+                            процессом</span></p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="faq.html" target="_blank" rel="noopener"
+                        class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-4 py-2.5 rounded-lg text-[13px] font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <i data-lucide="circle-help" class="w-4 h-4"></i>
+                        <span>Справка <span class="ru">/ FAQ</span></span>
+                    </a>
+                    <button id="toggleFormBtn"
+                        class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <span id="btnIcon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></span>
+                        <span id="btnText">Дархости нав <span class="ru">/ Новая заявка</span></span>
+                    </button>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <a href="faq.html" target="_blank" rel="noopener"
-                    class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-4 py-2.5 rounded-lg text-[13px] font-bold transition-colors flex items-center justify-center gap-2 shadow-sm">
-                    <i data-lucide="circle-help" class="w-4 h-4"></i>
-                    <span>Справка <span class="ru">/ FAQ</span></span>
-                </a>
-                <button id="toggleFormBtn"
-                    class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg text-[13px] font-medium transition-colors flex items-center justify-center gap-2 shadow-sm">
-                    <span id="btnIcon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg></span>
-                    <span id="btnText">Дархости нав <span class="ru">/ Новая заявка</span></span>
-                </button>
+
+            <div class="role-shell">
+                <div class="role-nav-track hide-scrollbar" id="header-role-tabs" aria-label="Панель ролей">
+                    <button type="button" class="role-tab role-tab--active" data-role-filter="facilitator">
+                        <div class="role-tab__head">
+                            <span class="role-tab__name">Фасилитатор</span>
+                            <span class="role-tab__badge">46</span>
+                        </div>
+                        <span class="role-tab__sub">Фасилитатор</span>
+                        <div class="role-tab__bar-wrap">
+                            <div class="role-tab__bar" data-initial-width="17"></div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="role-tab" data-role-filter="gmc">
+                        <div class="role-tab__head">
+                            <span class="role-tab__name">ШИГ</span>
+                            <span class="role-tab__badge">57</span>
+                        </div>
+                        <span class="role-tab__sub">КУГ</span>
+                        <div class="role-tab__bar-wrap">
+                            <div class="role-tab__bar" data-initial-width="22"></div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="role-tab" data-role-filter="committee">
+                        <div class="role-tab__head">
+                            <span class="role-tab__name">Кумита</span>
+                            <span class="role-tab__badge">13</span>
+                        </div>
+                        <span class="role-tab__sub">Комитет</span>
+                        <div class="role-tab__bar-wrap">
+                            <div class="role-tab__bar" data-initial-width="5"></div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="role-tab" data-role-filter="statuses">
+                        <div class="role-tab__head">
+                            <span class="role-tab__name">Аз рӯи статус</span>
+                            <span class="role-tab__badge">148</span>
+                        </div>
+                        <span class="role-tab__sub">По статусам</span>
+                        <div class="role-tab__bar-wrap">
+                            <div class="role-tab__bar" data-initial-width="56"></div>
+                        </div>
+                    </button>
+
+                    <button type="button" class="role-tab" data-role-filter="finance_registry">
+                        <div class="role-tab__head">
+                            <span class="role-tab__name">Молия</span>
+                            <span class="role-tab__badge hidden">0</span>
+                        </div>
+                        <span class="role-tab__sub">Финансы</span>
+                        <div class="role-tab__bar-wrap">
+                            <div class="role-tab__bar" data-initial-width="0"></div>
+                        </div>
+                    </button>
+
+                    <div class="role-tools flex items-center gap-3 pl-2 ml-1">
+                        <div
+                            class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex-shrink-0 shadow-sm">
+                            <button onclick="setViewMode('grid')" id="btn-view-grid"
+                                class="p-2 rounded-xl bg-white text-primary shadow-sm transition-colors"
+                                title="Тӯри кортҳо / Сетка карточек"><i data-lucide="layout-grid"
+                                    class="w-4 h-4"></i></button>
+                            <button onclick="setViewMode('list')" id="btn-view-list"
+                                class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-white transition-colors"
+                                title="Ҷадвали уфуқӣ / Горизонтальная таблица"><i data-lucide="list"
+                                    class="w-4 h-4"></i></button>
+                        </div>
+                        <div class="relative">
+                            <button id="btn-unlock-notifications"
+                                class="relative p-2.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 hover:bg-white hover:text-slate-800 transition-colors shadow-sm"
+                                title="Оповещения по разблокировке / Оповещения">
+                                <i data-lucide="bell" class="w-4 h-4"></i>
+                                <span id="unlock-notifications-badge"
+                                    class="hidden flex absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold items-center justify-center">0</span>
+                            </button>
+                            <div id="unlock-notifications-panel"
+                                class="hidden absolute right-0 top-12 z-40 w-[360px] max-w-[92vw] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+                                <div
+                                    class="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
+                                    <div class="text-[12px] font-bold text-slate-800">Оповещения разблокировки</div>
+                                    <div class="flex items-center gap-2">
+                                        <button id="btn-mark-all-unlock-processed"
+                                            class="text-[11px] text-slate-500 hover:text-slate-700 font-medium">Отметить
+                                            все</button>
+                                        <button id="btn-close-unlock-notifications"
+                                            class="text-[11px] text-slate-500 hover:text-slate-700 font-medium">Закрыть</button>
+                                    </div>
+                                </div>
+                                <div id="unlock-notifications-list" class="max-h-[320px] overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
+
+        <script>
+            (function initHeaderRoleTabs() {
+                function setActiveHeaderTab(filterName) {
+                    document.querySelectorAll('#header-role-tabs .role-tab').forEach(function (tab) {
+                        tab.classList.toggle('role-tab--active', tab.getAttribute('data-role-filter') === filterName);
+                    });
+                }
+
+                function syncHeaderTabCounts() {
+                    var map = {
+                        facilitator: 'dash-fac-badge',
+                        gmc: 'dash-gmc-badge',
+                        committee: 'dash-com-badge',
+                        statuses: 'dash-status-badge',
+                        finance_registry: 'dash-finance-badge'
+                    };
+                    var counts = {};
+                    var total = 0;
+
+                    Object.keys(map).forEach(function (key) {
+                        var source = document.getElementById(map[key]);
+                        var raw = source ? String(source.textContent || '').trim() : '0';
+                        var val = parseInt(raw, 10);
+                        if (!Number.isFinite(val)) val = 0;
+                        counts[key] = val;
+                        total += val;
+                    });
+
+                    document.querySelectorAll('#header-role-tabs .role-tab').forEach(function (tab) {
+                        var key = tab.getAttribute('data-role-filter');
+                        var count = counts[key] || 0;
+                        var badge = tab.querySelector('.role-tab__badge');
+                        var bar = tab.querySelector('.role-tab__bar');
+                        if (badge) {
+                            badge.textContent = String(count);
+                            if (key === 'finance_registry' && count === 0) {
+                                badge.classList.add('hidden');
+                            } else {
+                                badge.classList.remove('hidden');
+                            }
+                        }
+                        if (bar) {
+                            var width = total > 0 ? Math.max(0, Math.min(100, Math.round((count / total) * 100))) : 0;
+                            bar.style.width = width + '%';
+                        }
+                    });
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.querySelectorAll('#header-role-tabs .role-tab__bar').forEach(function (bar) {
+                        var initial = parseInt(bar.getAttribute('data-initial-width') || '0', 10);
+                        if (!Number.isFinite(initial)) initial = 0;
+                        bar.style.width = Math.max(0, Math.min(100, initial)) + '%';
+                    });
+
+                    document.querySelectorAll('#header-role-tabs .role-tab').forEach(function (tab) {
+                        tab.addEventListener('click', function () {
+                            var filter = tab.getAttribute('data-role-filter');
+                            var target = document.querySelector('.filter-btn[data-filter="' + filter + '"]');
+                            if (target) target.click();
+                            setActiveHeaderTab(filter);
+                        });
+                    });
+
+                    document.querySelectorAll('.filter-btn').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var filter = btn.getAttribute('data-filter');
+                            setActiveHeaderTab(filter);
+                            syncHeaderTabCounts();
+                        });
+                    });
+
+                    var active = (window.activeMainFilter || '').trim();
+                    if (!active) {
+                        var current = document.querySelector('.filter-btn.bg-primary');
+                        active = current ? current.getAttribute('data-filter') : 'facilitator';
+                    }
+
+                    setActiveHeaderTab(active);
+                    syncHeaderTabCounts();
+                });
+            })();
+        </script>
 
         <!-- Блок создания заявки -->
         <div id="createFormBlock"
@@ -81,7 +384,8 @@
                                     <span class="ru font-normal">/ Сертиф.</span></span>
                             </div>
                         </div>
-                        <button id="clearSelection"
+                        <button id="clearSelection" title="Очистить выбор / Интихобро пок кардан"
+                            aria-label="Очистить выбор"
                             class="text-slate-400 hover:text-slate-600 ml-2 p-1 focus:outline-none rounded-md hover:bg-slate-100 transition-colors"><svg
                                 class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -113,10 +417,9 @@
             </div>
         </div>
 
-        <!-- ПАНЕЛЬ ФИЛЬТРОВ И ПЕРЕКЛЮЧАТЕЛЬ ВИДОВ -->
-        <div class="flex flex-col xl:flex-row items-center justify-between gap-4 mb-4 w-full">
+        <div class="mb-4 w-full">
             <div id="main-filters-bar"
-                class="bg-slate-100 border border-slate-200 rounded-2xl p-1.5 flex items-stretch gap-1.5 overflow-x-auto hide-scrollbar w-full shadow-sm">
+                class="hidden bg-slate-100 border border-slate-200 rounded-2xl p-1.5 flex items-stretch gap-1.5 overflow-x-auto hide-scrollbar w-full shadow-sm">
                 <button data-filter="facilitator"
                     class="filter-btn main-filter-btn bg-primary text-white px-3 py-2 rounded-xl flex items-start justify-start gap-2.5 transition-all flex-1 min-w-0 shadow-sm">
                     <div class="flex flex-col items-start leading-tight text-left"><span
@@ -133,14 +436,6 @@
                     <span id="dash-gmc-badge"
                         class="main-filter-badge self-start mt-0.5 bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
                 </button>
-                <button data-filter="piu"
-                    class="filter-btn main-filter-btn text-slate-600 hover:bg-slate-200 px-3 py-2 rounded-xl flex items-start justify-start gap-2.5 transition-all flex-1 min-w-0">
-                    <div class="flex flex-col items-start leading-tight text-left"><span
-                            class="text-[13px] font-bold">ГТЛ</span><span
-                            class="text-[11px] font-normal opacity-70 mt-0.5 filter-ru-text">ГРП</span></div>
-                    <span id="dash-piu-badge"
-                        class="main-filter-badge self-start mt-0.5 bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
-                </button>
                 <button data-filter="committee"
                     class="filter-btn main-filter-btn text-slate-600 hover:bg-slate-200 px-3 py-2 rounded-xl flex items-start justify-start gap-2.5 transition-all flex-1 min-w-0">
                     <div class="flex flex-col items-start leading-tight text-left"><span
@@ -150,10 +445,12 @@
                         class="main-filter-badge self-start mt-0.5 bg-teal-100 text-teal-700 px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
                 </button>
                 <button data-filter="approved_registry"
-                    class="filter-btn main-filter-btn text-slate-600 hover:bg-slate-200 px-3 py-2 rounded-xl flex items-start justify-start gap-2.5 transition-all flex-1 min-w-0">
+                    class="hidden filter-btn main-filter-btn text-slate-600 hover:bg-slate-200 px-3 py-2 rounded-xl flex items-start justify-start gap-2.5 transition-all flex-1 min-w-0"
+                    aria-hidden="true">
                     <div class="flex flex-col items-start leading-tight text-left"><span
-                            class="text-[13px] font-bold">Тасдиқшуда</span><span
-                            class="text-[11px] font-normal opacity-70 mt-0.5 filter-ru-text">Одобренные</span></div>
+                            class="text-[13px] font-bold">Аз Кумита тасдиқшуда</span><span
+                            class="text-[11px] font-normal opacity-70 mt-0.5 filter-ru-text">Одобрено Комитетом</span>
+                    </div>
                     <span id="dash-approved-badge"
                         class="main-filter-badge self-start mt-0.5 bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
                 </button>
@@ -175,52 +472,12 @@
                         class="main-filter-badge self-start mt-0.5 bg-emerald-700 text-white px-2 py-0.5 rounded-md text-[11px] font-bold hidden">0</span>
                 </button>
             </div>
-            <div class="flex items-center justify-end gap-3 w-full xl:w-auto">
-                <div
-                    class="hidden xl:flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex-shrink-0 shadow-sm">
-                    <button onclick="setViewMode('grid')" id="btn-view-grid"
-                        class="p-2 rounded-xl bg-white text-primary shadow-sm transition-colors"
-                        title="Тӯри кортҳо / Сетка карточек"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
-                    <button onclick="setViewMode('list')" id="btn-view-list"
-                        class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-white transition-colors"
-                        title="Ҷадвали уфуқӣ / Горизонтальная таблица"><i data-lucide="list"
-                            class="w-4 h-4"></i></button>
-                </div>
-                <div class="relative">
-                    <button id="btn-unlock-notifications"
-                        class="relative p-2.5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 hover:bg-white hover:text-slate-800 transition-colors shadow-sm"
-                        title="Оповещения по разблокировке / Оповещения">
-                        <i data-lucide="bell" class="w-4 h-4"></i>
-                        <span id="unlock-notifications-badge"
-                            class="hidden flex absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold items-center justify-center">0</span>
-                    </button>
-                    <div id="unlock-notifications-panel"
-                        class="hidden absolute right-0 top-12 z-40 w-[360px] max-w-[92vw] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-                        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
-                            <div class="text-[12px] font-bold text-slate-800">Оповещения разблокировки</div>
-                            <div class="flex items-center gap-2">
-                                <button id="btn-mark-all-unlock-processed"
-                                    class="text-[11px] text-slate-500 hover:text-slate-700 font-medium">Отметить
-                                    все</button>
-                                <button id="btn-close-unlock-notifications"
-                                    class="text-[11px] text-slate-500 hover:text-slate-700 font-medium">Закрыть</button>
-                            </div>
-                        </div>
-                        <div id="unlock-notifications-list" class="max-h-[320px] overflow-y-auto"></div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div id="facilitator-filters-bar"
             class="hidden flex bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
-            <button data-fac-filter="all_fac"
-                class="fac-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
-                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span><span
-                    id="sub-fac-all-badge"
-                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="draft"
-                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                class="fac-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
                     class="filter-text"><span>Сиёҳнавис</span><span class="ru-block">Черновики</span></span><span
                     id="sub-draft-badge"
                     class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
@@ -234,15 +491,10 @@
                     class="filter-text"><span>Дар ҳоли такмил</span><span class="ru-block">На
                         доработке</span></span><span id="sub-rev-badge"
                     class="bg-red-100 text-red-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
-            <button data-fac-filter="sent"
-                class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
-                    class="filter-text"><span>Дар баррасӣ</span><span class="ru-block">На
-                        рассмотрении</span></span><span id="sub-fac-sent-badge"
-                    class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="completed"
                 class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
-                    class="filter-text"><span>Пурра анҷом ёфт</span><span class="ru-block">Полностью
-                        завершенные</span></span><span id="sub-fac-completed-badge"
+                    class="filter-text"><span>Аз Кумита тасдиқшуда</span><span class="ru-block">Одобрено
+                        Комитетом</span></span><span id="sub-fac-completed-badge"
                     class="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-fac-filter="postponed"
                 class="fac-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
@@ -255,42 +507,23 @@
 
         <div id="facilitator-unlock-notice"
             class="hidden mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 shadow-sm animate-fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div class="flex items-start gap-2.5">
-                    <i data-lucide="bell-ring" class="w-5 h-5 text-emerald-700 mt-0.5"></i>
-                    <div>
-                        <div class="text-[13px] font-bold text-emerald-900">Дархостҳои омода барои кушодан: <span
-                                id="facilitator-unlock-ready-count">0</span><span class="ru-block">Заявки, готовые к
-                                разблокировке: <span id="facilitator-unlock-ready-count-ru">0</span></span></div>
-                        <p class="text-[12px] text-emerald-800 mt-1">Пас аз 3 моҳ танҳо Фасилитатор метавонад
-                            блокировкаро бардорад ва ба таҳрир баргардонад.<span class="ru-block mt-0.5">После 3
-                                месяцев только Фасилитатор снимает блокировку вручную и возвращает заявку в
-                                редактирование.</span></p>
-                    </div>
-                </div>
-                <button id="btn-open-unlock-ready"
-                    class="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded-lg text-[12px] font-bold hover:bg-emerald-100 transition-colors w-full sm:w-auto">Кушодан
-                    <span class="ru">/ Открыть список</span></button>
+            <div class="flex justify-end gap-2 flex-wrap">
+                <button id="btn-open-approved-lists-mode"
+                    class="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded-lg text-[12px] font-bold hover:bg-emerald-100 transition-colors w-full sm:w-auto">Рӯйхатро
+                    кушодан <span class="ru">/ Открыть список</span></button>
+                <button id="btn-open-approved-apps-mode"
+                    class="bg-white border border-emerald-300 text-emerald-700 px-4 py-2 rounded-lg text-[12px] font-bold hover:bg-emerald-100 transition-colors w-full sm:w-auto">Дархостҳоро
+                    кушодан <span class="ru">/ Открыть заявки</span></button>
             </div>
         </div>
 
         <!-- Саб-фильтры для ШИГ / GMC -->
         <div id="gmc-filters-bar"
             class="hidden flex bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
-            <button data-gmc-filter="all_gmc"
-                class="gmc-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
-                    class="filter-text"><span>Ҳама</span><span class="ru-block">Все</span></span><span
-                    id="sub-gmc-all-badge"
-                    class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-gmc-filter="new"
-                class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                class="gmc-filter-btn bg-primary text-white border border-transparent px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-colors shadow-sm flex items-center gap-2"><span
                     class="filter-text"><span>Аз Фасилитатор</span><span class="ru-block">От
                         Фасилитатора</span></span><span id="sub-gmc-new-badge"
-                    class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
-            <button data-gmc-filter="returned"
-                class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
-                    class="filter-text"><span>Бозрасии такрорӣ</span><span class="ru-block">Повторное
-                        рассмотрение</span></span><span id="sub-gmc-returned-badge"
                     class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
             <button data-gmc-filter="preparation"
                 class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
@@ -301,6 +534,16 @@
                 class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
                     class="filter-text"><span>Омода барои реестр</span><span class="ru-block">Готовы для
                         реестра</span></span><span id="sub-gmc-reg-badge"
+                    class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
+            <button data-gmc-filter="approved_committee"
+                class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                    class="filter-text"><span>Аз Кумита тасдиқшуда</span><span class="ru-block">Одобрено
+                        Комитетом</span></span><span id="sub-gmc-approved-badge"
+                    class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
+            <button data-gmc-filter="returned"
+                class="gmc-filter-btn bg-white text-slate-600 border border-slate-200 px-4 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap hover:bg-slate-50 transition-colors flex items-center gap-2"><span
+                    class="filter-text"><span>Мавқуф</span><span class="ru-block">Отложенные</span></span><span
+                    id="sub-gmc-returned-badge"
                     class="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[10px] hidden">0</span></button>
         </div>
 
@@ -366,7 +609,7 @@
                 <div>
                     <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
                             class="filter-text"><span>Бахш</span><span class="ru-block">Сектор</span></span></label>
-                    <select id="filter-sector"
+                    <select id="filter-sector" title="Фильтр по сектору / Филтр аз руи бахш"
                         class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
                         <option value="">Ҳама / Все</option>
                         <option value="савдо">Савдо / Торговля</option>
@@ -378,7 +621,7 @@
                 <div>
                     <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
                             class="filter-text"><span>Минтақа</span><span class="ru-block">Регион</span></span></label>
-                    <select id="filter-region"
+                    <select id="filter-region" title="Фильтр по региону / Филтр аз руи минтака"
                         class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
                         <option value="">Ҳама / Все</option>
                         <option value="душанбе">Душанбе</option>
@@ -392,7 +635,7 @@
                 <div>
                     <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
                             class="filter-text"><span>Ҷинс</span><span class="ru-block">Пол</span></span></label>
-                    <select id="filter-gender"
+                    <select id="filter-gender" title="Фильтр по полу / Филтр аз руи чинс"
                         class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
                         <option value="">Ҳама / Все</option>
                         <option value="мард">Мард / Мужской</option>
@@ -413,7 +656,7 @@
                 <div>
                     <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
                             class="filter-text"><span>Сол</span><span class="ru-block">Год</span></span></label>
-                    <select id="approved-stats-year"
+                    <select id="approved-stats-year" title="Фильтр по году / Филтр аз руи сол"
                         class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
                         <option value="all">Ҳама / Все</option>
                     </select>
@@ -421,7 +664,7 @@
                 <div>
                     <label class="block text-[11px] font-bold text-gray-600 mb-1"><span
                             class="filter-text"><span>Моҳ</span><span class="ru-block">Месяц</span></span></label>
-                    <select id="approved-stats-month"
+                    <select id="approved-stats-month" title="Фильтр по месяцу / Филтр аз руи мох"
                         class="w-full border border-gray-200 rounded-md text-[13px] px-3 py-2 focus:border-primary outline-none bg-white">
                         <option value="all">Ҳама / Все</option>
                         <option value="1">Январ</option>
@@ -451,7 +694,7 @@
                     <label class="block text-[11px] font-bold text-gray-600"><span class="filter-text"><span>Рӯйхати
                                 тасдиқ</span><span class="ru-block">Список одобрения</span></span></label>
                     <div class="flex items-center gap-2">
-                        <select id="approved-list-select"
+                        <select id="approved-list-select" title="Выбор списка одобрения / Интихоби руйхат"
                             class="w-full border border-gray-200 rounded-md text-[12px] px-2 py-1.5 focus:border-primary outline-none bg-white"></select>
                         <button id="btn-open-approved-list" onclick="openSelectedApprovedList()"
                             class="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-[11px] font-bold hover:bg-indigo-700 transition-colors whitespace-nowrap">Кушодан
@@ -569,7 +812,7 @@
                         <span class="ru">/ Заявка: Грантовая поддержка бизнеса</span>
                     </h1>
                 </div>
-                <button id="closeModalBtn"
+                <button id="closeModalBtn" title="Закрыть окно / Бастани тиреза" aria-label="Закрыть окно"
                     class="text-gray-400 hover:text-gray-600 transition-colors bg-gray-100 hover:bg-gray-200 p-2 rounded-full"><i
                         data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -586,10 +829,6 @@
                     class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-start gap-2 cursor-pointer text-[13px] font-medium transition-colors"
                     data-target="pane-gmc"><i data-lucide="scale" class="w-4 h-4 mt-[2px]"></i><span
                         class="tab-text"><span>ШИГ</span><span class="ru-block">КУГ</span></span></button>
-                <button
-                    class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-start gap-2 cursor-pointer text-[13px] font-medium transition-colors"
-                    data-target="pane-piu"><i data-lucide="search" class="w-4 h-4 mt-[2px]"></i><span
-                        class="tab-text"><span>ГТЛ</span><span class="ru-block">ГРП</span></span></button>
                 <button
                     class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 flex items-start gap-2 cursor-pointer text-[13px] font-medium transition-colors"
                     data-target="pane-committee"><i data-lucide="award" class="w-4 h-4 mt-[2px]"></i><span
@@ -770,7 +1009,7 @@
                         <div>
                             <label class="block text-[12px] text-gray-600 mb-1.5">Бахши тиҷорат <span class="ru">/
                                     Сектор бизнеса</span></label>
-                            <select id="sector-input"
+                            <select id="sector-input" title="Сектор бизнеса / Бахши тичорат"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 text-[13px] focus:border-primary outline-none focus:ring-1 focus:ring-primary transition-shadow">
                                 <option value="">— Интихоб кунед —</option>
                                 <option value="Савдо">Савдо / Торговля</option>
@@ -788,7 +1027,7 @@
                         <div>
                             <label class="block text-[12px] text-gray-600 mb-1.5">Таҷрибаи корӣ (Вуруди дастӣ) <span
                                     class="ru">/ Опыт работы</span></label>
-                            <textarea id="experience" rows="3"
+                            <textarea id="experience" rows="3" title="Опыт работы / Тачрибаи кори"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 text-[13px] focus:border-primary outline-none focus:ring-1 focus:ring-primary transition-shadow resize-none"></textarea>
                         </div>
                         <div class="border border-indigo-200 rounded-xl p-4 bg-indigo-50/50 space-y-3">
@@ -816,7 +1055,7 @@
                                 <div>
                                     <label class="block text-[11px] text-indigo-800 font-semibold mb-1">Word
                                         (doc/docx)</label>
-                                    <input type="file" id="fac-word-upload"
+                                    <input type="file" id="fac-word-upload" title="Загрузка Word документа"
                                         accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                                         class="w-full text-[11px] border border-indigo-200 rounded-lg bg-white p-2">
                                     <div id="fac-word-upload-text" class="text-[10px] text-slate-500 mt-1">Файл не
@@ -824,7 +1063,8 @@
                                 </div>
                                 <div>
                                     <label class="block text-[11px] text-indigo-800 font-semibold mb-1">PDF</label>
-                                    <input type="file" id="fac-pdf-upload" accept="application/pdf,.pdf"
+                                    <input type="file" id="fac-pdf-upload" title="Загрузка PDF документа"
+                                        accept="application/pdf,.pdf"
                                         class="w-full text-[11px] border border-indigo-200 rounded-lg bg-white p-2">
                                     <div id="fac-pdf-upload-text" class="text-[10px] text-slate-500 mt-1">Файл не выбран
                                     </div>
@@ -844,13 +1084,13 @@
                                         </button>
                                     </div>
                                     <!-- Скрытые инпуты для камеры и галереи -->
-                                    <input type="file" id="fac-photo-upload-camera" accept="image/*"
-                                        capture="environment" multiple style="display:none">
-                                    <input type="file" id="fac-photo-upload-gallery" accept="image/*" multiple
-                                        style="display:none">
+                                    <input type="file" id="fac-photo-upload-camera" title="Загрузка фото с камеры"
+                                        accept="image/*" multiple class="hidden">
+                                    <input type="file" id="fac-photo-upload-gallery" title="Загрузка фото из галереи"
+                                        accept="image/*" multiple class="hidden">
                                     <!-- Старый input скрыт для совместимости -->
-                                    <input type="file" id="fac-photo-upload" accept="image/*" multiple
-                                        style="display:none">
+                                    <input type="file" id="fac-photo-upload" title="Загрузка фото" accept="image/*"
+                                        multiple class="hidden">
                                     <div id="fac-photo-upload-text" class="text-[10px] text-slate-500 mt-1">0 / 4</div>
                                     <div id="fac-photo-preview" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
                                     </div>
@@ -867,9 +1107,12 @@
                                 ба ШИГ</span><span class="ru">Отправить в КУГ</span></button>
                     </div>
                 </div>
-                <div class="hidden"><input type="text" id="id-input"><input type="text" id="beneficiary-id-input"><input
-                        type="text" id="full-name"><input type="text" id="inn"><input type="text"
-                        id="contacts-input"><input type="text" id="course"></div>
+                <div class="hidden"><input type="text" id="id-input" title="Техническое поле ID"><input type="text"
+                        id="beneficiary-id-input" title="Техническое поле beneficiary ID"><input type="text"
+                        id="full-name" title="Техническое поле ФИО"><input type="text" id="inn"
+                        title="Техническое поле ИНН"><input type="text" id="contacts-input"
+                        title="Техническое поле контактов"><input type="text" id="course"
+                        title="Техническое поле курса"></div>
             </div>
 
             <!-- PANE: GMC (ШИГ) ОЦЕНКА -->
@@ -887,73 +1130,16 @@
                             <label for="gmc-operator-name"
                                 class="block text-[11px] font-bold text-indigo-800 mb-1.5 uppercase tracking-wider">ФИО
                                 оператора ШИГ / КУГ</label>
-                            <input id="gmc-operator-name" type="text"
+                            <input id="gmc-operator-name" type="text" list="gmc-operator-list"
                                 class="w-full border border-indigo-300 rounded-lg px-3 py-2 text-[12px] text-slate-800"
                                 placeholder="Введите ФИО сотрудника, который заполняет форму">
-                            <p class="text-[10px] text-indigo-700 mt-1">Это имя будет записано в историю действий
-                                заявки.</p>
+                            <datalist id="gmc-operator-list"></datalist>
+                            <p class="text-[10px] text-indigo-700 mt-1">Это имя фиксируется за данным опросником и
+                                больше не изменяется; будет записано в историю действий заявки.</p>
                         </div>
 
                         <!-- Блок подготовки в реестр -->
                         <div id="gmc-preparation-content" class="hidden space-y-6 animate-fade-in"></div>
-
-                        <div id="gmc-analyze-piu-return-content" class="hidden space-y-6 animate-fade-in">
-                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
-                                <div class="flex items-start gap-4">
-                                    <div
-                                        class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
-                                    </div>
-                                    <div class="w-full">
-                                        <h3 class="text-[15px] font-bold text-amber-900 mb-2" id="gmc-return-title">Аз
-                                            ГРП / Кумита баргардонида шуд <span class="ru-block mt-1">Возвращено из ГРП
-                                                / Комитета на доработку</span></h3>
-                                        <p class="text-[13px] text-amber-800 mb-4">Дархост бо эродҳо баргардонд. Лутфан
-                                            сабабҳоро таҳлил кунед. Агар хатогӣ аз ҷониби ШИГ бошад, онро худатон ислоҳ
-                                            карда, дубора ба марҳилаи қаблӣ фиристед. Агар хатогӣ дар нақшаи тиҷоратӣ
-                                            бошад, онро ба Фасилитатор равон кунед. <span class="ru-block mt-1">Заявка
-                                                возвращена с комментариями. Проанализируйте причины. Если ошибка со
-                                                стороны КУГ — исправьте сами. Если в бизнес-плане — направьте
-                                                Фасилитатору.</span></p>
-
-                                        <div
-                                            class="mb-5 text-[12px] text-amber-900 bg-white/60 p-4 rounded-xl border border-amber-200 font-medium shadow-sm">
-                                            <span
-                                                class="block mb-1.5 font-bold text-[10px] uppercase tracking-wider text-amber-700 flex items-center gap-1.5"><i
-                                                    data-lucide="message-square" class="w-3 h-3"></i> Эзоҳ /
-                                                Комментарий:</span>
-                                            <span id="gmc-dynamic-comment">—</span>
-                                        </div>
-
-                                        <div class="mb-5">
-                                            <label for="gmc-return-comment"
-                                                class="block mb-1.5 font-bold text-[10px] uppercase tracking-wider text-amber-700">Эзоҳи
-                                                нави ШИГ / Новый комментарий КУГ</label>
-                                            <textarea id="gmc-return-comment" rows="3"
-                                                class="w-full border border-amber-300 rounded-xl px-3 py-2 text-[12px] bg-white text-amber-900 placeholder-amber-500"
-                                                placeholder="Сабаби бозгардонӣ ба Фасилитаторро нависед... / Укажите причину возврата Фасилитатору..."></textarea>
-                                        </div>
-
-                                        <button type="button"
-                                            onclick="alert('Боргирии эродҳо... / Скачивание комментариев...')"
-                                            class="bg-white border border-amber-300 text-amber-700 py-2.5 px-4 rounded-xl text-[12px] font-bold hover:bg-amber-100 transition-colors flex items-center gap-2 shadow-sm w-max mb-6"><i
-                                                data-lucide="download" class="w-4 h-4"></i><span>Боргирии эродҳо ва
-                                                ҳуҷҷатҳо <span class="ru-block text-[10px] font-normal">Скачать
-                                                    комментарии и документы</span></span></button>
-                                        <div class="flex flex-col sm:flex-row gap-3">
-                                            <button onclick="sendGmcBackToPiu()"
-                                                class="w-full bg-[#5b4ef5] text-white py-3 rounded-xl text-[13px] font-bold hover:bg-[#4b3ed5] transition-colors shadow-sm flex flex-col items-center leading-tight"><span>Ман
-                                                    худам ислоҳ кардам (Баргардонидан)</span><span class="ru">Исправил
-                                                    сам (Вернуть проверяющим)</span></button>
-                                            <button onclick="sendGmcToFacilitator()"
-                                                class="w-full bg-white border-2 border-red-300 text-red-600 py-3 rounded-xl text-[13px] font-bold hover:bg-red-50 transition-colors shadow-sm flex flex-col items-center leading-tight"><span>Барои
-                                                    такмил ба Фасилитатор</span><span class="ru">На доработку
-                                                    Фасилитатору</span></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         <div id="gmc-evaluation-content" class="hidden space-y-6 animate-fade-in">
                             <div
@@ -1300,7 +1486,8 @@
                                     class="hidden mt-4 p-4 bg-red-50 border border-red-300 rounded-xl flex flex-col gap-3">
                                     <h4 class="text-[13px] font-bold text-red-900 leading-tight">Ҳуҷҷат бо эродҳо <span
                                             class="ru-block font-normal">Документ с комментариями</span></h4>
-                                    <input type="file" id="gmc-revision-upload" class="text-[11px]">
+                                    <input type="file" id="gmc-revision-upload" title="Загрузка файла с исправлениями"
+                                        class="text-[11px]">
                                 </div>
                                 <div class="mt-5">
                                     <label class="block text-[12px] font-semibold text-gray-800 mb-2">Шарҳҳои баҳогузор
@@ -1350,86 +1537,6 @@
                 </div>
             </div>
 
-            <!-- PANE: PIU (ГРП) - ИЗМЕНЕНО: ОСТАЛСЯ ТОЛЬКО ОДИН ШАГ -->
-            <div id="pane-piu" class="tab-pane hidden animate-fade-in">
-                <div class="p-6">
-                    <div id="piu-evaluation-content" class="hidden space-y-4">
-                        <div
-                            class="bg-indigo-50/50 border border-indigo-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm mb-4">
-                            <div>
-                                <p class="text-[11px] text-indigo-500 font-bold uppercase tracking-wider mb-1">
-                                    Аризадиҳанда <span class="ru">/ Заявитель</span></p>
-                                <p class="text-[14px] font-bold text-indigo-900 leading-tight"><span
-                                        id="piu-app-name">—</span> <span class="text-indigo-600 font-normal ml-2">#<span
-                                            id="piu-app-id">—</span></span></p>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                                <button type="button" onclick="downloadCurrentBusinessPlanFromModal()"
-                                    class="bg-white border border-indigo-300 text-indigo-700 py-2 px-3 rounded-lg text-[12px] font-bold hover:bg-indigo-100 shadow-sm inline-flex items-center gap-2"><i
-                                        data-lucide="download" class="w-4 h-4"></i><span class="leading-tight">Боргирии
-                                        Word
-                                        <span class="ru font-normal">/ Скачать Word</span></span></button>
-                                <button type="button" onclick="downloadCurrentPdfFromModal()"
-                                    class="bg-white border border-indigo-300 text-indigo-700 py-2 px-3 rounded-lg text-[12px] font-bold hover:bg-indigo-100 shadow-sm inline-flex items-center gap-2"><i
-                                        data-lucide="file" class="w-4 h-4"></i><span class="leading-tight">Боргирии PDF
-                                        <span class="ru font-normal">/ Скачать PDF</span></span></button>
-                                <button type="button" onclick="downloadCurrentPhotoPackFromModal()"
-                                    class="bg-white border border-indigo-300 text-indigo-700 py-2 px-3 rounded-lg text-[12px] font-bold hover:bg-indigo-100 shadow-sm inline-flex items-center gap-2"><i
-                                        data-lucide="images" class="w-4 h-4"></i><span class="leading-tight">Боргирии
-                                        фото
-                                        <span class="ru font-normal">/ Скачать фото</span></span></button>
-                            </div>
-                        </div>
-
-                        <div
-                            class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex justify-between items-center mb-2 shadow-sm">
-                            <h3 class="font-semibold text-blue-900 text-[13px]">Раванди санҷиш <span class="ru">/
-                                    Прогресс верификации</span></h3>
-                            <span class="text-lg font-bold text-blue-600" id="piu-counter">0/1</span>
-                        </div>
-
-                        <div class="border border-gray-200 rounded-xl p-4 shadow-sm bg-white" id="piu-card-1">
-                            <div class="flex justify-between items-center mb-3"><b><span
-                                        class="filter-text"><span>Баҳогузории иҷтимоӣ-экологӣ</span><span
-                                            class="ru-block">Социально-экологическая оценка</span></span></b> <button
-                                    id="piu-trigger-1" onclick="togglePiuForm(1)"
-                                    class="text-blue-600 text-[12px] font-bold px-3 py-1 bg-blue-50 rounded hover:bg-blue-100 transition-colors">Ворид
-                                    кардан <span class="ru">/ Внести</span></button></div>
-                            <div id="form-1" class="hidden flex flex-col gap-3">
-                                <div class="flex gap-2" id="piu-decision-buttons-1">
-                                    <button onclick="setPiuDecision(1, 'approve')" id="btn-app-1"
-                                        class="flex-1 py-2 border rounded-lg text-xs hover:bg-gray-50 flex flex-col items-center transition-colors"><span>Тасдиқ
-                                            кардан</span><span class="ru mt-0.5">Одобрить</span></button>
-                                    <button onclick="setPiuDecision(1, 'resubmit')" id="btn-rev-1"
-                                        class="flex-1 py-2 border rounded-lg text-xs hover:bg-gray-50 flex flex-col items-center transition-colors"><span>Ба
-                                            такмил</span><span class="ru mt-0.5">На доработку</span></button>
-                                </div>
-                                <div id="piu-comment-block-1" class="hidden">
-                                    <label class="block text-[11px] font-medium text-gray-700 mb-1">Сабаби баргардонидан
-                                        <span class="ru">/ Причина возврата:</span></label>
-                                    <textarea id="piu-comment-1" rows="2"
-                                        class="w-full border border-amber-300 rounded px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-amber-100 transition-shadow resize-none"
-                                        placeholder="Шарҳи худро нависед... / Введите комментарий..."></textarea>
-                                </div>
-                                <button id="piu-save-btn-1" onclick="savePiuCard(1)"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">OK</button>
-                            </div>
-                        </div>
-
-                        <div id="piu-revision-files"
-                            class="hidden mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col shadow-sm">
-                            <h4 class="text-[13px] font-bold text-amber-900 leading-tight">Боркунии эродҳо ба ШИГ <span
-                                    class="ru font-normal">/ Загрузка комментариев в КУГ</span></h4>
-                            <input type="file" id="piu-revision-upload" class="mt-2 text-[11px]">
-                        </div>
-
-                        <button id="finalize-piu-btn" onclick="finalizePiu()" disabled
-                            class="w-full bg-gray-200 text-gray-500 py-3 rounded-xl text-[13px] font-bold cursor-not-allowed mt-4 shadow-sm transition-colors flex flex-col items-center leading-tight"><span>Ба
-                                анҷом расонидани санҷиш</span><span class="ru">Завершить верификацию</span></button>
-                    </div>
-                </div>
-            </div>
-
             <!-- PANE: КОМИТЕТ (ПАКЕТНОЕ УТВЕРЖДЕНИЕ) -->
             <div id="pane-committee-batch" class="tab-pane hidden animate-fade-in">
                 <div class="p-6">
@@ -1461,7 +1568,7 @@
                                 <label class="text-[12px] font-bold text-teal-900 whitespace-nowrap"><span
                                         class="filter-text"><span>Сана</span><span
                                             class="ru-block">Дата:</span></span></label>
-                                <input type="date" id="batch-protocol-date"
+                                <input type="date" id="batch-protocol-date" title="Дата протокола"
                                     class="border border-teal-300 rounded-md px-2 py-1 text-[13px] outline-none focus:border-teal-500 bg-white text-teal-900 font-medium w-full sm:w-auto">
                             </div>
                         </div>
@@ -1653,7 +1760,8 @@
                                     <p id="grant-agreement-hint" class="text-[10px] text-slate-500 mt-2">Загрузка
                                         доступна только Фасилитатору и только в статусе approved.</p>
                                     <div id="grant-doc-pack-status"></div>
-                                    <input type="file" id="grant-agreement-upload" accept=".pdf,.jpg,.jpeg,.png"
+                                    <input type="file" id="grant-agreement-upload"
+                                        title="Загрузка подписанного договора" accept=".pdf,.jpg,.jpeg,.png"
                                         class="hidden">
                                     <textarea id="grant-agreement-note" rows="2"
                                         class="mt-2 w-full border border-emerald-200 rounded-lg px-2 py-1.5 text-[11px] text-slate-700"
@@ -1781,13 +1889,13 @@
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Грантдиҳанда (как в
                                                     тексте)</label>
-                                                <input id="contract-donorEntityForText" type="text"
+                                                <input id="contract-donorEntityForText" type="text" title="Грантдиҳанда"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Грантгир (как в
                                                     тексте)</label>
-                                                <input id="contract-granteeEntityForText" type="text"
+                                                <input id="contract-granteeEntityForText" type="text" title="Грантгир"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                         </div>
@@ -1800,7 +1908,7 @@
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Сумма гранта
                                                     (авто)</label>
-                                                <input id="contract-grantAmount" type="text"
+                                                <input id="contract-grantAmount" type="text" title="Сумма гранта"
                                                     class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
@@ -1819,24 +1927,25 @@
                                         <div class="space-y-3">
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Номи бонк</label>
-                                                <input id="contract-bankName" type="text"
+                                                <input id="contract-bankName" type="text" title="Название банка"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Суратҳисоби
                                                     ҷорӣ</label>
-                                                <input id="contract-currentAccount" type="text"
+                                                <input id="contract-currentAccount" type="text" title="Текущий счет"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Суратҳисоби
                                                     муросилотӣ</label>
                                                 <input id="contract-correspondentAccount" type="text"
+                                                    title="Корреспондентский счет"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">БИК</label>
-                                                <input id="contract-bik" type="text"
+                                                <input id="contract-bik" type="text" title="БИК"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                         </div>
@@ -1850,63 +1959,70 @@
                                                 <label class="block text-[11px] text-slate-600 mb-1">Рақами паспорт (аз
                                                     БД)</label>
                                                 <input id="contract-beneficiaryPassportNo" type="text"
+                                                    title="Номер паспорта"
                                                     class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Ному насаби
                                                     баҳрагир (аз БД)</label>
                                                 <input id="contract-beneficiaryFullName" type="text"
+                                                    title="ФИО бенефициара"
                                                     class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Суроғаи ҷойи
                                                     бақайдгирӣ (вручную)</label>
                                                 <input id="contract-beneficiaryRegAddress" type="text"
+                                                    title="Адрес регистрации"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Суроғаи ҷойи
                                                     татбиқи лоиҳа (вручную)</label>
                                                 <input id="contract-beneficiaryProjectAddress" type="text"
+                                                    title="Адрес проекта"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Телефон (аз
                                                     БД)</label>
                                                 <input id="contract-beneficiaryPhone" type="text"
+                                                    title="Телефон бенефициара"
                                                     class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">E-mail (аз БД, агар
                                                     нест —)</label>
                                                 <input id="contract-beneficiaryEmail" type="email"
+                                                    title="Email бенефициара"
                                                     class="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div class="pt-1 border-t border-slate-200"></div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Ному насаб
                                                     (намояндаи ваколатдор)</label>
-                                                <input id="contract-donorRepName" type="text"
+                                                <input id="contract-donorRepName" type="text" title="ФИО представителя"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Вазифа</label>
                                                 <input id="contract-donorRepPosition" type="text"
+                                                    title="Должность представителя"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Суроға</label>
-                                                <input id="contract-donorAddress" type="text"
+                                                <input id="contract-donorAddress" type="text" title="Адрес донора"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">Телефон</label>
-                                                <input id="contract-donorPhone" type="text"
+                                                <input id="contract-donorPhone" type="text" title="Телефон донора"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                             <div>
                                                 <label class="block text-[11px] text-slate-600 mb-1">E-mail</label>
-                                                <input id="contract-donorEmail" type="email"
+                                                <input id="contract-donorEmail" type="email" title="Email донора"
                                                     class="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-[12px]">
                                             </div>
                                         </div>

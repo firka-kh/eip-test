@@ -50,7 +50,6 @@ graph TB
         subgraph "Feature Layer"
             FAC[facilitator.js<br/>fillFacilitatorForm,<br/>saveToDraft,<br/>submitToGmc,<br/>applyCompletenessCheck]
             GMC[gmc.js<br/>loadGmcForm,<br/>saveGmcDecision,<br/>markReadyForRegistry]
-            PIU[piu.js<br/>loadPiuForm,<br/>finalizePiu]
             COM[committee.js<br/>openCommitteeBatch,<br/>submitCommitteeBatch,<br/>exportProtocolToExcel]
             MON[monitoring.js<br/>generateMonitoringFor,<br/>saveMonitoringVisit,<br/>renderMonitoringList]
         end
@@ -66,9 +65,8 @@ graph TB
     APP -->|8. load| RENDER
     APP -->|9. load| FAC
     APP -->|10. load| GMC
-    APP -->|11. load| PIU
-    APP -->|12. load| COM
-    APP -->|13. load| MON
+    APP -->|11. load| COM
+    APP -->|12. load| MON
 
     SEED_DATA --> DICT
     SEED_DATA --> SEED_APP
@@ -83,10 +81,6 @@ graph TB
     GMC --> UTILS
     GMC --> NOTIFY
     GMC --> RENDER
-    PIU --> STORE
-    PIU --> UTILS
-    PIU --> NOTIFY
-    PIU --> RENDER
     COM --> STORE
     COM --> UTILS
     COM --> NOTIFY
@@ -119,9 +113,8 @@ sequenceDiagram
     app.js->>Modules: 7. ui/render.js
     app.js->>Modules: 8. features/facilitator.js
     app.js->>Modules: 9. features/gmc.js
-    app.js->>Modules: 10. features/piu.js
-    app.js->>Modules: 11. features/committee.js
-    app.js->>Modules: 12. features/monitoring.js
+    app.js->>Modules: 10. features/committee.js
+    app.js->>Modules: 11. features/monitoring.js
     Modules-->>app.js: Все модули загружены
     app.js->>Browser: Скрыть лоадер, показать UI
 ```
@@ -182,7 +175,7 @@ graph LR
 
 ```mermaid
 flowchart LR
-    UI["UI Event<br/>(клик кнопки)"] --> FEATURE["Feature Module<br/>(facilitator/gmc/piu/com)"]
+    UI["UI Event<br/>(клик кнопки)"] --> FEATURE["Feature Module<br/>(facilitator/gmc/com)"]
     FEATURE --> STATE["window.state<br/>(мутация объекта)"]
     FEATURE --> LOG["addLog()<br/>(аудит)"]
     STATE --> RENDER["renderAllCards()<br/>(перерисовка)"]
@@ -232,8 +225,8 @@ flowchart LR
 flowchart LR
     F1[Фасилитатор: первичная подача] --> D1[documents.basePdf + documents.basePhotos]
     F1 --> W1[documents.wordVersions: V1]
-    W1 --> G1[ШИГ / КУГ и ГРП читают текущий Word]
-    G1 -->|Возврат из ГРП| G2[ШИГ / КУГ загружает новый Word]
+    W1 --> G1[ШИГ / КУГ и Комитет читают текущий Word]
+    G1 -->|Отклонение Комитета + разблокировка| G2[Фасилитатор загружает новый Word]
     G2 --> W2[registerWordVersion -> V2, V3...]
     W2 --> UI1[Карточки/таблицы: Current Word Version: Vn]
     D1 --> UI2[Отдельные скачивания PDF/фото]

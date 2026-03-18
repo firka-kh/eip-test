@@ -14,7 +14,6 @@
         'src/js/ui/render.js',
         'src/js/features/facilitator.js',
         'src/js/features/gmc.js',
-        'src/js/features/piu.js',
         'src/js/features/committee.js',
         'src/js/features/monitoring.js'
     ];

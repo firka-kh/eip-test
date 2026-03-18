@@ -44,7 +44,7 @@
 - Профиль: `name`, `inn`, `contacts`, `beneficiarySnapshot.*`
 - Бизнес: `sector`, `amount`
 - Процесс: `status`, `date`, `protocolId`
-- Доработка: `revisionCount`, `committeeReturnsCount`, `resubmitsToPiuCount`, `reactivated`
+- Доработка: `revisionCount`, `committeeReturnsCount`, `reactivated`, число повторных циклов доработки (производная метрика)
 - Блокировка: `postponedAtISO`, `postponedUntilISO`, `reactivatedAtISO`, `unlockNoticeProcessedAtISO`
 - Качество данных: `missingFields[]`
 - Документы: `documents.currentWordVersion`, `documents.basePdf`, `documents.basePhotos`
@@ -78,7 +78,7 @@
 
 - Всего заявок
 - Черновики
-- На рассмотрении (объединенно: `gmc_review`, `gmc_revision`, `gmc_preparation`, `gmc_ready_for_registry`, `piu_review`, `com_review`)
+- На рассмотрении (объединенно: `gmc_review`, `gmc_preparation`, `gmc_ready_for_registry`, `com_review`)
 - Одобрено
 - Отклонено
 - Отложено (`postponed`)
@@ -86,7 +86,7 @@
 
 ## B. Воронка по этапам
 
-- `draft -> gmc_review -> piu_review -> gmc_preparation -> gmc_ready_for_registry -> com_review -> approved`
+- `draft -> gmc_review -> gmc_preparation -> gmc_ready_for_registry -> com_review -> approved`
 - Конверсии между этапами
 - Drop-off по этапам (переход в `rejected`, `postponed`, `fac_revision`)
 
@@ -95,7 +95,7 @@
 - Среднее `revisionCount`
 - Доля заявок с `revisionCount >= 2`
 - Количество возвратов из Комитета (`committeeReturnsCount`)
-- Количество повторных отправок в ГРП (`resubmitsToPiuCount`)
+- Количество повторных циклов доработки (производная метрика по `auditLog`)
 - Количество/доля заявок в `incomplete_data`
 - Топ незаполненных полей из `missingFields[]`
 
@@ -137,7 +137,7 @@
 - По `approvalDate` (для approved)
 - По `visitDate`/`plannedDate` (для мониторинга)
 - Статус заявки (`ApplicationStatus`)
-- Роль этапа (`facilitator`, `gmc`, `piu`, `committee`)
+- Роль этапа (`facilitator`, `gmc`, `committee`)
 - Сектор (`sector`)
 - Регион (из `beneficiarySnapshot.address`/базы бенефициаров)
 - Пол (из `beneficiarySnapshot.gender`/базы)
@@ -159,7 +159,7 @@
 
 - `revisionCount` (0, 1, 2, 3)
 - Есть возврат из Комитета
-- Есть возврат из ГРП
+- Есть повторный цикл доработки
 - `incomplete_data` только
 - Фильтр по конкретному `missingField`
 
