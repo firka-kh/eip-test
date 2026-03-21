@@ -70,6 +70,7 @@ src/
 | [UI-GUIDE.md](docs/UI-GUIDE.md) | Описание интерфейса, экранов, фильтров |
 | [USER-INSTRUCTIONS.md](docs/USER-INSTRUCTIONS.md) | Пошаговые инструкции для пользователей по ролям |
 | [DOCS-MAINTENANCE.md](docs/DOCS-MAINTENANCE.md) | Обязательный регламент: когда и как обновлять документацию |
+| BACKEND-HANDOFF.md | **ТЗ для разработчиков (Handoff)**: Спецификации БД, API и инфраструктуры для перевода в продакшен |
 | [STATISTICS-MONITORING-DATA.md](docs/STATISTICS-MONITORING-DATA.md) | Спецификация данных, метрик и фильтров для отдельного модуля статистики/мониторинга |
 
 ## Актуальные бизнес-правила
