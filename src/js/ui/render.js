@@ -1311,7 +1311,9 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
             window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'finance_registry') {
-            getFullyCompletedApps().forEach(function (app) { appendApprovedApplicantCard(app); });
+            // Показываем и протоколы, и всех одобренных, чтобы фильтры работали полноценно
+            (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+            window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'committee') {
             getPendingCommitteeRegistries().forEach(function (reg) { appendCommitteeRegistryCard(reg); });
         } else {
@@ -2072,6 +2074,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         ) {
             const searchInput = document.getElementById('filter-search-issued');
             const searchFilter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const yearFilter = (document.getElementById('approved-stats-year') || {}).value || 'all';
+            const monthFilter = (document.getElementById('approved-stats-month') || {}).value || 'all';
             const sectorFilter = (document.getElementById('filter-sector') || {}).value || '';
             const regionFilter = (document.getElementById('filter-region') || {}).value || '';
             const genderFilter = (document.getElementById('filter-gender') || {}).value || '';
@@ -2083,17 +2087,43 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
             const isGmcApprovedCommitteeMode = window.activeMainFilter === 'gmc' && window.activeGmcFilter === 'approved_committee';
             const facCompletedViewMode = window.facilitatorCompletedViewMode || 'both';
 
+            const toDateParts = function (dateStr) {
+                const raw = String(dateStr || '').split(',')[0] || '';
+                const m = raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+                if (!m) return null;
+                return { month: parseInt(m[2], 10), year: parseInt(m[3], 10) };
+            };
+
             const passesCommonFilters = function (el) {
                 const sectors = String(el.getAttribute('data-sector-values') || '');
                 const regions = String(el.getAttribute('data-region-values') || '');
                 const genders = String(el.getAttribute('data-gender-values') || '');
                 const searchHaystack = String(el.getAttribute('data-search') || '');
 
+                // For date filtering, we search in the data-search which contains the date string or we can look it up
+                // Actually, let's look up by ID for items or by list-id for lists
+                let dateParts = null;
+                const itemId = el.getAttribute('data-id');
+                const listId = el.getAttribute('data-list-id');
+                if (itemId) {
+                    const app = window.getApp(itemId);
+                    if (app) dateParts = toDateParts(app.date);
+                } else if (listId) {
+                    const prot = (window.state.protocols || []).find(p => p.id === listId);
+                    if (prot) dateParts = toDateParts(prot.date);
+                }
+
                 let show = true;
                 if (sectorFilter && !sectors.includes(String(sectorFilter).toLowerCase())) show = false;
                 if (regionFilter && !regions.includes(String(regionFilter).toLowerCase())) show = false;
                 if (genderFilter && !genders.includes(String(genderFilter).toLowerCase())) show = false;
                 if (searchFilter && !searchHaystack.includes(searchFilter)) show = false;
+
+                if (show && dateParts) {
+                    if (yearFilter !== 'all' && dateParts.year !== parseInt(yearFilter, 10)) show = false;
+                    if (show && monthFilter !== 'all' && dateParts.month !== parseInt(monthFilter, 10)) show = false;
+                }
+
                 return show;
             };
 
@@ -2107,7 +2137,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
 
             if (isFinanceMode) {
                 showApplicantCards = true;
-                showApprovalLists = false;
+                showApprovalLists = true;
             } else if (isFacilitatorCompletedMode) {
                 showApplicantCards = facCompletedViewMode !== 'lists';
                 showApprovalLists = facCompletedViewMode !== 'apps';
@@ -2326,12 +2356,18 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
 
         const approvedYear = document.getElementById('approved-stats-year');
         if (approvedYear) {
-            approvedYear.addEventListener('change', updateApprovedInsights);
+            approvedYear.addEventListener('change', function() {
+                updateDashboardFilter();
+                updateApprovedInsights();
+            });
         }
 
         const approvedMonth = document.getElementById('approved-stats-month');
         if (approvedMonth) {
-            approvedMonth.addEventListener('change', updateApprovedInsights);
+            approvedMonth.addEventListener('change', function() {
+                updateDashboardFilter();
+                updateApprovedInsights();
+            });
         }
 
         const openApprovedListsBtn = document.getElementById('btn-open-approved-lists-mode');

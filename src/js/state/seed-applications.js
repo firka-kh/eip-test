@@ -357,6 +357,19 @@
     approvedForContractSeed.forEach(function (app, idx) {
         app.documents = buildReadyDocumentBundleForApproved(app, idx + 1);
         app.grantContractDraft = buildContractDraftForApproved(app, idx + 1);
+        
+        // Mark first 5 as fully completed for Finance demo
+        if (idx < 5) {
+            app.grantAgreement = {
+                uploaded: true,
+                fileName: 'Шартнома_' + app.id + '_signed.pdf',
+                uploadedAt: app.date || '01.03.2026, 12:00',
+                uploadedByRole: 'Фасилитатор',
+                uploadedByName: 'Фасилитатор',
+                note: 'Дархост пурра анҷом ёфт.'
+            };
+        }
+
         if (!app.auditLog) app.auditLog = [];
         app.auditLog.push({
             date: app.date || '01.03.2026, 10:00',
@@ -366,5 +379,16 @@
             color: 'emerald',
             icon: 'file-check'
         });
+
+        if (idx < 5) {
+            app.auditLog.push({
+                date: app.date || '01.03.2026, 12:00',
+                actor: 'Фасилитатор',
+                action: 'Шартномаи имзошуда бор шуд',
+                actionRu: 'Загружен подписанный договор',
+                color: 'emerald',
+                icon: 'file-signature'
+            });
+        }
     });
 })();
