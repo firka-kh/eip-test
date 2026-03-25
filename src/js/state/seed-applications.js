@@ -189,7 +189,9 @@
     const approvedListConfigs = [
         { id: 'СП-9001', date: '01.03.2026', exactTime: '10:03', baseAmount: 9000 },
         { id: 'СП-9002', date: '10.03.2026', exactTime: '11:25', baseAmount: 11000 },
-        { id: 'СП-9003', date: '20.03.2026', exactTime: '15:40', baseAmount: 13000 }
+        { id: 'СП-9003', date: '20.03.2026', exactTime: '15:40', baseAmount: 13000 },
+        { id: 'СП-9004', date: '22.03.2026', exactTime: '09:15', baseAmount: 8500 },
+        { id: 'СП-9005', date: '25.03.2026', exactTime: '14:20', baseAmount: 12500 }
     ];
 
     const fixedApprovedByList = {
