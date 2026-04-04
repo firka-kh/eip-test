@@ -256,6 +256,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         var metaEl = document.getElementById('grant-agreement-meta');
         var noteEl = document.getElementById('grant-agreement-note');
         var hintEl = document.getElementById('grant-agreement-hint');
+        var uploadControlsEl = document.getElementById('grant-agreement-upload-controls');
         if (!inputEl || !uploadBtn || !downloadBtn || !metaEl || !noteEl || !hintEl) return;
 
         var agreement = typeof window.ensureGrantAgreement === 'function' ? window.ensureGrantAgreement(app) : null;
@@ -263,15 +264,44 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         var hasAgreement = !!(agreement && agreement.uploaded && agreement.fileName);
 
         inputEl.value = '';
-        inputEl.disabled = !canUpload;
-        noteEl.disabled = !canUpload;
-        uploadBtn.disabled = !canUpload;
-        uploadBtn.classList.toggle('opacity-50', !canUpload);
-        uploadBtn.classList.toggle('pointer-events-none', !canUpload);
 
+        // Показываем блок загрузки ТОЛЬКО Фасилитатору — остальные видят только кнопку скачать
+        if (uploadControlsEl) {
+            uploadControlsEl.classList.toggle('hidden', !canUpload);
+        }
+        // textarea для комментария — только Фасилитатору
+        noteEl.classList.toggle('hidden', !canUpload);
+        noteEl.disabled = !canUpload;
+
+        // Кнопка скачать — доступна всем, если файл загружен
         downloadBtn.disabled = !hasAgreement;
         downloadBtn.classList.toggle('opacity-50', !hasAgreement);
         downloadBtn.classList.toggle('pointer-events-none', !hasAgreement);
+        // Если не фасилитатор, показываем кнопку скачать отдельно (вне скрытого блока)
+        if (!canUpload) {
+            downloadBtn.classList.remove('hidden');
+            downloadBtn.parentElement && downloadBtn.parentElement.classList.remove('hidden');
+            // Переместим кнопку скачать из скрытого блока наружу если нужно
+            // Но т.к. она внутри uploadControlsEl — нам нужно её дублировать через другой элемент ИЛИ
+            // убедиться что downloadBtn находится вне uploadControlsEl.
+            // Фактически: кнопка скачать находится В uploadControlsEl, который скрыт.
+            // Решение: если !canUpload && hasAgreement — создаём отдельную кнопку скачать
+            var existingReadOnlyDl = document.getElementById('grant-agreement-download-readonly');
+            if (!existingReadOnlyDl) {
+                existingReadOnlyDl = document.createElement('div');
+                existingReadOnlyDl.id = 'grant-agreement-download-readonly';
+                existingReadOnlyDl.className = 'mt-2';
+                existingReadOnlyDl.innerHTML = '<button type="button" onclick="downloadCurrentGrantAgreementFromModal()" class="bg-white border border-emerald-200 text-emerald-600 py-1.5 px-2.5 rounded-lg text-[11px] font-bold hover:bg-emerald-50 transition-colors inline-flex items-center gap-1.5"><i data-lucide="download" class="w-3.5 h-3.5"></i><span>Боргирӣ <span class="ru font-normal">/ Скачать</span></span></button>';
+                if (uploadControlsEl && uploadControlsEl.parentNode) {
+                    uploadControlsEl.parentNode.insertBefore(existingReadOnlyDl, uploadControlsEl);
+                }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+            existingReadOnlyDl.classList.toggle('hidden', !hasAgreement);
+        } else {
+            var existingReadOnlyDl = document.getElementById('grant-agreement-download-readonly');
+            if (existingReadOnlyDl) existingReadOnlyDl.classList.add('hidden');
+        }
 
         if (hasAgreement) {
             metaEl.innerHTML = '<div class="text-[12px] text-emerald-700 font-bold">' + agreement.fileName + '</div><div class="text-[11px] text-slate-500 mt-1">' + agreement.uploadedAt + ' • ' + agreement.uploadedByRole + '</div>';
