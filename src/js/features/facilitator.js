@@ -223,30 +223,64 @@
         // Хранилище выбранных файлов (до 4)
         var selectedFiles = [];
 
+        function showPhotoError(msg) {
+            var errorEl = document.getElementById('fac-photo-upload-error');
+            if (errorEl) {
+                errorEl.textContent = msg;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function clearPhotoError() {
+            var errorEl = document.getElementById('fac-photo-upload-error');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.add('hidden');
+            }
+        }
+
+        function validatePhotoFiles(files) {
+            var allowed = ['bmp', 'jpg', 'jpeg'];
+            for (var i = 0; i < files.length; i++) {
+                var f = files[i];
+                var ext = f.name.split('.').pop().toLowerCase();
+                if (allowed.indexOf(ext) === -1) return false;
+            }
+            return true;
+        }
+
+        function syncLegacyInput() {
+            var legacyInput = document.getElementById('fac-photo-upload');
+            if (!legacyInput) return;
+            try {
+                var dt = new DataTransfer();
+                selectedFiles.forEach(function (f) { dt.items.add(f); });
+                legacyInput.files = dt.files;
+            } catch (e) {
+                console.error('DataTransfer sync failed', e);
+            }
+        }
+
         function updatePreview() {
             previewContainer.innerHTML = '';
             selectedFiles.forEach(function (file, index) {
-                if (!file.type.startsWith('image/')) return;
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     var previewBox = document.createElement('div');
-                    previewBox.className = 'relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100 aspect-square';
-                    previewBox.style.position = 'relative';
+                    previewBox.className = 'relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100 aspect-square h-20';
                     var img = document.createElement('img');
                     img.src = e.target.result;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'cover';
+                    img.className = 'w-full h-full object-cover rounded border';
+                    
                     var removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
-                    removeBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
+                    removeBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10';
                     removeBtn.textContent = '✕';
                     removeBtn.addEventListener('click', function (evt) {
                         evt.preventDefault();
                         evt.stopPropagation();
                         selectedFiles.splice(index, 1);
                         updatePreview();
-                        updateUploadTextsFromInputs(window.currentFacilitatorAppId ? window.getApp(window.currentFacilitatorAppId) : null);
                     });
                     previewBox.appendChild(img);
                     previewBox.appendChild(removeBtn);
@@ -254,18 +288,28 @@
                 };
                 reader.readAsDataURL(file);
             });
-            updateUploadTextsFromInputs(window.currentFacilitatorAppId ? window.getApp(window.currentFacilitatorAppId) : null);
+            
+            // Синхронизация и обновление текстов
+            syncLegacyInput();
+            var openedApp = window.getApp(window.currentFacilitatorAppId || document.getElementById('id-input').value);
+            updateUploadTextsFromInputs(openedApp || null);
         }
 
         function handleFiles(files) {
-            var arr = Array.from(files).filter(f => f.type.startsWith('image/'));
-            selectedFiles = selectedFiles.concat(arr);
-            if (selectedFiles.length > 4) {
-                selectedFiles = selectedFiles.slice(0, 4);
-                if (window.AppNotify && typeof window.AppNotify.toast === 'function') {
-                    window.AppNotify.toast('warning', 'Внимание', 'Максимум 4 фото. Лишние будут отброшены.');
-                }
+            clearPhotoError();
+            var incoming = Array.from(files);
+            
+            if (!validatePhotoFiles(incoming)) {
+                showPhotoError('Разрешены только bmp, jpg, jpeg!');
+                return;
             }
+
+            if (selectedFiles.length + incoming.length > 4) {
+                showPhotoError('На выбор — максимум 4 фото!');
+                return;
+            }
+
+            selectedFiles = selectedFiles.concat(incoming);
             updatePreview();
         }
 
@@ -278,30 +322,18 @@
             inputGallery.click();
         });
         inputCamera.addEventListener('change', function () {
-            handleFiles(inputCamera.files);
+            if (inputCamera.files && inputCamera.files.length > 0) {
+                handleFiles(inputCamera.files);
+            }
         });
         inputGallery.addEventListener('change', function () {
-            handleFiles(inputGallery.files);
+            if (inputGallery.files && inputGallery.files.length > 0) {
+                handleFiles(inputGallery.files);
+            }
         });
 
-        // Для совместимости: если есть старый input (невидимый), инициализируем его пустым
-        var legacyInput = document.getElementById('fac-photo-upload');
-        if (legacyInput) legacyInput.value = '';
-
-        // Для других функций: прокидываем выбранные файлы в старый input (если нужно)
-        // (например, если где-то валидация или отправка берет файлы из fac-photo-upload)
-        function syncLegacyInput() {
-            if (!legacyInput) return;
-            var dt = new DataTransfer();
-            selectedFiles.forEach(f => dt.items.add(f));
-            legacyInput.files = dt.files;
-        }
-        // Синхронизировать при каждом изменении
-        const origUpdatePreview = updatePreview;
-        updatePreview = function () {
-            origUpdatePreview();
-            syncLegacyInput();
-        };
+        // Инициализация
+        updatePreview();
 
         // Инициализация
         updatePreview();
