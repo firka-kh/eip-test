@@ -220,8 +220,24 @@
         var btnGallery = document.getElementById('btn-photo-gallery');
         if (!inputCamera || !inputGallery || !previewContainer || !btnCamera || !btnGallery) return;
 
-        // Хранилище выбранных файлов (до 4)
+        // Сброс массива при каждом открытии заявки
         var selectedFiles = [];
+
+        // Снять старые обработчики, удалив и заново создав элементы кнопок (клонирование)
+        var cameraClone = btnCamera.cloneNode(true);
+        var galleryClone = btnGallery.cloneNode(true);
+        btnCamera.parentNode.replaceChild(cameraClone, btnCamera);
+        btnGallery.parentNode.replaceChild(galleryClone, btnGallery);
+        btnCamera = cameraClone;
+        btnGallery = galleryClone;
+
+        var camClone = inputCamera.cloneNode(true);
+        var galClone = inputGallery.cloneNode(true);
+        inputCamera.parentNode.replaceChild(camClone, inputCamera);
+        inputGallery.parentNode.replaceChild(galClone, inputGallery);
+        inputCamera = camClone;
+        inputGallery = galClone;
+
 
         function showPhotoError(msg) {
             var errorEl = document.getElementById('fac-photo-upload-error');
@@ -291,8 +307,10 @@
             
             // Синхронизация и обновление текстов
             syncLegacyInput();
-            var openedApp = window.getApp(window.currentFacilitatorAppId || document.getElementById('id-input').value);
-            updateUploadTextsFromInputs(openedApp || null);
+            var photoText = document.getElementById('fac-photo-upload-text');
+            if (photoText) {
+                photoText.textContent = selectedFiles.length + ' / 4';
+            }
         }
 
         function handleFiles(files) {
@@ -332,11 +350,6 @@
             }
         });
 
-        // Инициализация
-        updatePreview();
-
-        // Инициализация
-        updatePreview();
     }
 
     function getSelectedFileNames(inputId) {
