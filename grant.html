@@ -1052,13 +1052,11 @@
                                     </label>
                                     <div id="fac-photo-upload-buttons" class="flex gap-2 mb-2 w-full">
                                         <button type="button" id="btn-photo-camera"
-                                            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm transition-colors"
-                                            onclick="document.getElementById('fac-photo-upload-camera').click()">
+                                            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm transition-colors">
                                             <i data-lucide="camera" class="w-4 h-4"></i> <span>Сделать фото</span>
                                         </button>
                                         <button type="button" id="btn-photo-gallery"
-                                            class="flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm transition-colors"
-                                            onclick="document.getElementById('fac-photo-upload-gallery').click()">
+                                            class="flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 shadow-sm transition-colors">
                                             <i data-lucide="image" class="w-4 h-4"></i> <span>Из галереи</span>
                                         </button>
                                     </div>
@@ -1073,83 +1071,6 @@
                                         multiple class="hidden">
                                     <div id="fac-photo-upload-text" class="text-[10px] text-slate-500 mt-1">0 / 4</div>
                                     <div id="fac-photo-upload-error" class="text-[11px] text-red-500 mt-1 hidden"></div>
-                                    <div id="fac-photo-preview" class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        <script>
-                                            // === Фото: обработка загрузки и валидация ===
-                                            const photoInputs = [
-                                                document.getElementById('fac-photo-upload-camera'),
-                                                document.getElementById('fac-photo-upload-gallery')
-                                            ];
-                                            const preview = document.getElementById('fac-photo-preview');
-                                            const text = document.getElementById('fac-photo-upload-text');
-                                            const error = document.getElementById('fac-photo-upload-error');
-                                            let selectedPhotos = [];
-
-                                            function showPhotoError(msg) {
-                                                error.textContent = msg;
-                                                error.classList.remove('hidden');
-                                            }
-                                            function clearPhotoError() {
-                                                error.textContent = '';
-                                                error.classList.add('hidden');
-                                            }
-                                            function updatePhotoPreview() {
-                                                preview.innerHTML = '';
-                                                selectedPhotos.forEach(f => {
-                                                    const url = URL.createObjectURL(f);
-                                                    const img = document.createElement('img');
-                                                    img.src = url;
-                                                    img.className = 'rounded border w-full h-20 object-cover';
-                                                    img.onload = () => URL.revokeObjectURL(url);
-                                                    preview.appendChild(img);
-                                                });
-                                                text.textContent = `${selectedPhotos.length} / 4`;
-                                            }
-                                            function validatePhotoFiles(files) {
-                                                const allowed = ['bmp', 'jpg', 'jpeg'];
-                                                for (const f of files) {
-                                                    const ext = f.name.split('.').pop().toLowerCase();
-                                                    if (!allowed.includes(ext)) return false;
-                                                }
-                                                return true;
-                                            }
-                                            photoInputs.forEach(input => {
-                                                input.addEventListener('change', e => {
-                                                    clearPhotoError();
-                                                    let files = Array.from(e.target.files);
-                                                    if (selectedPhotos.length + files.length > 4) {
-                                                        showPhotoError('На выбор — максимум 4 фото!');
-                                                        input.value = '';
-                                                        return;
-                                                    }
-                                                    if (!validatePhotoFiles(files)) {
-                                                        showPhotoError('Разрешены только bmp, jpg, jpeg!');
-                                                        input.value = '';
-                                                        return;
-                                                    }
-                                                    selectedPhotos = selectedPhotos.concat(files).slice(0, 4);
-                                                    updatePhotoPreview();
-                                                    input.value = '';
-                                                });
-                                            });
-
-                                            // === Валидация обязательных полей ===
-                                            document.querySelector('form')?.addEventListener('submit', function (e) {
-                                                let valid = true;
-                                                this.querySelectorAll('[required]').forEach(input => {
-                                                    if (!input.value) {
-                                                        input.classList.add('border-red-400', 'bg-red-50');
-                                                        valid = false;
-                                                    } else {
-                                                        input.classList.remove('border-red-400', 'bg-red-50');
-                                                    }
-                                                });
-                                                if (!valid) {
-                                                    e.preventDefault();
-                                                    alert('Пожалуйста, заполните все обязательные поля!');
-                                                }
-                                            });
-                                        </script>
                                     </div>
                                 </div>
                             </div>
