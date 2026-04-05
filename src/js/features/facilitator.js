@@ -769,7 +769,10 @@
 
     function openDraftFor(id) {
         window.currentOpenedAppId = id;
-        window.setAvailableTabs(['pane-facilitator', 'pane-approved']);
+        var _app = window.getApp(id);
+        var tabs = ['pane-facilitator'];
+        if (_app && _app.status === 'approved') tabs.push('pane-approved');
+        window.setAvailableTabs(tabs);
         document.getElementById('applicationModal').classList.remove('hidden');
         document.querySelector('.tab-btn[data-target="pane-facilitator"]').click();
     }
