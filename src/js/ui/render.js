@@ -1314,9 +1314,19 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
             window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'finance_registry') {
-            // Показываем и протоколы, и всех одобренных, чтобы фильтры работали полноценно
-            (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
-            window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
+            var finMode = window.financeViewMode || 'both';
+            if (finMode === 'lists') {
+                // Show only protocol/list cards
+                (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+            } else if (finMode === 'apps') {
+                // Show only individual approved applicants
+                window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
+            } else {
+                // Show both (default)
+                (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+                window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
+            }
+
         } else if (window.activeMainFilter === 'committee') {
             getPendingCommitteeRegistries().forEach(function (reg) { appendCommitteeRegistryCard(reg); });
         } else {
@@ -1902,6 +1912,17 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         }
 
         setB('sub-com-prot-badge', getPendingCommitteeRegistries().length);
+
+        // Show/hide Finance view-mode bar
+        const financeBar = document.getElementById('finance-view-mode-bar');
+        if (financeBar) {
+            if (window.activeMainFilter === 'finance_registry') {
+                financeBar.classList.remove('hidden');
+                updateFinanceViewButtons();
+            } else {
+                financeBar.classList.add('hidden');
+            }
+        }
     }
 
     function updateApprovedInsights() {
@@ -2004,6 +2025,20 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
             : 'Показаны только полностью завершенные заявки: одобрены Комитетом и с загруженным подписанным договором.';
 
         if (exportBtn) exportBtn.classList.toggle('hidden', !isFinanceRegistry);
+    }
+
+    function updateFinanceViewButtons() {
+        var mode = window.financeViewMode || 'both';
+        var listBtn = document.getElementById('btn-finance-open-lists');
+        var appsBtn = document.getElementById('btn-finance-open-apps');
+        var activeClass = 'bg-emerald-700 text-white border-emerald-700';
+        var inactiveClass = 'bg-white border-emerald-300 text-emerald-800 hover:bg-emerald-100';
+        if (listBtn) {
+            listBtn.className = 'px-4 py-2 rounded-lg text-[12px] font-bold transition-colors flex items-center gap-2 shadow-sm border ' + (mode === 'lists' ? activeClass : inactiveClass);
+        }
+        if (appsBtn) {
+            appsBtn.className = 'px-4 py-2 rounded-lg text-[12px] font-bold transition-colors flex items-center gap-2 shadow-sm border ' + (mode === 'apps' ? activeClass : inactiveClass);
+        }
     }
 
     function updateActiveModeIndicator() {
@@ -2437,6 +2472,24 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 if (mainBtn) mainBtn.click();
                 const subBtn = document.querySelector('.fac-filter-btn[data-fac-filter="completed"]');
                 if (subBtn) subBtn.click();
+            });
+        }
+
+        const financeOpenListsBtn = document.getElementById('btn-finance-open-lists');
+        if (financeOpenListsBtn) {
+            financeOpenListsBtn.addEventListener('click', function () {
+                window.financeViewMode = 'lists';
+                updateFinanceViewButtons();
+                renderAllCards();
+            });
+        }
+
+        const financeOpenAppsBtn = document.getElementById('btn-finance-open-apps');
+        if (financeOpenAppsBtn) {
+            financeOpenAppsBtn.addEventListener('click', function () {
+                window.financeViewMode = 'apps';
+                updateFinanceViewButtons();
+                renderAllCards();
             });
         }
 

@@ -412,6 +412,36 @@
             </div>
         </div>
 
+        <!-- БЛОК: Режим просмотра для Финансов (Список / Заявки) -->
+        <div id="finance-view-mode-bar"
+            class="hidden mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 shadow-sm animate-fade-in">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+                <div>
+                    <h3 class="text-[13px] font-bold text-emerald-900 flex items-center gap-2">
+                        <i data-lucide="banknote" class="w-4 h-4 text-emerald-700"></i>
+                        <span>Молия — реестри пурра анҷомёфта</span>
+                        <span class="ru text-emerald-700 font-normal">/ Финансы — реестр закрытых заявок</span>
+                    </h3>
+                    <p class="text-[11px] text-emerald-700 mt-1">
+                        Танҳо заявкаҳое нишон дода мешаванд, ки қарори Кумита доранд ва шартномаи имзошуда бор шудааст.
+                        <span class="ru-block">Только заявки с решением Комитета и загруженным подписанным договором.</span>
+                    </p>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button id="btn-finance-open-lists"
+                        class="bg-white border border-emerald-300 text-emerald-800 px-4 py-2 rounded-lg text-[12px] font-bold hover:bg-emerald-100 transition-colors flex items-center gap-2 shadow-sm">
+                        <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                        <span class="filter-text"><span>Рӯйхатро кушодан</span><span class="ru-block">Открыть список</span></span>
+                    </button>
+                    <button id="btn-finance-open-apps"
+                        class="bg-white border border-emerald-300 text-emerald-800 px-4 py-2 rounded-lg text-[12px] font-bold hover:bg-emerald-100 transition-colors flex items-center gap-2 shadow-sm">
+                        <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
+                        <span class="filter-text"><span>Дархостҳоро кушодан</span><span class="ru-block">Открыть заявки</span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Саб-фильтры для ШИГ / GMC -->
         <div id="gmc-filters-bar"
             class="hidden flex bg-white border border-slate-200 rounded-xl p-2.5 mb-6 shadow-sm items-center overflow-x-auto hide-scrollbar gap-2 animate-fade-in">
