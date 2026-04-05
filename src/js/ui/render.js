@@ -918,11 +918,6 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
     function openGrantContractPreviewWindow(fields, title, autoPrint, showPdfHint) {
         // Используем асинхронную генерацию из markdown
         getGrantContractBodyHtmlFromMarkdown(fields).then(function (bodyHtml) {
-            var popup = window.open('', '_blank');
-            if (!popup) {
-                notifyMessage('warning', 'Поп-ап баста аст. / Всплывающее окно заблокировано.');
-                return;
-            }
             var previewCss = '' +
                 '@page{size:A4;margin:1cm 1cm 1cm 1.5cm}' + // Top, Right, Bottom, Left (Browser swap: CSS @page is T R B L)
                 'html,body{margin:0;padding:0;color:#000;background:#4b5563}' +
