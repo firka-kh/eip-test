@@ -1836,13 +1836,12 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         setB('sub-stat-rejected-badge', rejected.length);
 
         const unlockNotice = document.getElementById('facilitator-unlock-notice');
-        const unlockNoticeCount = document.getElementById('facilitator-unlock-ready-count');
-        const unlockNoticeCountRu = document.getElementById('facilitator-unlock-ready-count-ru');
         if (unlockNotice) {
-            if (unlockNoticeCount) unlockNoticeCount.textContent = String(postponedReady.length);
-            if (unlockNoticeCountRu) unlockNoticeCountRu.textContent = String(postponedReady.length);
-            if (postponedReady.length > 0 && window.activeMainFilter === 'facilitator') unlockNotice.classList.remove('hidden');
-            else unlockNotice.classList.add('hidden');
+            if (window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'completed') {
+                unlockNotice.classList.remove('hidden');
+            } else {
+                unlockNotice.classList.add('hidden');
+            }
         }
 
         const bellBadge = document.getElementById('unlock-notifications-badge');
