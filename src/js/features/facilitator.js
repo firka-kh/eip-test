@@ -381,15 +381,40 @@
         var isRevision = !!(app && app.status === 'fac_revision');
         var pdfInput = document.getElementById('fac-pdf-upload');
         var photoInput = document.getElementById('fac-photo-upload');
+        var btnCamera = document.getElementById('btn-photo-camera');
+        var btnGallery = document.getElementById('btn-photo-gallery');
         var revisionNote = document.getElementById('fac-revision-docs-note');
 
-        [pdfInput, photoInput].forEach(function (input) {
-            if (!input) return;
-            input.disabled = isRevision;
-            input.classList.toggle('opacity-60', isRevision);
-            input.classList.toggle('cursor-not-allowed', isRevision);
-            if (isRevision) input.value = '';
+        // In revision mode:
+        // - PDF upload: ENABLED (facilitator must upload new signed PDF)
+        // - Photos: LOCKED (already registered, no change needed)
+        // - Word: already optional everywhere
+
+        if (pdfInput) {
+            pdfInput.disabled = false;  // PDF always enabled
+            pdfInput.classList.remove('opacity-60', 'cursor-not-allowed');
+            if (isRevision) pdfInput.value = '';
+            // Highlight PDF as required in revision mode
+            pdfInput.classList.toggle('ring-2', isRevision);
+            pdfInput.classList.toggle('ring-amber-400', isRevision);
+        }
+
+        // Lock photos in revision mode (they are already registered)
+        [photoInput, btnCamera, btnGallery].forEach(function (el) {
+            if (!el) return;
+            if (isRevision) {
+                el.disabled = true;
+                el.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            } else {
+                el.disabled = false;
+                el.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            }
         });
+        if (photoInput && isRevision) photoInput.value = '';
+
+        // Show/hide "required" badge on PDF label
+        var pdfBadge = document.getElementById('fac-pdf-required-badge');
+        if (pdfBadge) pdfBadge.classList.toggle('hidden', !isRevision);
 
         if (revisionNote) revisionNote.classList.toggle('hidden', !isRevision);
     }
@@ -424,7 +449,17 @@
         var isRevision = !!(app && app.status === 'fac_revision');
 
         if (isRevision) {
-            // Word version is optional on revision; if provided, it will be versioned and logged.
+            // On revision: PDF is REQUIRED (new signed version), Word is optional, photos are already registered
+            if (selectedPdf.length === 0) {
+                notifyMessage('warning', 'Барои такмил PDF-файли навро бор кунед. / Для доработки загрузите новый PDF-файл бизнес-плана.');
+                var pdfInput = document.getElementById('fac-pdf-upload');
+                if (pdfInput) {
+                    pdfInput.classList.add('ring-2', 'ring-red-400');
+                    pdfInput.focus();
+                    setTimeout(function () { pdfInput.classList.remove('ring-2', 'ring-red-400'); }, 3000);
+                }
+                return false;
+            }
             return true;
         }
 
@@ -449,14 +484,26 @@
         var wordNames = getSelectedFileNames('fac-word-upload');
         var pdfNames = getSelectedFileNames('fac-pdf-upload');
         var photoNames = getSelectedFileNames('fac-photo-upload');
+        var isRevision = !!(app.status === 'fac_revision');
 
-        if (!docs.basePdf && pdfNames.length > 0 && typeof window.registerBaseDocuments === 'function') {
-            window.registerBaseDocuments(app, {
-                pdfName: pdfNames[0],
-                photoNames: photoNames,
-                uploadedByRole: 'Фасилитатор',
-                uploadedByName: 'Фасилитатор'
-            });
+        // Register/update PDF:
+        // - First submission: register if no basePdf exists
+        // - Revision: allow overwriting with new signed PDF
+        if (pdfNames.length > 0 && typeof window.registerBaseDocuments === 'function') {
+            if (!docs.basePdf || isRevision) {
+                window.registerBaseDocuments(app, {
+                    pdfName: pdfNames[0],
+                    photoNames: photoNames.length > 0 ? photoNames : undefined,
+                    uploadedByRole: 'Фасилитатор',
+                    uploadedByName: 'Фасилитатор'
+                });
+                if (isRevision && docs.basePdf) {
+                    window.addLog(app, 'Фасилитатор',
+                        'PDF навшуда бор карда шуд (версияи нав)',
+                        'Загружен новый PDF (обновлённая версия для доработки)',
+                        'amber', 'file-up');
+                }
+            }
         }
 
         if ((!docs.basePhotos || docs.basePhotos.length === 0) && photoNames.length > 0 && typeof window.registerBaseDocuments === 'function') {
@@ -468,7 +515,7 @@
         }
 
         var shouldRegisterWord = wordNames.length > 0
-            && ((!docs.wordVersions || docs.wordVersions.length === 0) || app.status === 'fac_revision');
+            && ((!docs.wordVersions || docs.wordVersions.length === 0) || isRevision);
         if (shouldRegisterWord && typeof window.registerWordVersion === 'function') {
             var v = window.registerWordVersion(app, {
                 fileName: wordNames[0],

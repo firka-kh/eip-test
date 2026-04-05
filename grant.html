@@ -941,10 +941,10 @@
                             </p>
                             <div id="fac-revision-docs-note"
                                 class="hidden bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[11px] leading-tight text-amber-900">
-                                <span class="font-bold">Барои такмил:</span> PDF ва фото-комплект аллакай сабт шудаанд.
-                                Word-и навшуда бо хоҳиш бор карда мешавад.
-                                <span class="ru-block">Для доработки: PDF и фото-комплект уже зафиксированы.
-                                    Обновленную Word-версию можно загрузить по необходимости.</span>
+                                <span class="font-bold">⚠ Барои такмил:</span> PDF-и нав <b>ҳатмӣ</b> аст (версияи нав ё имзошудаи нав).
+                                Word — ихтиёрӣ. Фото-комплект аллакай сабт шудааст ва тағйир намеёбад.
+                                <span class="ru-block">Для доработки: новый PDF <b>обязателен</b> (новая версия или заново подписанный).
+                                    Word — опционально. Фото-комплект уже зафиксирован и не изменяется.</span>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <div>
@@ -957,10 +957,13 @@
                                         выбран</div>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] text-indigo-800 font-semibold mb-1">PDF</label>
+                                    <label class="block text-[11px] text-indigo-800 font-semibold mb-1" id="fac-pdf-label">
+                                        PDF
+                                        <span id="fac-pdf-required-badge" class="hidden ml-1 text-amber-700 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded text-[10px] font-bold">Ҳатмӣ / Обязательно</span>
+                                    </label>
                                     <input type="file" id="fac-pdf-upload" title="Загрузка PDF документа"
                                         accept="application/pdf,.pdf"
-                                        class="w-full text-[11px] border border-indigo-200 rounded-lg bg-white p-2">
+                                        class="w-full text-[11px] border border-indigo-200 rounded-lg bg-white p-2 transition-all">
                                     <div id="fac-pdf-upload-text" class="text-[10px] text-slate-500 mt-1">Файл не выбран
                                     </div>
                                 </div>
