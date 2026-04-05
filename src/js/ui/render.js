@@ -1792,10 +1792,35 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 el.classList.toggle('hidden', count === 0);
             }
         };
-        setB('dash-fac-badge', drafts.length + incomplete.length + facRevs.length + postponedReady.length);
+        const setRoleBadge = function (role, count) {
+            const tab = document.querySelector('.role-tab[data-role-filter="' + role + '"]');
+            if (!tab) return;
+            const badge = tab.querySelector('.role-tab__badge');
+            if (badge) {
+                badge.textContent = count;
+                badge.classList.toggle('hidden', count === 0);
+            }
+            const bar = tab.querySelector('.role-tab__bar');
+            if (bar) {
+                const px = Math.min(100, Math.round(count * 0.38));
+                bar.setAttribute('data-target-width', px + 'px');
+                if (tab.classList.contains('role-tab--active')) {
+                    bar.style.width = px + 'px';
+                }
+            }
+        };
+
+        const facCount = drafts.length + incomplete.length + facRevs.length + postponedReady.length;
+        setB('dash-fac-badge', facCount);
+        setRoleBadge('facilitator', facCount);
+
         setB('dash-approved-badge', approved.length);
+        
         setB('dash-finance-badge', fullyCompleted.length);
+        setRoleBadge('finance_registry', fullyCompleted.length);
+
         setB('dash-status-badge', totalApps);
+        setRoleBadge('statuses', totalApps);
 
         setB('sub-fac-all-badge', totalApps);
         setB('sub-draft-badge', drafts.length);
@@ -1804,8 +1829,13 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         setB('sub-fac-completed-badge', approved.length);
         setB('sub-pos-badge', postponed.length);
         setB('sub-pos-ready-badge', postponedReady.length);
-        setB('dash-gmc-badge', window.filterApps(['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry']).length);
+        
+        const dashGmcCount = window.filterApps(['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry']).length;
+        setB('dash-gmc-badge', dashGmcCount);
+        setRoleBadge('gmc', dashGmcCount);
+
         setB('dash-com-badge', coms.length);
+        setRoleBadge('committee', coms.length);
 
         setB('sub-gmc-new-badge', gmcNew.length);
         setB('sub-gmc-returned-badge', gmcPostponedView.length);
@@ -2287,14 +2317,28 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         if (!filterValue) return;
 
         const activeBtn = document.querySelector('.filter-btn[data-filter="' + filterValue + '"]');
-        if (!activeBtn) return;
+        if (activeBtn) {
+            document.querySelectorAll('.filter-btn').forEach(function (b) {
+                b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'shadow-sm');
+                b.classList.add('text-slate-600', 'hover:bg-slate-200');
+            });
+            activeBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-200');
+        }
 
-        document.querySelectorAll('.filter-btn').forEach(function (b) {
-            b.classList.remove('bg-[#5b4ef5]', 'bg-primary', 'text-white', 'shadow-sm');
-            b.classList.add('text-slate-600', 'hover:bg-slate-200');
-        });
-        activeBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
-        activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-200');
+        const activeTab = document.querySelector('.role-tab[data-role-filter="' + filterValue + '"]');
+        if (activeTab) {
+            document.querySelectorAll('.role-tab').forEach(function (t) {
+                t.classList.remove('role-tab--active');
+                const bar = t.querySelector('.role-tab__bar');
+                if (bar) bar.style.width = '0';
+            });
+            activeTab.classList.add('role-tab--active');
+            const activeBar = activeTab.querySelector('.role-tab__bar');
+            if (activeBar) {
+                activeBar.style.width = activeBar.getAttribute('data-target-width') || activeBar.getAttribute('data-initial-width') + 'px' || '100%';
+            }
+        }
 
         window.activeMainFilter = filterValue;
         if (window.activeMainFilter === 'approved_registry') {
@@ -2358,9 +2402,10 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
     }
 
     function initializeDashboardFilters() {
-        document.querySelectorAll('.filter-btn').forEach(function (btn) {
+        document.querySelectorAll('.filter-btn, .role-tab').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                applyMainFilter(btn.getAttribute('data-filter'));
+                const filter = btn.getAttribute('data-filter') || btn.getAttribute('data-role-filter');
+                if (filter) applyMainFilter(filter);
             });
         });
 
