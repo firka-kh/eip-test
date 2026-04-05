@@ -41,10 +41,14 @@ function renderContractFromMarkdown(md, fields) {
 // Асинхронная генерация HTML договора из contract.md
 function getGrantContractBodyHtmlFromMarkdown(fields) {
     if (!window._contractMarkdownCache) {
-        window._contractMarkdownCache = fetchContractMarkdown().catch(function () { return ''; });
+        window._contractMarkdownCache = fetchContractMarkdown().catch(function () {
+            // Не кешируем ошибку — следующий вызов попробует снова
+            window._contractMarkdownCache = null;
+            return '';
+        });
     }
     return window._contractMarkdownCache.then(function (md) {
-        if (!md) return '<div class="contract-doc"><b>Ошибка загрузки шаблона договора</b></div>';
+        if (!md) return '<div class="contract-doc"><b>Ошибка загрузки шаблона договора. Убедитесь, что страница открыта через веб-сервер, а не file://</b></div>';
         return renderContractFromMarkdown(md, fields);
     });
 }
@@ -1011,12 +1015,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         var app = window.getApp(id);
         if (!app) return;
         var fields = collectGrantContractFieldsFromForm();
-        var result = validateGrantContractFields(fields, true);
-        if (!result.ok) {
-            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') window.AppNotify.errorByKey('validation.error');
-            else notifyMessage('error', 'Заполните обязательные поля договора перед печатью.');
-            return;
-        }
+        // Validate but do NOT block printing — just warn about empty fields
+        validateGrantContractFields(fields, false);
         openGrantContractPreviewWindow(fields, 'Печать договора', true, true);
         window.addLog(app, 'Фасилитатор', 'Договор отправлен на печать', 'Договор отправлен на печать', 'blue', 'printer');
     }
