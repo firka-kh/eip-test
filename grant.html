@@ -1069,6 +1069,79 @@
                                 </div>
                             </div>
 
+                            <!-- ====== БЛОК ОДОБРЕНИЯ ДОКУМЕНТОВ ====== -->
+                            <div id="gmc-doc-approval-block" class="border-2 rounded-xl overflow-hidden shadow-sm mb-1" style="border-color:#e2e8f0;">
+                                <div class="flex items-center gap-3 px-4 py-3 bg-slate-50 border-b border-slate-200">
+                                    <i data-lucide="file-check" class="w-5 h-5 text-slate-500 flex-shrink-0"></i>
+                                    <span class="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Ҳуҷҷатҳо <span class="ru font-normal normal-case">/ Документы</span></span>
+                                </div>
+                                <div class="p-4 bg-white">
+                                    <p class="text-[12px] text-slate-600 mb-4 leading-tight">
+                                        Пеш аз пур кардани опросник ҳуҷҷатҳоро санҷед ва ҳолати онҳоро нишон диҳед.<br>
+                                        <span class="ru text-[11px] text-slate-400">Перед заполнением опросника проверьте документы и укажите их статус.</span>
+                                    </p>
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <label id="doc-approved-label" class="flex-1 flex items-center gap-3 cursor-pointer border-2 border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-emerald-400 hover:bg-emerald-50" onclick="setDocApprovalStatus('approved')">
+                                            <input type="radio" name="gmc-doc-status" id="doc-status-approved" value="approved" class="hidden">
+                                            <span id="doc-approved-icon" class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-all">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-transparent transition-all"></span>
+                                            </span>
+                                            <span class="flex flex-col leading-tight">
+                                                <span class="text-[13px] font-bold text-slate-700">Ҳуҷҷатҳо тасдиқ шуданд</span>
+                                                <span class="text-[11px] text-slate-400 ru">Документы одобрены</span>
+                                            </span>
+                                        </label>
+                                        <label id="doc-rejected-label" class="flex-1 flex items-center gap-3 cursor-pointer border-2 border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-red-400 hover:bg-red-50" onclick="setDocApprovalStatus('rejected')">
+                                            <input type="radio" name="gmc-doc-status" id="doc-status-rejected" value="rejected" class="hidden">
+                                            <span id="doc-rejected-icon" class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-all">
+                                                <span class="w-2.5 h-2.5 rounded-full bg-transparent transition-all"></span>
+                                            </span>
+                                            <span class="flex flex-col leading-tight">
+                                                <span class="text-[13px] font-bold text-slate-700">Ҳуҷҷатҳо тасдиқ нашуданд</span>
+                                                <span class="text-[11px] text-slate-400 ru">Документы не одобрены</span>
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                    <!-- Блок "На доработку" — активируется если документы НЕ одобрены -->
+                                    <div id="gmc-doc-reject-panel" class="hidden mt-4 rounded-xl border border-red-300 bg-red-50 p-4 animate-fade-in">
+                                        <div class="flex items-start gap-2 mb-3">
+                                            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5"></i>
+                                            <p class="text-[12px] font-semibold text-red-800 leading-tight">
+                                                Барои баргардонидани дархост баррасии опросник лозим нест.<br>
+                                                <span class="ru font-normal">Для возврата заявки заполнение опросника не требуется.</span>
+                                            </p>
+                                        </div>
+                                        <label class="block text-[12px] font-bold text-red-800 mb-1.5">
+                                            Сабаби рад <span class="ru font-normal">/ Причина отклонения</span> <span class="text-red-500">*</span>
+                                        </label>
+                                        <textarea id="gmc-doc-reject-comment"
+                                            class="w-full border border-red-300 rounded-lg p-3 text-[12px] outline-none focus:border-red-500 focus:ring-1 focus:ring-red-300 h-20 resize-none bg-white"
+                                            placeholder="Сабабро нависед / Укажите причину отклонения документов..."></textarea>
+                                        <button id="btn-doc-reject-return" onclick="sendDocRejectionReturn()"
+                                            class="mt-3 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl text-[13px] font-bold shadow-sm transition-colors flex items-center justify-center gap-2">
+                                            <i data-lucide="corner-down-right" class="w-4 h-4"></i>
+                                            <span class="flex flex-col leading-tight items-start">
+                                                <span>Барои такмил фиристодан</span>
+                                                <span class="ru font-normal text-[11px]">Отправить на доработку</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- ====== КОНЕЦ БЛОКА ОДОБРЕНИЯ ====== -->
+
+                            <!-- Обёртка для формы оценки — блокируется если документы не одобрены -->
+                            <div id="gmc-evaluation-form-wrapper" class="relative">
+                                <!-- Оверлей-замок -->
+                                <div id="gmc-form-lock-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center rounded-xl pointer-events-none opacity-0 transition-opacity duration-300">
+                                    <i data-lucide="lock" class="w-8 h-8 text-slate-300 mb-2"></i>
+                                    <p class="text-[13px] font-bold text-slate-400 leading-tight text-center px-4">
+                                        Аввал ҳолати ҳуҷҷатҳоро нишон диҳед<br>
+                                        <span class="ru font-normal text-[11px]">Сначала укажите статус документов</span>
+                                    </p>
+                                </div>
+
                             <div class="border border-gray-300 rounded-xl overflow-hidden">
                                 <div
                                     class="bg-gray-100 p-3 border-b border-gray-300 font-bold text-[13px] text-gray-800 text-center uppercase leading-tight">
@@ -1396,9 +1469,12 @@
                                         кардани қарор / Сохранить решение</span></button>
                             </div>
                         </div>
-                    </div>
+                            </div> <!-- /gmc-evaluation-form-wrapper -->
+                        </div>
                 </div>
             </div>
+
+
 
             <!-- PANE: GMC (ПРЕДПРОСМОТР РЕЕСТРА ПЕРЕД ОТПРАВКОЙ) -->
             <div id="pane-gmc-registry-preview" class="tab-pane hidden animate-fade-in">

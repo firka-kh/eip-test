@@ -138,6 +138,164 @@
         labelEl.textContent = 'Боргирии Word (V' + version + ')';
     }
 
+    // ====== DOCUMENT APPROVAL HELPERS ======
+    function resetDocApprovalUI() {
+        var approvedLabel = document.getElementById('doc-approved-label');
+        var rejectedLabel = document.getElementById('doc-rejected-label');
+        var approvedIcon = document.getElementById('doc-approved-icon');
+        var rejectedIcon = document.getElementById('doc-rejected-icon');
+        var approvedInput = document.getElementById('doc-status-approved');
+        var rejectedInput = document.getElementById('doc-status-rejected');
+        var rejectPanel = document.getElementById('gmc-doc-reject-panel');
+        var overlay = document.getElementById('gmc-form-lock-overlay');
+        var rejectComment = document.getElementById('gmc-doc-reject-comment');
+        var approvalBlock = document.getElementById('gmc-doc-approval-block');
+
+        if (approvedInput) approvedInput.checked = false;
+        if (rejectedInput) rejectedInput.checked = false;
+
+        // Reset labels to neutral
+        if (approvedLabel) approvedLabel.className = 'flex-1 flex items-center gap-3 cursor-pointer border-2 border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-emerald-400 hover:bg-emerald-50';
+        if (rejectedLabel) rejectedLabel.className = 'flex-1 flex items-center gap-3 cursor-pointer border-2 border-slate-200 rounded-xl px-4 py-3 transition-all hover:border-red-400 hover:bg-red-50';
+
+        // Reset icons
+        if (approvedIcon) {
+            approvedIcon.className = 'w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-all';
+            var dot = approvedIcon.querySelector('span');
+            if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-transparent transition-all';
+        }
+        if (rejectedIcon) {
+            rejectedIcon.className = 'w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-all';
+            var dot2 = rejectedIcon.querySelector('span');
+            if (dot2) dot2.className = 'w-2.5 h-2.5 rounded-full bg-transparent transition-all';
+        }
+
+        if (rejectPanel) rejectPanel.classList.add('hidden');
+        if (rejectComment) rejectComment.value = '';
+
+        // Show lock overlay — user must choose doc status first
+        if (overlay) {
+            overlay.style.opacity = '1';
+            overlay.style.pointerEvents = 'auto';
+        }
+        if (approvalBlock) {
+            approvalBlock.style.borderColor = '#e2e8f0';
+        }
+    }
+
+    function setDocApprovalStatus(status) {
+        var approvedLabel = document.getElementById('doc-approved-label');
+        var rejectedLabel = document.getElementById('doc-rejected-label');
+        var approvedIcon = document.getElementById('doc-approved-icon');
+        var rejectedIcon = document.getElementById('doc-rejected-icon');
+        var approvedInput = document.getElementById('doc-status-approved');
+        var rejectedInput = document.getElementById('doc-status-rejected');
+        var rejectPanel = document.getElementById('gmc-doc-reject-panel');
+        var overlay = document.getElementById('gmc-form-lock-overlay');
+        var approvalBlock = document.getElementById('gmc-doc-approval-block');
+
+        if (!approvedLabel || !rejectedLabel) return;
+
+        var baseApproved = 'flex-1 flex items-center gap-3 cursor-pointer border-2 rounded-xl px-4 py-3 transition-all ';
+        var baseRejected = 'flex-1 flex items-center gap-3 cursor-pointer border-2 rounded-xl px-4 py-3 transition-all ';
+
+        if (status === 'approved') {
+            if (approvedInput) approvedInput.checked = true;
+            if (rejectedInput) rejectedInput.checked = false;
+
+            approvedLabel.className = baseApproved + 'border-emerald-500 bg-emerald-50';
+            rejectedLabel.className = baseRejected + 'border-slate-200 hover:border-red-400 hover:bg-red-50';
+
+            if (approvedIcon) {
+                approvedIcon.className = 'w-5 h-5 rounded-full border-2 border-emerald-500 flex items-center justify-center flex-shrink-0 transition-all';
+                var dot = approvedIcon.querySelector('span');
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 transition-all';
+            }
+            if (rejectedIcon) {
+                rejectedIcon.className = 'w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-all';
+                var dot2 = rejectedIcon.querySelector('span');
+                if (dot2) dot2.className = 'w-2.5 h-2.5 rounded-full bg-transparent transition-all';
+            }
+
+            if (rejectPanel) rejectPanel.classList.add('hidden');
+
+            // Unlock evaluation form
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            }
+            if (approvalBlock) approvalBlock.style.borderColor = '#10b981'; // emerald
+
+        } else if (status === 'rejected') {
+            if (approvedInput) approvedInput.checked = false;
+            if (rejectedInput) rejectedInput.checked = true;
+
+            approvedLabel.className = baseApproved + 'border-slate-200 hover:border-emerald-400 hover:bg-emerald-50';
+            rejectedLabel.className = baseRejected + 'border-red-500 bg-red-50';
+
+            if (approvedIcon) {
+                approvedIcon.className = 'w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center flex-shrink-0 transition-all';
+                var dot3 = approvedIcon.querySelector('span');
+                if (dot3) dot3.className = 'w-2.5 h-2.5 rounded-full bg-transparent transition-all';
+            }
+            if (rejectedIcon) {
+                rejectedIcon.className = 'w-5 h-5 rounded-full border-2 border-red-500 flex items-center justify-center flex-shrink-0 transition-all';
+                var dot4 = rejectedIcon.querySelector('span');
+                if (dot4) dot4.className = 'w-2.5 h-2.5 rounded-full bg-red-500 transition-all';
+            }
+
+            if (rejectPanel) rejectPanel.classList.remove('hidden');
+
+            // Keep evaluation form locked
+            if (overlay) {
+                overlay.style.opacity = '1';
+                overlay.style.pointerEvents = 'auto';
+            }
+            if (approvalBlock) approvalBlock.style.borderColor = '#ef4444'; // red
+        }
+    }
+
+    function sendDocRejectionReturn() {
+        var app = window.getApp(window.currentGmcAppId);
+        if (!app) return;
+        if (!validateGmcOperatorRequired(app, true)) return;
+
+        var comment = document.getElementById('gmc-doc-reject-comment');
+        var commentText = comment ? String(comment.value || '').trim() : '';
+
+        if (!commentText) {
+            if (comment) {
+                comment.classList.add('border-red-500', 'bg-red-50');
+                comment.focus();
+                setTimeout(function () { comment.classList.remove('border-red-500', 'bg-red-50'); }, 3000);
+            }
+            notifyMessage('warning', 'Лутфан сабаби радро нависед. / Пожалуйста, укажите причину отклонения документов.');
+            return;
+        }
+
+        var gmcActor = getGmcOperatorName(app);
+        app.revisionCount = (app.revisionCount || 0) + 1;
+        app.date = window.getCurrentDateTime();
+
+        if (app.revisionCount >= 3) {
+            lockApplicationForThreeMonths(app, commentText);
+            var untilRu = typeof window.formatIsoDateRu === 'function' ? window.formatIsoDateRu(app.postponedUntilISO) : app.postponedUntilISO;
+            notifyMessage('warning', 'Лимит доработок исчерпан. Заявка заблокирована до ' + untilRu + '.');
+        } else {
+            app.status = 'fac_revision';
+            app.lastReturnSource = 'gmc_doc';
+            window.addLog(app, gmcActor,
+                'Ҳуҷҷатҳо тасдиқ нашуданд — барои такмил баргашт (' + app.revisionCount + '/3)',
+                'Документы не одобрены — возвращено на доработку (' + app.revisionCount + '/3)',
+                'red', 'file-x', commentText);
+            notifyMessage('warning', 'Что произошло: документы не прошли проверку. Заявка направлена на доработку Фасилитатору (попытка ' + app.revisionCount + ' из 3).');
+        }
+
+        window.renderAllCards();
+        document.getElementById('applicationModal').classList.add('hidden');
+    }
+    // ====== END DOCUMENT APPROVAL HELPERS ======
+
     function loadGmcForm(id) {
         const app = window.getApp(id);
         if (!app) return;
@@ -146,6 +304,7 @@
             app.lastReturnSource = app.lastReturnSource || 'gmc';
         }
         populateGmcOperatorSuggestions();
+        resetDocApprovalUI();
 
         window.currentGmcAppId = id;
         const beneficiaryId = app.beneficiaryId || id;
@@ -610,7 +769,9 @@
         toggleRegistrySelection,
         toggleSelectAllReadyForRegistry,
         openRegistryPreview,
-        confirmAndSendRegistry
+        confirmAndSendRegistry,
+        setDocApprovalStatus,
+        sendDocRejectionReturn
     };
 
     populateGmcOperatorSuggestions();
@@ -626,4 +787,6 @@
     window.toggleSelectAllReadyForRegistry = toggleSelectAllReadyForRegistry;
     window.openRegistryPreview = openRegistryPreview;
     window.confirmAndSendRegistry = confirmAndSendRegistry;
+    window.setDocApprovalStatus = setDocApprovalStatus;
+    window.sendDocRejectionReturn = sendDocRejectionReturn;
 })();
