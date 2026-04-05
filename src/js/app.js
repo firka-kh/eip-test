@@ -12,7 +12,6 @@
         'src/js/state/seed-data.js',
         'src/js/state/store.js',
         'src/js/ui/render.js',
-        'src/js/ui/header-tabs.js',
         'src/js/features/facilitator.js',
         'src/js/features/gmc.js',
         'src/js/features/committee.js',
