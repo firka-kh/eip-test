@@ -914,26 +914,6 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         return '';
     }
 
-    function resetGrantContractAutoFieldsFromModal() {
-        var id = window.currentOpenedAppId || window.currentApprovedAppId;
-        if (!id) return;
-        var app = window.getApp(id);
-        if (!app) return;
-
-        if (!(app.status === 'approved' && getActiveRoleContext() === 'facilitator')) {
-            notifyMessage('warning', 'Сброс автополей доступен только Фасилитатору для одобренной заявки.');
-            return;
-        }
-
-        var defaults = getDefaultGrantContractFields(app);
-        getGrantContractAutoFieldKeys().forEach(function (k) {
-            var el = document.getElementById('contract-' + k);
-            if (!el) return;
-            el.value = defaults[k] || '';
-        });
-        clearGrantContractValidationUi();
-        window.addLog(app, 'Фасилитатор', 'Автополя договора сброшены', 'Автополя договора сброшены', 'slate', 'rotate-ccw');
-    }
 
     function openGrantContractPreviewWindow(fields, title, autoPrint, showPdfHint) {
         // Используем асинхронную генерацию из markdown
@@ -1016,21 +996,6 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         window.renderAllCards();
     }
 
-    function previewGrantContractDraftFromModal() {
-        var id = window.currentOpenedAppId || window.currentApprovedAppId;
-        if (!id) return;
-        var app = window.getApp(id);
-        if (!app) return;
-        var fields = collectGrantContractFieldsFromForm();
-        var result = validateGrantContractFields(fields, true);
-        if (!result.ok) {
-            if (window.AppNotify && typeof window.AppNotify.errorByKey === 'function') window.AppNotify.errorByKey('validation.error');
-            else notifyMessage('error', 'Заполните обязательные поля договора перед предпросмотром.');
-            return;
-        }
-        openGrantContractPreviewWindow(fields, 'Демо договор', false, true);
-        window.addLog(app, 'Фасилитатор', 'Открыт предпросмотр договора', 'Открыт предпросмотр договора', 'slate', 'eye');
-    }
 
     function printGrantContractDraftFromModal() {
         var id = window.currentOpenedAppId || window.currentApprovedAppId;
@@ -2646,10 +2611,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         uploadGrantAgreementFromModal,
         downloadCurrentGrantAgreementFromModal,
         saveGrantContractDraftFromModal,
-        previewGrantContractDraftFromModal,
         printGrantContractDraftFromModal,
         exportGrantContractPdfFromModal,
-        resetGrantContractAutoFieldsFromModal,
         toggleGrantContractDraftPanelFromModal,
         exportFinanceCompletedStatement
     };
@@ -2676,10 +2639,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
     window.uploadGrantAgreementFromModal = uploadGrantAgreementFromModal;
     window.downloadCurrentGrantAgreementFromModal = downloadCurrentGrantAgreementFromModal;
     window.saveGrantContractDraftFromModal = saveGrantContractDraftFromModal;
-    window.previewGrantContractDraftFromModal = previewGrantContractDraftFromModal;
     window.printGrantContractDraftFromModal = printGrantContractDraftFromModal;
     window.exportGrantContractPdfFromModal = exportGrantContractPdfFromModal;
-    window.resetGrantContractAutoFieldsFromModal = resetGrantContractAutoFieldsFromModal;
     window.toggleGrantContractDraftPanelFromModal = toggleGrantContractDraftPanelFromModal;
     window.exportFinanceCompletedStatement = exportFinanceCompletedStatement;
 })();
