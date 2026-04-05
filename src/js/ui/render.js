@@ -958,14 +958,27 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 '.btn-export:hover{background:#4f46e5}' +
                 '@media print{.preview-actions,.hint{display:none}}';
 
-            popup.document.open();
-            var actionsHtml = '<div class="preview-actions"><button class="btn-export" onclick="window.print();">Распечатать</button></div>';
-            popup.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + (title || 'Grant Contract Preview') + '</title><style>' + previewCss + '</style></head><body>' + actionsHtml + (showPdfHint ? '<div class="hint">Барои ба PDF табдил додан, дар равзанаи чоп: "Сохранить как PDF"-ро интихоб кунед. / Для экспорта в PDF выберите в окне печати: Сохранить как PDF.</div>' : '') + '<div class="a4-page-container"><div class="a4-sheet">' + bodyHtml + '</div></div></body></html>');
-            popup.document.close();
-            if (autoPrint) {
-                popup.focus();
-                setTimeout(function () { popup.print(); }, 120);
+            var iframe = document.getElementById('print-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'print-iframe';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                document.body.appendChild(iframe);
             }
+            var doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write('<!doctype html><html><head><meta charset="utf-8"><title>' + (title || 'Grant Contract Preview') + '</title><style>' + previewCss + '</style></head><body>' + '<div class="a4-page-container"><div class="a4-sheet">' + bodyHtml + '</div></div></body></html>');
+            doc.close();
+            
+            setTimeout(function() {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            }, 250);
         });
     }
 
