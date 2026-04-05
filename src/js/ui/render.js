@@ -2366,6 +2366,11 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         t('statuses-filters-bar', window.activeMainFilter === 'statuses');
         t('gmc-filters-bar', window.activeMainFilter === 'gmc');
         t('com-filters-bar', window.activeMainFilter === 'committee');
+
+        t('toggleFormBtn', window.activeMainFilter === 'facilitator');
+        if (window.activeMainFilter !== 'facilitator') {
+            t('createFormBlock', false);
+        }
         updateCompletedSummaryBar();
 
         // Actions on cards depend on the active main filter.
