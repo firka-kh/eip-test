@@ -310,8 +310,9 @@ sequenceDiagram
         alt Одобрена
             UI->>ST: app.status = "approved"
             UI->>ST: app.protocolId = номер протокола
-            UI->>ST: addLog("Грант утвержден")
-            UI->>ST: generateMonitoringFor(app.id) → 4 визита
+            UI->>ST: app.grantReceivedConfirmed = false
+            UI->>ST: app.grantActive = false
+            UI->>ST: addLog("Грант утвержден, но не активирован")
         else Отклонена
             UI->>ST: app.status = "postponed"
             UI->>ST: app.committeeReturnsCount++
@@ -406,15 +407,19 @@ sequenceDiagram
 ## БП-7: Мониторинг выданного гранта
 
 ### Описание
-После утверждения автоматически создается график из 4 мониторинговых визитов.
+После решения Комитета заявка получает статус `approved`, но грант остаётся неактивным. Только после подтверждения получения гранта в разделе `Финансы` система создаёт график из 4 мониторинговых визитов.
 
 ```mermaid
 sequenceDiagram
     actor Ф as Фасилитатор
     participant UI as Интерфейс (таб Мониторинг)
     participant ST as State.monitoring
+    participant FIN as Финансы
 
-    Note over ST: При утверждении автоматически создается:<br/>Визит 1 (+30 дней) — active<br/>Визит 2 (+90 дней) — pending<br/>Визит 3 (+180 дней) — pending<br/>Визит 4 (+360 дней) — pending
+    Финансы->>UI: Подтверждает получение гранта
+    UI->>ST: app.grantReceivedConfirmed = true
+    UI->>ST: app.grantActive = true
+    Note over ST: Создается:<br/>Визит 1 (+30 дней) — active<br/>Визит 2 (+90 дней) — pending<br/>Визит 3 (+180 дней) — pending<br/>Визит 4 (+360 дней) — pending
 
     Ф->>UI: Открывает одобренную заявку → таб Мониторинг
     UI->>UI: renderMonitoringList()
@@ -450,7 +455,9 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> active_1: Грант утверждён (+30 дней)
+    [*] --> approved: Комитет одобрил заявку
+    approved --> inactive: Грант не активен до подтверждения получения
+    inactive --> active_1: Финансы подтверждают получение гранта (+30 дней)
     active_1 --> completed_1: Фасилитатор заполнил
     completed_1 --> active_2: Автоматически (+90 дней)
     active_2 --> completed_2: Фасилитатор заполнил

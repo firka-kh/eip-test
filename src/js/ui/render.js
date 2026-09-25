@@ -22,6 +22,48 @@
         return window.filterApps(['approved']).filter(function (app) { return isFullyCompletedApp(app); });
     }
 
+    function isGrantReceiptConfirmed(app) {
+        if (!app || app.status !== 'approved') return false;
+        if (typeof app.grantReceivedConfirmed === 'boolean') return app.grantReceivedConfirmed;
+        if (typeof app.grantActive === 'boolean') return app.grantActive;
+        return !!(app.grantReceivedAt || app.grantReceivedDate || app.receiptConfirmedAt || app.financeConfirmedAt);
+    }
+
+    function isGrantActive(app) {
+        return isGrantReceiptConfirmed(app);
+    }
+
+    function confirmGrantReceipt() {
+        const id = window.currentOpenedAppId || window.currentApprovedAppId;
+        if (!id) {
+            notifyMessage('warning', 'Сначала откройте заявку / Аввал дархостро кушоед');
+            return;
+        }
+
+        const app = window.getApp(id);
+        if (!app || app.status !== 'approved') {
+            notifyMessage('warning', 'Подтверждение получения гранта доступно только для одобренной заявки.');
+            return;
+        }
+
+        if (isGrantReceiptConfirmed(app)) {
+            notifyMessage('info', 'Получение гранта уже подтверждено. Мониторинг доступен для Фасилитатора.');
+            return;
+        }
+
+        app.grantReceivedConfirmed = true;
+        app.grantActive = true;
+        app.grantReceivedAt = new Date().toISOString();
+        app.grantReceivedDate = (typeof window.formatIsoDateRu === 'function') ? window.formatIsoDateRu(app.grantReceivedAt) : app.grantReceivedAt.split('T')[0];
+        if (typeof window.generateMonitoringFor === 'function') {
+            window.generateMonitoringFor(app.id, app.grantReceivedDate || new Date().toISOString().split('T')[0]);
+        }
+        window.addLog(app, 'Финансы', 'Получение гранта подтверждено', 'Подтверждено получение гранта', 'emerald', 'banknote');
+        notifyMessage('success', 'Что произошло: получение гранта подтверждено. Маршрут: Финансы -> Фасилитатор. Следующий статус: грант активирован, мониторинг доступен.');
+        if (typeof window.renderAllCards === 'function') window.renderAllCards();
+        if (typeof window.loadHistoryForm === 'function') window.loadHistoryForm(id);
+    }
+
     function exportFinanceCompletedStatement() {
         var apps = getFullyCompletedApps();
         if (!apps.length) {
@@ -85,6 +127,7 @@
 
     function loadHistoryForm(id) {
         const app = window.getApp(id) || { auditLog: [] };
+        renderGrantActivationPanel(app);
         const backWrap = document.getElementById('committee-history-back-wrap');
         if (backWrap) {
             backWrap.classList.toggle('hidden', window.currentApprovedOpenSource !== 'committee-batch');
@@ -197,6 +240,28 @@
     function canUploadAgreementForApp(app) {
         if (!app || app.status !== 'approved') return false;
         return getActiveRoleContext() === 'facilitator';
+    }
+
+    function renderGrantActivationPanel(app) {
+        var panel = document.getElementById('grant-activation-panel');
+        var button = document.getElementById('btn-confirm-grant-receipt');
+        var statusEl = document.getElementById('grant-activation-status');
+        if (!panel || !button || !statusEl) return;
+
+        const active = !!(app && app.status === 'approved' && isGrantActive(app));
+        panel.classList.toggle('hidden', active);
+        if (active) {
+            statusEl.textContent = 'Грант активирован. Мониторинг доступен Фасилитатору.';
+            button.textContent = 'Грант подтвержден';
+            button.disabled = true;
+            button.classList.add('opacity-50', 'pointer-events-none');
+            return;
+        }
+
+        statusEl.textContent = 'Грант утвержден Комитетом, но ещё не активирован. Подтверждение получения в Финансах открывает мониторинг.';
+        button.textContent = 'Подтвердить получение гранта';
+        button.disabled = false;
+        button.classList.remove('opacity-50', 'pointer-events-none');
     }
 
     function renderGrantAgreementPanel(app) {
@@ -1055,7 +1120,7 @@
         window.currentApprovedAppId = id;
         const app = window.getApp(id);
         let tabsToShow = ['pane-approved'];
-        if (app.status === 'approved') {
+        if (app && app.status === 'approved' && isGrantActive(app)) {
             tabsToShow.push('pane-monitoring');
         }
         window.setAvailableTabs(tabsToShow);
@@ -2479,8 +2544,10 @@
         updateApprovedInsights,
         openSelectedApprovedList,
         setAvailableTabs,
-        initializeModalTabs
-        ,
+        initializeModalTabs,
+        isGrantActive,
+        isGrantReceiptConfirmed,
+        confirmGrantReceipt,
         markUnlockNotificationProcessed,
         markAllUnlockNotificationsProcessed,
         downloadCurrentBusinessPlanFromModal,
@@ -2501,6 +2568,9 @@
     // Legacy compatibility while migrating code out of grant.html
     window.loadHistoryForm = loadHistoryForm;
     window.openApprovedFor = openApprovedFor;
+    window.isGrantActive = isGrantActive;
+    window.isGrantReceiptConfirmed = isGrantReceiptConfirmed;
+    window.confirmGrantReceipt = confirmGrantReceipt;
     window.setViewMode = setViewMode;
     window.renderAllCards = renderAllCards;
     window.updateAllBadges = updateAllBadges;

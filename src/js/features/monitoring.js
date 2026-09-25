@@ -12,6 +12,8 @@
 
     function generateMonitoringFor(appId, startDateStr) {
         if (!window.state) return;
+        const app = window.getApp ? window.getApp(appId) : null;
+        if (app && app.status === 'approved' && !window.isGrantReceiptConfirmed(app)) return;
         if (!window.state.monitoring) window.state.monitoring = {};
         if (!window.state.monitoring[appId]) {
             const pDate = new Date(startDateStr || new Date().toISOString().split('T')[0]);
@@ -31,6 +33,7 @@
 
     function isMonitoringReadyApp(app) {
         if (!app || app.status !== 'approved') return false;
+        if (typeof window.isGrantReceiptConfirmed === 'function' && !window.isGrantReceiptConfirmed(app)) return false;
         if (!window.state || !window.state.monitoring) return false;
         const visits = window.state.monitoring[app.id];
         if (!Array.isArray(visits) || visits.length === 0) return false;

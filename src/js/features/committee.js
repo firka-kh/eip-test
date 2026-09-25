@@ -293,10 +293,11 @@
 
             if (decision === 'ok') {
                 app.status = 'approved';
+                app.grantReceivedConfirmed = false;
+                app.grantActive = false;
                 window.addLog(app, 'Кумита / Комитет', 'Грант тасдиқ шуд (Рӯйхат ' + protocolLabel + ')', 'Грант утвержден (Список ' + protocolLabelRu + ')', 'emerald', 'award');
                 newProtocol.okCount++;
                 newProtocol.totalAmount += parseInt(app.amount.replace(/\D/g, '') || 0, 10);
-                window.generateMonitoringFor(app.id, protocolDateInput);
             } else if (decision === 'rej') {
                 applyCommitteeRejection(app, protocolNum, formattedProtocolDate, exactTime, comment);
                 newProtocol.rejCount++;
@@ -525,9 +526,10 @@
 
         if (window.currentComChoice === 'ok') {
             app.status = 'approved';
+            app.grantReceivedConfirmed = false;
+            app.grantActive = false;
             window.addLog(app, 'Кумита / Комитет', 'Грант тасдиқ шуд', 'Грант утвержден', 'emerald', 'award');
-            window.generateMonitoringFor(app.id, new Date().toISOString().split('T')[0]);
-            notifyMessage('success', 'Что произошло: грант утвержден. Маршрут: Комитет -> Одобрена. Следующий статус: Одобрена (мониторинг активирован).');
+            notifyMessage('success', 'Что произошло: грант утвержден. Маршрут: Комитет -> Одобрена. Следующий статус: Одобрена, но грант не активен до подтверждения получения в Финансах.');
         } else {
             if (!normalizeDecisionComment(comment)) {
                 if (window.AppNotify && typeof window.AppNotify.warningByKey === 'function') {
