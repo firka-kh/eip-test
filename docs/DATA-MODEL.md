@@ -395,13 +395,38 @@ interface Visit {
 
   // Заполняются при завершении визита
   visitDate?: string;     // Фактическая дата визита
+  note?: string;          // Примечание
+
+  // Визит 1 (+30 дней) — анкета запуска бизнеса, бальная система (макс. 7 баллов)
+  fundsUsed?: 'full' | 'partial' | 'none' | 'other';   // Использование средств гранта
+  fundsUsedNote?: string;    // Пояснение, если fundsUsed === 'other'
+  activities?: string[];     // 'equipment' | 'materials' | 'rent' | 'training' | 'none'
+  incomeStatus?: 'sales' | 'launched_no_income' | 'not_launched'; // Начал ли бизнес приносить доход
+  continuePlan?: 'yes' | 'unsure' | 'no';  // Планы продолжать бизнес
+  score?: number;         // Итоговый балл визита 1 (funds + min(2, activities) + income + continue)
+
+  // Визит 2 (+90 дней) — анкета устойчивости бизнеса, бальная система (макс. 7 баллов)
+  businessStatus?: 'active' | 'seasonal' | 'paused' | 'closed' | 'other'; // Работает ли бизнес сейчас
+  businessStatusNote?: string;   // Пояснение, если businessStatus === 'other'
+  grantImpact?: 'new_business' | 'expanded' | 'preserved' | 'no_effect' | 'other'; // Влияние гранта на бизнес
+  grantImpactNote?: string;      // Пояснение, если grantImpact === 'other'
+  incomeChange?: 'increased_much' | 'increased_little' | 'unchanged' | 'decreased' | 'hard_to_say' | 'other'; // Изменение дохода после гранта
+  incomeChangeNote?: string;     // Пояснение, если incomeChange === 'other'
+  incomeRange?: 'up_to_1000' | '1001_3000' | '3001_5000' | '5001_10000' | 'more_10000' | 'not_started' | 'undisclosed'; // Средний ежемесячный доход (без баллов, только для статистики)
+  continuePlan2?: 'expand' | 'continue' | 'unsure' | 'no'; // Планы продолжать/развивать бизнес (12 мес.)
+  // score (см. выше) используется также визитом 2 — итоговый балл (businessStatus + grantImpact + incomeChange + continuePlan2)
+
+  // Визиты 3-4 — упрощённая анкета устойчивости
   equipment?: 'in_stock' | 'not_used' | 'sold';  // Состояние оборудования
   business?: 'active' | 'suspended' | 'closed';    // Состояние бизнеса
-  income?: string | number;  // Месячный доход
-  note?: string;          // Примечание
-  photos?: number[];      // Заглушки для фото
 }
 ```
+
+Поля `income` (средний доход) и `photos` (фото-фиксация) убраны из анкеты мониторинга во всех визитах.
+Положительный результат визита определяет переход к следующему визиту:
+- Визит 1: `score >= 4` (порог «Успешно (запуск)», макс. 7 баллов);
+- Визит 2: `score >= 6` (порог «Успешно», макс. 7 баллов, вопрос о среднем доходе баллов не даёт);
+- Визиты 3-4: `equipment === 'in_stock' && business === 'active'`.
 
 ---
 

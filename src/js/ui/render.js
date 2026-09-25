@@ -1325,6 +1325,19 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         const isFacilitatorMonitoringMode = window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'monitoring';
         const isGmcApprovedCommitteeMode = window.activeMainFilter === 'gmc' && window.activeGmcFilter === 'approved_committee';
 
+        const thAmountCol = document.getElementById('th-amount-col');
+        const thStatusCol = document.getElementById('th-status-col');
+        if (thAmountCol) {
+            thAmountCol.innerHTML = isFacilitatorMonitoringMode
+                ? '<span class="filter-text"><span>Марҳилаҳо</span><span class="ru-block">Этапы</span></span>'
+                : '<span class="filter-text"><span>Маблағ</span><span class="ru-block">Сумма</span></span>';
+        }
+        if (thStatusCol) {
+            thStatusCol.innerHTML = isFacilitatorMonitoringMode
+                ? '<span class="filter-text"><span>Боздиди наздик</span><span class="ru-block">Ближайший визит</span></span>'
+                : 'Статус';
+        }
+
         if (isFacilitatorMonitoringMode) {
             window.filterApps(['approved']).filter(function (app) { return app.grantActive === true; }).forEach(appendMonitoringWidget);
         } else if (isFacilitatorCompletedMode || isGmcApprovedCommitteeMode) {
@@ -1334,17 +1347,27 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
             window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'finance_registry') {
-            var finMode = window.financeViewMode || 'both';
+            var finMode = window.financeViewMode || 'lists';
             if (finMode === 'lists') {
-                // Show only protocol/list cards
-                (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
+                var financeProtocol = (window.state.protocols || []).filter(function (p) {
+                    return p && Array.isArray(p.apps) && p.apps.length > 0;
+                });
+                financeProtocol.forEach(function (p) { appendProtocolCard(p); });
             } else if (finMode === 'apps') {
-                // Show only individual approved applicants
-                window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
+                (window.state.protocols || []).filter(function (protocol) {
+                    return protocol && Array.isArray(protocol.apps) && protocol.apps.length > 0;
+                }).forEach(function (protocol) {
+                    const trancheApps = window.filterApps(['approved']).filter(function (app) {
+                        return app.protocolId === protocol.id;
+                    });
+                    if (trancheApps.length === 0) return;
+                    appendFinanceTrancheHeader(protocol, trancheApps.length);
+                    trancheApps.forEach(function (app) { appendFinanceApplicantWidget(app); });
+                });
             } else {
-                // Show both (default)
-                (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
-                window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
+                (window.state.protocols || []).filter(function (p) {
+                    return p && Array.isArray(p.apps) && p.apps.length > 0;
+                }).forEach(function (p) { appendProtocolCard(p); });
             }
 
         } else if (window.activeMainFilter === 'committee') {
@@ -1364,6 +1387,43 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         openApprovedFor(id);
         const tab = document.querySelector('.tab-btn[data-target="pane-monitoring"]');
         if (tab && !tab.classList.contains('pointer-events-none')) tab.click();
+    }
+
+    function appendFinanceApplicantWidget(app) {
+        if (!app || app.status !== 'approved') return;
+        const card = document.createElement('div');
+        const active = app.grantActive === true;
+        const action = active
+            ? '<span class="text-emerald-700 text-[11px] font-bold">Грант активен</span>'
+            : '<button onclick="event.stopPropagation(); confirmGrantReceipt(\'' + app.id + '\')" class="bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-700">Подтвердить получение гранта</button>';
+        card.className = 'bg-white border border-emerald-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer animate-fade-in min-w-0';
+        card.setAttribute('data-status', 'approved_item');
+        card.setAttribute('data-id', app.id);
+        card.setAttribute('data-protocol-id', app.protocolId || '');
+        card.innerHTML = '<div class="flex flex-col gap-3"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><h3 class="font-bold text-[14px] leading-5 text-slate-800 break-words">' + (app.name || 'Заявитель') + '</h3><div class="text-[11px] text-slate-500 mt-1">#' + app.id + ' <span class="text-slate-300">•</span> ' + (app.sector || '—') + '</div><div class="text-[10px] text-emerald-700 font-bold mt-1">Список Комитета № ' + (app.protocolId || '—') + '</div></div><span class="shrink-0 bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold">' + (active ? 'Грант активен' : 'Одобрено Комитетом') + '</span></div><div class="border-t border-slate-100 pt-3 flex items-center justify-between gap-2">' + action + '<span class="text-emerald-700 text-[11px] font-bold">Открыть →</span></div></div>';
+        card.onclick = function () { openApprovedFor(app.id); };
+        document.getElementById('mainDashboardGrid').appendChild(card);
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-status', 'approved_item');
+        row.setAttribute('data-id', app.id);
+        row.setAttribute('data-protocol-id', app.protocolId || '');
+        row.className = 'hover:bg-emerald-50 transition-colors cursor-pointer animate-fade-in';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 border-emerald-500"><div class="font-bold text-slate-800 text-[13px]">' + (app.name || 'Заявитель') + '</div><div class="text-[11px] text-slate-400">#' + app.id + '</div></td><td class="py-4 px-5 text-[12px] text-slate-600"><div class="text-[10px] text-emerald-700 font-bold">Список ' + (app.protocolId || '—') + '</div>' + (app.sector || '—') + '</td><td class="py-4 px-5 text-[12px] font-bold text-emerald-700">' + (active ? 'Грант активен' : 'Ожидает подтверждения') + '</td><td class="py-4 px-5 text-right"><div class="flex items-center justify-end gap-3">' + action + '<span class="text-emerald-700 text-[12px] font-bold">Открыть</span></div></td>';
+        row.onclick = function () { openApprovedFor(app.id); };
+        document.getElementById('list-tbody').appendChild(row);
+    }
+
+    function appendFinanceTrancheHeader(protocol, count) {
+        const header = document.createElement('div');
+        header.className = 'col-span-full bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center justify-between gap-3 animate-fade-in';
+        header.innerHTML = '<div><div class="text-[13px] font-bold text-emerald-900">Транш ' + protocol.id + '</div><div class="text-[11px] text-emerald-700">Список Комитета / Рӯйхати Кумита • ' + protocol.date + '</div></div><span class="bg-white border border-emerald-200 text-emerald-800 px-2 py-1 rounded-md text-[10px] font-bold">' + count + ' пользователей</span>';
+        document.getElementById('mainDashboardGrid').appendChild(header);
+
+        const row = document.createElement('tr');
+        row.className = 'bg-emerald-50 border-y border-emerald-200';
+        row.innerHTML = '<td colspan="4" class="py-3 px-5"><div class="flex items-center justify-between gap-3"><div><span class="font-bold text-emerald-900">Транш ' + protocol.id + '</span><span class="text-[11px] text-emerald-700 ml-2">Список Комитета / Рӯйхати Кумита • ' + protocol.date + '</span></div><span class="text-[10px] font-bold text-emerald-800">' + count + ' пользователей</span></div></td>';
+        document.getElementById('list-tbody').appendChild(row);
     }
 
     function appendMonitoringWidget(app) {
@@ -1476,6 +1536,9 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
 
     function appendProtocolCard(prot) {
         const clean = function (v) { return String(v || '').replace(/<[^>]*>?/gm, '').toLowerCase(); };
+        const financeTranche = window.activeMainFilter === 'finance_registry';
+        const titleTj = financeTranche ? 'Транш' : 'Рӯйхат';
+        const titleRu = financeTranche ? 'Транш' : 'Список';
         const listApps = (prot.apps || []).map(function (a) { return window.getApp(a.id); }).filter(Boolean);
         const listCount = listApps.length;
         const approvedCount = (prot.apps || []).filter(function (a) { return a.decision === 'ok'; }).length;
@@ -1516,7 +1579,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         card.setAttribute('data-gender-values', genderValues.join('|'));
         card.setAttribute('data-search', clean(searchParts.join(' ')));
         card.className = 'bg-teal-50 border border-teal-200 rounded-2xl p-5 shadow-sm transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-teal-400 relative overflow-hidden';
-        card.innerHTML = '<div class="absolute top-0 left-0 w-full h-1.5 bg-teal-500"></div><div class="flex justify-between items-start mb-1 mt-1"><h3 class="font-bold text-[15px] text-teal-900 leading-tight">Рӯйхат <span class="ru font-normal">/ Список</span> <br/><span class="text-[13px] text-teal-700">' + prot.id + '</span></h3><div class="bg-teal-100 text-teal-800 px-2 py-1 rounded-md text-[10px] font-bold border border-teal-200"><i data-lucide="layers" class="w-3 h-3 inline"></i> Тасдиқшуда <span class="ru font-normal">/ Утв.</span></div></div><div class="text-[11px] text-teal-600 font-medium mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Тартибшуда / Сформирован: ' + prot.date + ' (' + prot.exactTime + ')</div><div class="grid grid-cols-2 gap-2 mb-4 bg-white/60 p-3 rounded-xl border border-teal-100"><div class="text-[11px] text-slate-600">Дар рӯйхат / В списке: <strong class="text-slate-700 text-[13px] block">' + listCount + '</strong></div><div class="text-[11px] text-slate-600">Тасдиқ / Одобр.: <strong class="text-emerald-600 text-[13px] block">' + approvedCount + '</strong></div><div class="text-[11px] text-slate-600">Рад / Откл.: <strong class="text-red-500 text-[13px] block">' + rejectedCount + '</strong></div><div class="text-[11px] text-slate-600">Маблағ / Сумма: <strong class="text-teal-700 text-[13px] block">' + totalAmount + ' сом.</strong></div></div><div class="flex justify-end items-center mt-auto border-t border-teal-200/60 pt-4"><button onclick="openCommitteeBatch(\'' + prot.id + '\')" class="bg-white text-teal-700 border border-teal-300 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-teal-100 transition-colors shadow-sm">Кушодан <span class="ru font-normal">/ Открыть список</span></button></div>';
+        card.innerHTML = '<div class="absolute top-0 left-0 w-full h-1.5 bg-teal-500"></div><div class="flex justify-between items-start mb-1 mt-1"><h3 class="font-bold text-[15px] text-teal-900 leading-tight">' + titleTj + ' <span class="ru font-normal">/ ' + titleRu + '</span> <br/><span class="text-[13px] text-teal-700">' + prot.id + '</span></h3><div class="bg-teal-100 text-teal-800 px-2 py-1 rounded-md text-[10px] font-bold border border-teal-200"><i data-lucide="layers" class="w-3 h-3 inline"></i> Тасдиқшуда <span class="ru font-normal">/ Утв.</span></div></div><div class="text-[11px] text-teal-600 font-medium mb-4 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> Тартибшуда / Сформирован: ' + prot.date + ' (' + prot.exactTime + ')</div><div class="grid grid-cols-2 gap-2 mb-4 bg-white/60 p-3 rounded-xl border border-teal-100"><div class="text-[11px] text-slate-600">' + titleTj + ' / ' + titleRu + ': <strong class="text-slate-700 text-[13px] block">' + listCount + '</strong></div><div class="text-[11px] text-slate-600">Тасдиқ / Одобр.: <strong class="text-emerald-600 text-[13px] block">' + approvedCount + '</strong></div><div class="text-[11px] text-slate-600">Рад / Откл.: <strong class="text-red-500 text-[13px] block">' + rejectedCount + '</strong></div><div class="text-[11px] text-slate-600">Маблағ / Сумма: <strong class="text-teal-700 text-[13px] block">' + totalAmount + ' сом.</strong></div></div><div class="flex justify-end items-center mt-auto border-t border-teal-200/60 pt-4"><button onclick="openCommitteeBatch(\'' + prot.id + '\')" class="bg-white text-teal-700 border border-teal-300 text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-teal-100 transition-colors shadow-sm">Кушодан <span class="ru font-normal">/ Открыть список</span></button></div>';
         card.onclick = function (e) {
             if (!e.target.closest('button')) {
                 if (typeof window.openCommitteeBatch === 'function') window.openCommitteeBatch(prot.id);
@@ -1532,7 +1595,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         row.setAttribute('data-gender-values', genderValues.join('|'));
         row.setAttribute('data-search', clean(searchParts.join(' ')));
         row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in bg-teal-50/30';
-        row.innerHTML = '<td class="py-4 px-5 border-l-4 border-teal-500 align-middle"><div class="font-bold text-teal-900 text-[13px] mb-0.5">Рӯйхат / Список ' + prot.id + '</div><div class="text-[11px] text-teal-600 font-medium flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ' + prot.date + ' (' + prot.exactTime + ')</div></td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium">Дар рӯйхат / В сп.: <b class="text-slate-700">' + listCount + '</b><br>Тасдиқ / Од.: <b class="text-emerald-600">' + approvedCount + '</b>, Рад / Откл.: <b class="text-red-500">' + rejectedCount + '</b></td><td class="py-4 px-5 align-middle"><div class="font-black text-teal-700 text-[13px]">' + totalAmount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="bg-teal-100 text-teal-800 px-2 py-1 rounded-md text-[10px] font-bold w-max border border-teal-200"><i data-lucide="layers" class="w-3 h-3 inline"></i> Тасдиқшуда <span class="ru font-normal">/ Утв.</span></div></td><td class="py-4 px-5 align-middle text-right"><button onclick="openCommitteeBatch(\'' + prot.id + '\')" class="text-teal-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></td>';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 border-teal-500 align-middle"><div class="font-bold text-teal-900 text-[13px] mb-0.5">' + titleTj + ' / ' + titleRu + ' ' + prot.id + '</div><div class="text-[11px] text-teal-600 font-medium flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ' + prot.date + ' (' + prot.exactTime + ')</div></td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium">' + titleTj + ' / ' + titleRu + ': <b class="text-slate-700">' + listCount + '</b><br>Тасдиқ / Од.: <b class="text-emerald-600">' + approvedCount + '</b>, Рад / Откл.: <b class="text-red-500">' + rejectedCount + '</b></td><td class="py-4 px-5 align-middle"><div class="font-black text-teal-700 text-[13px]">' + totalAmount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="bg-teal-100 text-teal-800 px-2 py-1 rounded-md text-[10px] font-bold w-max border border-teal-200"><i data-lucide="layers" class="w-3 h-3 inline"></i> Тасдиқшуда <span class="ru font-normal">/ Утв.</span></div></td><td class="py-4 px-5 align-middle text-right"><button onclick="openCommitteeBatch(\'' + prot.id + '\')" class="text-teal-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></td>';
         row.onclick = function (e) {
             if (!e.target.closest('button') && typeof window.openCommitteeBatch === 'function') {
                 window.openCommitteeBatch(prot.id);
@@ -1984,9 +2047,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         const monthSel = document.getElementById('approved-stats-month');
         const countEl = document.getElementById('approved-stats-count');
         const amountEl = document.getElementById('approved-stats-amount');
-        const listSel = document.getElementById('approved-list-select');
-        const openListBtn = document.getElementById('btn-open-approved-list');
-        if (!yearSel || !monthSel || !countEl || !amountEl || !listSel || !openListBtn) return;
+        if (!yearSel || !monthSel || !countEl || !amountEl) return;
 
         const approvedApps = window.filterApps(['approved']);
         const toDateParts = function (app) {
@@ -2029,33 +2090,6 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         countEl.textContent = String(filtered.length);
         amountEl.textContent = totalAmount.toLocaleString('ru-RU');
 
-        const protocols = (window.state.protocols || []).slice().reverse();
-        const prevList = listSel.value || '';
-        listSel.innerHTML = '';
-        if (protocols.length === 0) {
-            const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = 'Рӯйхат нест / Списки отсутствуют';
-            listSel.appendChild(opt);
-            openListBtn.classList.add('opacity-50', 'pointer-events-none');
-        } else {
-            protocols.forEach(function (prot) {
-                const opt = document.createElement('option');
-                opt.value = prot.id;
-                opt.textContent = prot.id + ' • ' + prot.date + ' • ' + (prot.apps ? prot.apps.length : 0);
-                listSel.appendChild(opt);
-            });
-            listSel.value = Array.from(listSel.options).some(function (o) { return o.value === prevList; }) ? prevList : listSel.options[0].value;
-            openListBtn.classList.remove('opacity-50', 'pointer-events-none');
-        }
-    }
-
-    function openSelectedApprovedList() {
-        const listSel = document.getElementById('approved-list-select');
-        if (!listSel || !listSel.value) return;
-        if (typeof window.openCommitteeBatch === 'function') {
-            window.openCommitteeBatch(listSel.value);
-        }
     }
 
     function updateCompletedSummaryBar() {
@@ -2082,9 +2116,18 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
     }
 
     function updateFinanceViewButtons() {
-        var mode = window.financeViewMode || 'both';
+        var mode = window.financeViewMode || 'lists';
         var listBtn = document.getElementById('btn-finance-open-lists');
         var appsBtn = document.getElementById('btn-finance-open-apps');
+        var protocols = (window.state.protocols || []).filter(function (p) {
+            return p && Array.isArray(p.apps) && p.apps.length > 0;
+        });
+        if (listBtn) {
+            var listLabel = listBtn.querySelector('.filter-text');
+            if (listLabel) {
+                listLabel.innerHTML = '<span>Ҳама траншҳо</span><span class="ru-block">Показать все транши</span>';
+            }
+        }
         var activeClass = 'bg-emerald-700 text-white border-emerald-700';
         var inactiveClass = 'bg-white border-emerald-300 text-emerald-800 hover:bg-emerald-100';
         if (listBtn) {
@@ -2196,6 +2239,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         ) {
             const searchInput = document.getElementById('filter-search-issued');
             const searchFilter = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const trancheInput = document.getElementById('approved-tranche-search');
+            const trancheFilter = trancheInput ? trancheInput.value.toLowerCase().replace(/[^a-zа-я0-9-]/gi, '') : '';
             const yearFilter = (document.getElementById('approved-stats-year') || {}).value || 'all';
             const monthFilter = (document.getElementById('approved-stats-month') || {}).value || 'all';
             const sectorFilter = (document.getElementById('filter-sector') || {}).value || '';
@@ -2221,6 +2266,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 const regions = String(el.getAttribute('data-region-values') || '');
                 const genders = String(el.getAttribute('data-gender-values') || '');
                 const searchHaystack = String(el.getAttribute('data-search') || '');
+                const elementTranche = String(el.getAttribute('data-list-id') || el.getAttribute('data-protocol-id') || '').toLowerCase().replace(/[^a-zа-я0-9-]/gi, '');
 
                 // For date filtering, we search in the data-search which contains the date string or we can look it up
                 // Actually, let's look up by ID for items or by list-id for lists
@@ -2240,6 +2286,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 if (regionFilter && !regions.includes(String(regionFilter).toLowerCase())) show = false;
                 if (genderFilter && !genders.includes(String(genderFilter).toLowerCase())) show = false;
                 if (searchFilter && !searchHaystack.includes(searchFilter)) show = false;
+                if (trancheFilter && !elementTranche.includes(trancheFilter) && !elementTranche.replace(/[^0-9]/g, '').includes(trancheFilter.replace(/[^0-9]/g, ''))) show = false;
 
                 if (show && dateParts) {
                     if (yearFilter !== 'all' && dateParts.year !== parseInt(yearFilter, 10)) show = false;
@@ -2430,6 +2477,9 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         }
         updateCompletedSummaryBar();
 
+        if (window.activeMainFilter === 'finance_registry') {
+            updateFinanceViewButtons();
+        }
         // Actions on cards depend on the active main filter.
         // Rebuild cards each time to avoid stale "view-only" actions from previous mode.
         renderAllCards();
@@ -2486,6 +2536,10 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         const searchIssued = document.getElementById('filter-search-issued');
         if (searchIssued) {
             searchIssued.addEventListener('input', updateDashboardFilter);
+        }
+        const trancheSearch = document.getElementById('approved-tranche-search');
+        if (trancheSearch) {
+            trancheSearch.addEventListener('input', updateDashboardFilter);
         }
 
         ['filter-sector', 'filter-region', 'filter-gender'].forEach(function (id) {
@@ -2720,7 +2774,6 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         updateDashboardFilter,
         updateActiveModeIndicator,
         updateApprovedInsights,
-        openSelectedApprovedList,
         setAvailableTabs,
         initializeModalTabs
         ,
@@ -2749,7 +2802,6 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
     window.updateDashboardFilter = updateDashboardFilter;
     window.updateActiveModeIndicator = updateActiveModeIndicator;
     window.updateApprovedInsights = updateApprovedInsights;
-    window.openSelectedApprovedList = openSelectedApprovedList;
     window.setAvailableTabs = setAvailableTabs;
     window.getVisibleReadyRegistryIds = getVisibleReadyRegistryIds;
     window.canOpenInCurrentContext = canOpenInCurrentContext;
