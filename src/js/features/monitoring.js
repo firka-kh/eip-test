@@ -29,6 +29,15 @@
         }
     }
 
+    function isMonitoringReadyApp(app) {
+        if (!app || app.status !== 'approved') return false;
+        if (!window.state || !window.state.monitoring) return false;
+        const visits = window.state.monitoring[app.id];
+        if (!Array.isArray(visits) || visits.length === 0) return false;
+        return visits.some(function (visit) { return visit && visit.status === 'active'; })
+            || visits.some(function (visit) { return visit && visit.status === 'pending'; });
+    }
+
     function getEqBadge(st) {
         if (st === 'in_stock') return '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Дар мавҷудият <span class="ru font-normal">/ В наличии</span></span>';
         if (st === 'not_used') return '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Истифода нашуд <span class="ru font-normal">/ Не используется</span></span>';
@@ -144,6 +153,7 @@
     window.AppFeatures.monitoring = {
         ready: true,
         generateMonitoringFor,
+        isMonitoringReadyApp,
         getEqBadge,
         getBizBadge,
         toggleMonitoringForm,
@@ -154,6 +164,7 @@
 
     // Legacy compatibility while migrating code out of grant.html
     window.generateMonitoringFor = generateMonitoringFor;
+    window.isMonitoringReadyApp = isMonitoringReadyApp;
     window.getEqBadge = getEqBadge;
     window.getBizBadge = getBizBadge;
     window.toggleMonitoringForm = toggleMonitoringForm;

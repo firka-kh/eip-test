@@ -1449,6 +1449,9 @@
         const protocolBadge = app.protocolId
             ? '<span class="bg-teal-100 text-teal-800 border border-teal-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="layers" class="w-3 h-3 inline mr-0.5"></i>' + app.protocolId + '</span>'
             : '';
+        const monitoringReadyBadge = typeof window.isMonitoringReadyApp === 'function' && window.isMonitoringReadyApp(app)
+            ? '<span class="bg-indigo-100 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="check-circle" class="w-3 h-3 inline mr-0.5"></i>Мониторинг готов</span>'
+            : '<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="check" class="w-3 h-3 inline mr-0.5"></i>Одобрено</span>';
         const protocolOpenAction = app.protocolId
             ? '<button onclick="event.stopPropagation(); openCommitteeBatch(\'' + app.protocolId + '\')" class="bg-white text-teal-700 border border-teal-300 text-[11px] font-bold px-2.5 py-1 rounded-lg hover:bg-teal-50 transition-colors">Рӯйхат <span class="ru font-normal">/ Список</span></button>'
             : '';
@@ -1496,7 +1499,7 @@
         row.setAttribute('data-gender-values', genderValue);
         row.setAttribute('data-search', searchHaystack);
         row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in ' + (isFullyCompleted ? 'bg-emerald-50/70' : 'bg-emerald-50/40');
-        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1">' + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + '<button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></div></td>';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1 flex flex-wrap gap-1.5">' + monitoringReadyBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + '<button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></div></td>';
         row.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1694,6 +1697,9 @@
         const gmcReg = window.filterApps(['gmc_ready_for_registry']);
         const coms = window.filterApps(['com_review']);
         const approved = window.filterApps(['approved']);
+        const monitoringReady = approved.filter(function (app) {
+            return typeof window.isMonitoringReadyApp === 'function' ? window.isMonitoringReadyApp(app) : !!((window.state && window.state.monitoring && window.state.monitoring[app.id]));
+        });
         const fullyCompleted = getFullyCompletedApps();
         const approvedActive = approved.filter(function (app) { return !isFullyCompletedApp(app); });
         const rejected = window.filterApps(['rejected']);
@@ -1706,7 +1712,7 @@
                 el.classList.toggle('hidden', count === 0);
             }
         };
-        setB('dash-fac-badge', drafts.length + incomplete.length + facRevs.length + postponedReady.length);
+        setB('dash-fac-badge', drafts.length + incomplete.length + facRevs.length + postponedReady.length + monitoringReady.length);
         setB('dash-approved-badge', approved.length);
         setB('dash-finance-badge', fullyCompleted.length);
         setB('dash-status-badge', totalApps);
@@ -1716,6 +1722,7 @@
         setB('sub-incomplete-badge', incomplete.length);
         setB('sub-rev-badge', facRevs.length);
         setB('sub-fac-completed-badge', approved.length);
+        setB('sub-monitoring-badge', monitoringReady.length);
         setB('sub-pos-badge', postponed.length);
         setB('sub-pos-ready-badge', postponedReady.length);
         setB('dash-gmc-badge', window.filterApps(['gmc_review', 'gmc_preparation', 'gmc_ready_for_registry']).length);
@@ -1936,6 +1943,7 @@
             incomplete_data: 'Нопурра / Неполные данные',
             fac_revision: 'Дар ҳоли такмил / На доработке',
             completed: 'Аз Кумита тасдиқшуда / Одобрено Комитетом',
+            monitoring: 'Мониторинг / Мониторинг',
             postponed: 'Мавқуф / Отложенные'
         };
 
@@ -2122,8 +2130,9 @@
                 if (window.activeFacFilter === 'draft' && status === 'draft') show = true;
                 else if (window.activeFacFilter === 'incomplete_data' && status === 'incomplete_data') show = true;
                 else if (window.activeFacFilter === 'fac_revision' && status === 'fac_revision') show = true;
-                else if (window.activeFacFilter === 'postponed' && status === 'postponed') show = true;
                 else if (window.activeFacFilter === 'completed' && status === 'approved') show = true;
+                else if (window.activeFacFilter === 'monitoring' && status === 'approved' && typeof window.isMonitoringReadyApp === 'function' && window.isMonitoringReadyApp(appObj)) show = true;
+                else if (window.activeFacFilter === 'postponed' && status === 'postponed') show = true;
             } else if (window.activeMainFilter === 'statuses') {
                 if (window.activeStatFilter === 'all_stat') show = true;
                 else if (window.activeStatFilter === 'draft' && status === 'draft') show = true;
