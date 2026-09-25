@@ -238,6 +238,7 @@ body {
 #statuses-filters-bar {
     overflow-y: hidden;
     scroll-padding-left: 8px;
+    flex-wrap: wrap;
 }
 
 #facilitator-filters-bar .fac-filter-btn,
@@ -246,6 +247,7 @@ body {
 #statuses-filters-bar .stat-filter-btn {
     min-width: max-content;
     gap: 8px;
+    flex: 1 0 auto;
 }
 
 #modal-main-title .ru {
