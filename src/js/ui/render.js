@@ -33,8 +33,21 @@
         return isGrantReceiptConfirmed(app);
     }
 
-    function confirmGrantReceipt() {
-        const id = window.currentOpenedAppId || window.currentApprovedAppId;
+    function getFinancePendingReceiptApps() {
+        return window.filterApps(['approved']).filter(function (app) {
+            return app && !isGrantReceiptConfirmed(app);
+        });
+    }
+
+    function getFinanceVisibleApps() {
+        const map = {};
+        getFinancePendingReceiptApps().forEach(function (app) { map[String(app.id)] = app; });
+        getFullyCompletedApps().forEach(function (app) { map[String(app.id)] = app; });
+        return Object.keys(map).map(function (id) { return map[id]; });
+    }
+
+    function confirmGrantReceipt(appIdOverride) {
+        const id = appIdOverride || window.currentOpenedAppId || window.currentApprovedAppId;
         if (!id) {
             notifyMessage('warning', 'Сначала откройте заявку / Аввал дархостро кушоед');
             return;
@@ -1322,7 +1335,7 @@
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
             window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'finance_registry') {
-            getFullyCompletedApps().forEach(function (app) { appendApprovedApplicantCard(app); });
+            getFinanceVisibleApps().forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'committee') {
             getPendingCommitteeRegistries().forEach(function (reg) { appendCommitteeRegistryCard(reg); });
         } else {
@@ -1527,6 +1540,11 @@
         const docsPack = typeof window.getApplicationDocumentCompleteness === 'function' ? window.getApplicationDocumentCompleteness(app) : null;
         const isFullyCompleted = isFullyCompletedApp(app);
         const completionStamp = agreement && agreement.uploadedAt ? agreement.uploadedAt : '—';
+        const financeActionButton = window.activeMainFilter === 'finance_registry'
+            ? (isGrantReceiptConfirmed(app)
+                ? '<button onclick="event.stopPropagation(); confirmGrantReceipt(\'' + app.id + '\')" class="bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-80 cursor-default">Грант активирован</button>'
+                : '<button onclick="event.stopPropagation(); confirmGrantReceipt(\'' + app.id + '\')" class="bg-amber-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg hover:bg-amber-700">Подтвердить получение гранта</button>')
+            : '';
         const completionBadge = isFullyCompleted
             ? '<span class="bg-emerald-700 text-white border border-emerald-700 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="badge-check" class="w-3 h-3 inline mr-0.5"></i>Полностью завершена</span>'
             : '<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="clock-3" class="w-3 h-3 inline mr-0.5"></i>Одобрена, идет закрытие</span>';
@@ -1548,7 +1566,7 @@
         card.className = isFullyCompleted
             ? 'bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-5 shadow-md shadow-emerald-100/70 transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-500'
             : 'bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-400';
-        card.innerHTML = '<div class="flex justify-between items-start mb-1 gap-3"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700') + ' px-2 py-1 rounded-md text-[10px] font-bold">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-2 text-[11px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '<div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><div class="flex items-center gap-2">' + protocolOpenAction + '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="event.stopPropagation(); openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span></div></div>';
+        card.innerHTML = '<div class="flex justify-between items-start mb-1 gap-3"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700') + ' px-2 py-1 rounded-md text-[10px] font-bold">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (window.activeMainFilter === 'finance_registry' ? '<div class="mt-2 flex justify-end">' + financeActionButton + '</div>' : '') + (isFullyCompleted ? '<div class="mt-2 text-[11px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '<div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><div class="flex items-center gap-2">' + protocolOpenAction + '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="event.stopPropagation(); openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span></div></div>';
         card.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1564,7 +1582,10 @@
         row.setAttribute('data-gender-values', genderValue);
         row.setAttribute('data-search', searchHaystack);
         row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in ' + (isFullyCompleted ? 'bg-emerald-50/70' : 'bg-emerald-50/40');
-        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1 flex flex-wrap gap-1.5">' + monitoringReadyBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + '<button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></div></td>';
+        const financeRowAction = window.activeMainFilter === 'finance_registry'
+            ? '<button onclick="event.stopPropagation(); confirmGrantReceipt(\'' + app.id + '\')" class="text-amber-700 text-[12px] font-bold hover:underline">' + (isGrantReceiptConfirmed(app) ? 'Грант активирован' : 'Подтвердить получение гранта') + '</button>'
+            : '';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1 flex flex-wrap gap-1.5">' + monitoringReadyBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра ajorn ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + (window.activeMainFilter === 'finance_registry' ? financeRowAction : '<button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button>') + '</div></td>';
         row.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1980,10 +2001,10 @@
         bar.classList.toggle('hidden', !shouldShow);
         if (!shouldShow) return;
 
-        const total = getFullyCompletedApps().length;
+        const total = isFinanceRegistry ? getFinanceVisibleApps().length : getFullyCompletedApps().length;
         countEl.textContent = String(total);
         descEl.textContent = isFinanceRegistry
-            ? 'Список для бухгалтерии: только заявки, одобренные Комитетом и закрытые загрузкой подписанного договора.'
+            ? 'Список Финансов: заявки после решения Комитета, включая те, что ждут подтверждения получения гранта и уже активированные.'
             : 'Показаны только полностью завершенные заявки: одобрены Комитетом и с загруженным подписанным договором.';
 
         if (exportBtn) exportBtn.classList.toggle('hidden', !isFinanceRegistry);
@@ -2042,7 +2063,7 @@
         const mainLabel = mainLabels[mainFilter] || mainLabels.statuses;
         titleEl.textContent = 'Режим / Режим: ' + mainLabel + (subLabel ? ' • ' + subLabel : '');
         if (mainFilter === 'finance_registry') {
-            descEl.textContent = 'Режим бухгалтерии: список идентичен одобренным Комитетом, но включает только заявки с прикрепленным подписанным договором.';
+            descEl.textContent = 'Режим Финансов: сначала подтверждается получение гранта, после чего активируется мониторинг и заявка становится доступна Фасилитатору.';
         } else if (mainFilter === 'gmc' && window.activeGmcFilter === 'returned') {
             descEl.textContent = 'Здесь ШИГ/КУГ видит отложенные заявки так же, как Фасилитатор, но только для просмотра. Действия по разблокировке и дальнейшему маршруту выполняет только Фасилитатор.';
         } else {
@@ -2216,7 +2237,7 @@
                 if (window.activeGmcFilter === 'returned' && status === 'postponed') show = true;
             } else if (window.activeMainFilter === 'committee' && status === 'com_review') show = true;
             else if (window.activeMainFilter === 'approved_registry' && ['approved'].includes(status)) show = true;
-            else if (window.activeMainFilter === 'finance_registry' && isFullyCompletedApp(appObj)) show = true;
+            else if (window.activeMainFilter === 'finance_registry' && appObj && appObj.status === 'approved') show = true;
 
             if (show && window.activeMainFilter === 'approved_registry') {
                 const fullName = (appFullObj['full-name'] || '').toLowerCase();
