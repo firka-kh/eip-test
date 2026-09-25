@@ -67,13 +67,30 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         if (typeof window.isFullyCompletedApplication === 'function') {
             return window.isFullyCompletedApplication(app);
         }
-        if (!app || app.status !== 'approved') return false;
+        if (!app || app.status !== 'approved' || app.grantActive !== true) return false;
         var agreement = typeof window.ensureGrantAgreement === 'function' ? window.ensureGrantAgreement(app) : null;
         return !!(agreement && agreement.uploaded && agreement.fileName);
     }
 
     function getFullyCompletedApps() {
         return window.filterApps(['approved']).filter(function (app) { return isFullyCompletedApp(app); });
+    }
+
+    function confirmGrantReceipt(id) {
+        var app = window.getApp(id);
+        if (!app || app.status !== 'approved' || app.committeeApproved !== true) return;
+        if (app.grantActive === true) {
+            notifyMessage('info', 'Грант уже активирован.');
+            return;
+        }
+        app.grantActive = true;
+        app.grantActivatedAt = window.getCurrentDateTime();
+        window.addLog(app, 'Молия / Финансы', 'Гирифтани грант тасдиқ шуд', 'Получение гранта подтверждено', 'emerald', 'banknote');
+        if (typeof window.generateMonitoringFor === 'function') {
+            window.generateMonitoringFor(app.id, new Date().toISOString().split('T')[0]);
+        }
+        notifyMessage('success', 'Что произошло: получение гранта подтверждено. Грант активирован, мониторинг доступен фасилитатору.');
+        renderAllCards();
     }
 
     function exportFinanceCompletedStatement() {
@@ -1112,7 +1129,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         window.currentApprovedAppId = id;
         const app = window.getApp(id);
         let tabsToShow = ['pane-approved'];
-        if (app.status === 'approved') {
+        if (app.status === 'approved' && app.grantActive === true) {
             tabsToShow.push('pane-monitoring');
         }
         window.setAvailableTabs(tabsToShow);
@@ -1305,9 +1322,12 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         document.getElementById('mainDashboardGrid').innerHTML = '';
         document.getElementById('list-tbody').innerHTML = '';
         const isFacilitatorCompletedMode = window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'completed';
+        const isFacilitatorMonitoringMode = window.activeMainFilter === 'facilitator' && window.activeFacFilter === 'monitoring';
         const isGmcApprovedCommitteeMode = window.activeMainFilter === 'gmc' && window.activeGmcFilter === 'approved_committee';
 
-        if (isFacilitatorCompletedMode || isGmcApprovedCommitteeMode) {
+        if (isFacilitatorMonitoringMode) {
+            window.filterApps(['approved']).filter(function (app) { return app.grantActive === true; }).forEach(appendMonitoringWidget);
+        } else if (isFacilitatorCompletedMode || isGmcApprovedCommitteeMode) {
             (window.state.protocols || []).forEach(function (p) { appendProtocolCard(p); });
             window.filterApps(['approved']).forEach(function (app) { appendApprovedApplicantCard(app); });
         } else if (window.activeMainFilter === 'approved_registry') {
@@ -1338,6 +1358,34 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         updateCompletedSummaryBar();
         updateApprovedInsights();
         if (window.lucide) window.lucide.createIcons();
+    }
+
+    function openMonitoringFor(id) {
+        openApprovedFor(id);
+        const tab = document.querySelector('.tab-btn[data-target="pane-monitoring"]');
+        if (tab && !tab.classList.contains('pointer-events-none')) tab.click();
+    }
+
+    function appendMonitoringWidget(app) {
+        const clean = function (value) { return String(value || '').replace(/<[^>]*>?/gm, ''); };
+        const visits = (window.state.monitoring && window.state.monitoring[app.id]) || [];
+        const completed = visits.filter(function (visit) { return visit.status === 'completed'; }).length;
+        const activeVisit = visits.find(function (visit) { return visit.status === 'active'; });
+        const card = document.createElement('div');
+        card.setAttribute('data-id', app.id);
+        card.setAttribute('data-status', 'approved');
+        card.className = 'bg-white border border-cyan-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-cyan-400 transition-all cursor-pointer animate-fade-in min-w-0';
+        card.innerHTML = '<div class="flex flex-col gap-3"><div class="min-w-0"><div class="flex items-start justify-between gap-3"><h3 class="font-bold text-[14px] leading-5 text-slate-800 break-words min-w-0">' + (app.name || 'Заявитель') + '</h3><span class="shrink-0 bg-cyan-100 text-cyan-700 px-2 py-1 rounded-md text-[10px] font-bold whitespace-nowrap">Мониторинг активен</span></div><div class="text-[11px] text-slate-500 mt-1">#' + app.id + ' <span class="text-slate-300">•</span> ' + clean(app.sector) + '</div></div><div class="grid grid-cols-2 gap-2"><div class="bg-slate-50 rounded-lg p-3 min-w-0"><div class="text-[10px] text-slate-500">Этапы</div><div class="text-[18px] leading-6 font-bold text-slate-800">' + completed + '/' + visits.length + '</div></div><div class="bg-cyan-50 rounded-lg p-3 min-w-0"><div class="text-[10px] text-cyan-700">Ближайший визит</div><div class="text-[12px] leading-5 font-bold text-cyan-900 mt-1 break-words">' + (activeVisit ? activeVisit.plannedDate : '—') + '</div></div></div><div class="border-t border-slate-100 pt-3 text-[11px] text-cyan-700 font-bold">Открыть мониторинг <span class="font-normal text-slate-400">/ Кушодани мониторинг</span> <span aria-hidden="true">→</span></div></div>';
+        card.onclick = function () { openMonitoringFor(app.id); };
+        document.getElementById('mainDashboardGrid').appendChild(card);
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', app.id);
+        row.setAttribute('data-status', 'approved');
+        row.className = 'hover:bg-cyan-50 transition-colors cursor-pointer animate-fade-in';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 border-cyan-500"><div class="font-bold text-slate-800 text-[13px]">' + (app.name || 'Заявитель') + '</div><div class="text-[11px] text-slate-400">#' + app.id + '</div></td><td class="py-4 px-5 text-[12px] text-slate-600">' + clean(app.sector) + '</td><td class="py-4 px-5 text-[12px] font-bold text-cyan-700">' + completed + '/' + visits.length + '</td><td class="py-4 px-5 text-[12px] text-cyan-900">' + (activeVisit ? activeVisit.plannedDate : '—') + '</td><td class="py-4 px-5 text-right text-cyan-700 text-[12px] font-bold">Открыть</td>';
+        row.onclick = function () { openMonitoringFor(app.id); };
+        document.getElementById('list-tbody').appendChild(row);
     }
 
     function getPendingCommitteeRegistries() {
@@ -1537,6 +1585,9 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         const packageBadge = docsPack && docsPack.isFullPackageComplete
             ? '<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="file-check" class="w-3 h-3 inline mr-0.5"></i>Пакет: полный</span>'
             : '<span class="bg-amber-100 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded text-[10px] font-bold ml-2 whitespace-nowrap"><i data-lucide="file-warning" class="w-3 h-3 inline mr-0.5"></i>Пакет: неполный</span>';
+        const financeAction = window.activeMainFilter === 'finance_registry' && !app.grantActive
+            ? '<button onclick="event.stopPropagation(); confirmGrantReceipt(\'' + app.id + '\')" class="bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg hover:bg-emerald-700">Подтвердить получение гранта</button>'
+            : '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="event.stopPropagation(); openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span>';
 
         const card = document.createElement('div');
         card.setAttribute('data-status', 'approved_item');
@@ -1549,7 +1600,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         card.className = isFullyCompleted
             ? 'bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-5 shadow-md shadow-emerald-100/70 transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-500'
             : 'bg-emerald-50 border border-emerald-200 rounded-2xl p-5 shadow-sm transition-all duration-200 flex flex-col min-h-[160px] animate-fade-in cursor-pointer hover:border-emerald-400';
-        card.innerHTML = '<div class="flex justify-between items-start mb-1 gap-3"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700') + ' px-2 py-1 rounded-md text-[10px] font-bold">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-2 text-[11px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '<div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><div class="flex items-center gap-2">' + protocolOpenAction + '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="event.stopPropagation(); openApprovedFor(\'' + app.id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span></div></div>';
+        card.innerHTML = '<div class="flex justify-between items-start mb-1 gap-3"><h3 class="font-bold text-[14px] text-slate-800">' + app.name + '</h3><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-700') + ' px-2 py-1 rounded-md text-[10px] font-bold">' + (isFullyCompleted ? 'Грант активен <span class="ru font-normal">/ Грант активен</span>' : 'Одобрено Комитетом <span class="ru font-normal">/ Одобрено Комитетом</span>') + '</div></div><div class="text-[11px] text-slate-500 mb-auto flex items-center flex-wrap gap-y-1">#' + app.id + ' • ' + app.sector + protocolBadge + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-2 text-[11px] text-emerald-800 font-semibold">Активирован: ' + (app.grantActivatedAt || completionStamp) + '</div>' : '') + '<div class="mt-4 mb-4 flex flex-col"><span class="text-emerald-700 font-bold text-[14px]">' + app.amount + ' сомонӣ / сом.</span></div><div class="flex justify-between items-center mt-auto border-t border-slate-200 pt-4"><span class="text-xs text-slate-400 font-medium">' + String((app.date || '').split(',')[0] || '—') + '</span><div class="flex items-center gap-2">' + protocolOpenAction + financeAction + '</div></div>';
         card.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1565,7 +1616,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         row.setAttribute('data-gender-values', genderValue);
         row.setAttribute('data-search', searchHaystack);
         row.className = 'hover:bg-slate-50 transition-colors cursor-pointer group animate-fade-in ' + (isFullyCompleted ? 'bg-emerald-50/70' : 'bg-emerald-50/40');
-        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1">' + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Закрыта: ' + completionStamp + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span>' : 'Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span>') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + '<button onclick="openApprovedFor(\'' + app.id + '\')" class="text-emerald-600 text-[12px] font-bold hover:underline">Кушодан / Открыть</button></div></td>';
+        row.innerHTML = '<td class="py-4 px-5 border-l-4 ' + (isFullyCompleted ? 'border-emerald-600' : 'border-emerald-500') + ' align-middle"><div class="font-bold text-slate-800 text-[13px] mb-0.5">' + app.name + '</div><div class="text-[11px] text-slate-400">#' + app.id + ' • ' + String((app.date || '').split(',')[0] || '—') + '</div><div class="mt-1">' + wordVersionBadge + completionBadge + agreementBadge + packageBadge + '</div>' + (isFullyCompleted ? '<div class="mt-1 text-[10px] text-emerald-800 font-semibold">Активирован: ' + (app.grantActivatedAt || completionStamp) + '</div>' : '') + '</td><td class="py-4 px-5 align-middle text-[12px] text-slate-600 font-medium leading-tight">' + app.sector + '</td><td class="py-4 px-5 align-middle"><div class="font-black text-emerald-700 text-[13px]">' + app.amount + ' сомонӣ / сом.</div></td><td class="py-4 px-5 align-middle"><div class="' + (isFullyCompleted ? 'bg-emerald-700 text-white border border-emerald-700' : 'bg-emerald-100 text-emerald-700 border border-emerald-200') + ' px-2 py-1 rounded-md text-[10px] font-bold w-max">' + (isFullyCompleted ? 'Грант активен' : 'Одобрено Комитетом') + '</div></td><td class="py-4 px-5 align-middle text-right"><div class="flex items-center justify-end gap-3">' + (app.protocolId ? '<button onclick="openCommitteeBatch(\'' + app.protocolId + '\')" class="text-teal-700 text-[12px] font-bold hover:underline">Список</button>' : '') + financeAction + '</div></td>';
         row.onclick = function (e) {
             if (e.target.closest('button, a, svg, select, input, span[onclick]')) return;
             window.openApprovedFor(app.id);
@@ -1658,10 +1709,12 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         } else if (status === 'approved') {
             bClass = isApprovedCompleted ? 'bg-emerald-50 border-emerald-400 shadow-sm' : 'bg-emerald-50 border-emerald-200';
             bHtml = isApprovedCompleted
-                ? '<div class="bg-emerald-700 text-white px-2 py-1 rounded-md text-[10px] font-bold">Пурра анҷом ёфт <span class="ru font-normal">/ Полностью завершена</span></div>'
-                : '<div class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold">Тасдиқ шуд <span class="ru font-normal">/ Одобрена</span></div>';
+                ? '<div class="bg-emerald-700 text-white px-2 py-1 rounded-md text-[10px] font-bold">Грант фаъол аст <span class="ru font-normal">/ Грант активен</span></div>'
+                : '<div class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-[10px] font-bold">Одобрено Комитетом <span class="ru font-normal">/ Одобрено Комитетом</span></div>';
             badgeHtmlList = bHtml;
-            aHtml = '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + id + '\')">Кушодан <span class="ru font-normal">/ Открыть</span></span>';
+            aHtml = (window.activeMainFilter === 'finance_registry' && !app.grantActive
+                ? '<button onclick="event.stopPropagation(); confirmGrantReceipt(\'' + id + '\')" class="bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-700">Гирифтани грантро тасдиқ кунед <span class="ru font-normal">/ Подтвердить получение гранта</span></button>'
+                : '<span class="text-emerald-600 text-[12px] font-bold cursor-pointer" onclick="openApprovedFor(\'' + id + '\')">' + (app.grantActive ? 'Мониторинг' : 'Кушодан') + ' <span class="ru font-normal">/ ' + (app.grantActive ? 'Мониторинг' : 'Открыть') + '</span></span>');
         } else if (status === 'rejected') {
             bClass = 'bg-red-50 border-red-200 opacity-70';
             bHtml = '<div class="bg-red-100 text-red-700 px-2 py-1 rounded-md text-[10px] font-bold">Рад карда шуд <span class="ru font-normal">/ Отклонена</span></div>';
@@ -1799,8 +1852,9 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
 
         setB('dash-approved-badge', approved.length);
         
-        setB('dash-finance-badge', fullyCompleted.length);
-        setRoleBadge('finance_registry', fullyCompleted.length);
+        setB('dash-finance-badge', approved.length);
+        setRoleBadge('finance_registry', approved.length);
+        setB('dash-monitoring-badge', approved.filter(function (app) { return app.grantActive === true; }).length);
 
         setB('dash-status-badge', totalApps);
         setRoleBadge('statuses', totalApps);
@@ -1810,6 +1864,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         setB('sub-incomplete-badge', incomplete.length);
         setB('sub-rev-badge', facRevs.length);
         setB('sub-fac-completed-badge', approved.length);
+        setB('sub-fac-monitoring-badge', approved.filter(function (app) { return app.grantActive === true; }).length);
         setB('sub-pos-badge', postponed.length);
         setB('sub-pos-ready-badge', postponedReady.length);
         
@@ -2275,6 +2330,7 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 else if (window.activeFacFilter === 'fac_revision' && status === 'fac_revision') show = true;
                 else if (window.activeFacFilter === 'postponed' && status === 'postponed') show = true;
                 else if (window.activeFacFilter === 'completed' && status === 'approved') show = true;
+                else if (window.activeFacFilter === 'monitoring' && status === 'approved' && appObj.grantActive === true) show = true;
             } else if (window.activeMainFilter === 'statuses') {
                 if (window.activeStatFilter === 'all_stat') show = true;
                 else if (window.activeStatFilter === 'draft' && status === 'draft') show = true;
@@ -2293,7 +2349,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
                 if (window.activeGmcFilter === 'returned' && status === 'postponed') show = true;
             } else if (window.activeMainFilter === 'committee' && status === 'com_review') show = true;
             else if (window.activeMainFilter === 'approved_registry' && ['approved'].includes(status)) show = true;
-            else if (window.activeMainFilter === 'finance_registry' && isFullyCompletedApp(appObj)) show = true;
+            else if (window.activeMainFilter === 'finance_registry' && status === 'approved') show = true;
+            else if (window.activeMainFilter === 'monitoring' && status === 'approved' && appObj.grantActive === true) show = true;
 
             if (show && window.activeMainFilter === 'approved_registry') {
                 const fullName = (appFullObj['full-name'] || '').toLowerCase();
@@ -2679,7 +2736,8 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
         printGrantContractDraftFromModal,
         exportGrantContractPdfFromModal,
         toggleGrantContractDraftPanelFromModal,
-        exportFinanceCompletedStatement
+        exportFinanceCompletedStatement,
+        confirmGrantReceipt
     };
 
     // Legacy compatibility while migrating code out of grant.html
@@ -2708,4 +2766,5 @@ function getGrantContractBodyHtmlFromMarkdown(fields) {
     window.exportGrantContractPdfFromModal = exportGrantContractPdfFromModal;
     window.toggleGrantContractDraftPanelFromModal = toggleGrantContractDraftPanelFromModal;
     window.exportFinanceCompletedStatement = exportFinanceCompletedStatement;
+    window.confirmGrantReceipt = confirmGrantReceipt;
 })();

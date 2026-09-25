@@ -46,6 +46,12 @@
     // One-way migration: PIU stage removed, route legacy items to GMC preparation.
     (window.state.applications || []).forEach(function (app) {
         if (!app) return;
+        if (app.status === 'approved') {
+            app.committeeApproved = true;
+            if (typeof app.grantActive !== 'boolean') {
+                app.grantActive = false;
+            }
+        }
         if (app && app.status === 'piu_review') {
             app.status = 'gmc_preparation';
         }

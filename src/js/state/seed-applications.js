@@ -59,7 +59,7 @@
             ]
         },
         {
-            id: '10010', name: 'Мирзоева Ситора', sector: 'Савдо <span class="ru">/ Торговля</span>', amount: '9 000', date: '01.03.2026, 11:00', status: 'approved', protocolId: 'СП-9001', gmcEvaluation: perfGmc, auditLog: [
+            id: '10010', name: 'Мирзоева Ситора', sector: 'Савдо <span class="ru">/ Торговля</span>', amount: '9 000', date: '01.03.2026, 11:00', status: 'approved', committeeApproved: true, grantActive: true, protocolId: 'СП-9001', gmcEvaluation: perfGmc, auditLog: [
                 { date: '20.02.2026, 09:15', actor: 'Фасилитатор', action: 'Дархост бор карда шуд', actionRu: 'Заявка отправлена в КУГ', color: 'blue', icon: 'send' },
                 { date: '22.02.2026, 14:00', actor: 'ШИГ / КУГ', action: 'Тасдиқ шуд, ба омодасозии реестр гузашт', actionRu: 'Одобрено КУГ, передано на подготовку реестра', color: 'emerald', icon: 'check' },
                 { date: '25.02.2026, 16:30', actor: 'ШИГ / КУГ', action: 'Баҳогузории иҷтимоӣ-экологӣ гузашт', actionRu: 'Социально-экологическая оценка пройдена', color: 'emerald', icon: 'check-circle' },

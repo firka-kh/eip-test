@@ -699,7 +699,7 @@
     }
 
     function isFullyCompletedApplication(app) {
-        if (!app || app.status !== 'approved') return false;
+        if (!app || app.status !== 'approved' || app.grantActive !== true) return false;
         var agreement = ensureGrantAgreement(app);
         return !!(agreement && agreement.uploaded && agreement.fileName);
     }

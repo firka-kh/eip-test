@@ -68,7 +68,7 @@
 
 Поля:
 - План: `id`, `days`, `status`, `plannedDate`, `daysLeft`
-- Факт: `visitDate`, `equipment`, `business`, `income`, `ecoCheck`, `note`, `photos`
+- Факт: `visitDate`, `equipment`, `business`, `income`, `note`, `photos`
 
 ---
 
@@ -120,7 +120,6 @@
 - Просрочки: `status = active` и плановая дата < сегодня
 - Состояние оборудования: `in_stock`, `not_used`, `sold`
 - Состояние бизнеса: `active`, `suspended`, `closed`
-- Доля `ecoCheck = false`
 - Средний доход по визиту и по сектору
 - Количество кейсов `equipment = sold` (risk indicator)
 
@@ -169,12 +168,11 @@
 - Статус визита (`pending`, `active`, `completed`)
 - Состояние оборудования (`in_stock`, `not_used`, `sold`)
 - Состояние бизнеса (`active`, `suspended`, `closed`)
-- `ecoCheck` (да/нет)
 - Доход:
 - Диапазон дохода
 - Доход = 0/пустой
 - Наличие фото (>= 2)
-- Риск-флаг: `equipment = sold` или `ecoCheck = false`
+- Риск-флаг: `equipment = sold`
 
 ---
 

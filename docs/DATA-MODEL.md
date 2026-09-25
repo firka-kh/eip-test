@@ -398,7 +398,6 @@ interface Visit {
   equipment?: 'in_stock' | 'not_used' | 'sold';  // Состояние оборудования
   business?: 'active' | 'suspended' | 'closed';    // Состояние бизнеса
   income?: string | number;  // Месячный доход
-  ecoCheck?: boolean;     // Экологические стандарты
   note?: string;          // Примечание
   photos?: number[];      // Заглушки для фото
 }
